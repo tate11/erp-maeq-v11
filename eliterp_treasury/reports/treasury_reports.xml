@@ -95,8 +95,8 @@
                                     <p t-field="doc.beneficiary"/>
                                 </div>
                                 <div class="col-xs-3">
-                                    <strong>Orden de pago:</strong>
-                                    <p t-field="doc.pay_order_id"/>
+                                    <strong>Origen:</strong>
+                                    <p t-field="doc.pay_order_id.origin"/>
                                 </div>
                                 <div class="col-xs-3">
                                     <strong>Monto:</strong>
@@ -128,7 +128,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-xs-6" t-if="doc.concept">
+                                <div class="col-xs-12" t-if="doc.concept">
                                     <strong>Concepto:</strong>
                                     <p t-field="doc.concept"/>
                                 </div>
