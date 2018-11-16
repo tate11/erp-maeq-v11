@@ -425,22 +425,23 @@ class OperationsCmcReportXlsx(models.AbstractModel):
             'valign': 'vcenter'
         })
         # Línea
-        for c in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']:
+        for c in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']:
             sheet.write('%s2' % c, '', line)
         # Columnas
-        sheet.set_column("A:A", 7.57)
-        sheet.set_column("B:B", 7.29)
-        sheet.set_column("C:C", 27.29)
+        sheet.set_column("A:A", 2)
+        sheet.set_column("B:B", 7.57)
+        sheet.set_column("C:C", 7.29)
         sheet.set_column("D:D", 27.29)
-        sheet.set_column("E:E", 6.57)
-        sheet.set_column("F:F", 4.57)
-        sheet.set_column("G:G", 4.71)
-        sheet.set_column("H:H", 5.57)
-        sheet.set_column("I:I", 5.71)
-        sheet.set_column("J:J", 6)
-        sheet.set_column("K:K", 5)
-        sheet.set_column("L:L", 5.86)
-        sheet.set_column("M:M", 5.57)
+        sheet.set_column("E:E", 27.29)
+        sheet.set_column("F:F", 6.57)
+        sheet.set_column("G:G", 4.57)
+        sheet.set_column("H:H", 4.71)
+        sheet.set_column("I:I", 5.57)
+        sheet.set_column("J:J", 5.71)
+        sheet.set_column("K:K", 6)
+        sheet.set_column("L:L", 5)
+        sheet.set_column("M:M", 5.86)
+        sheet.set_column("N:N", 5.57)
         # Formatos de celda
         _right_format = workbook.add_format({'num_format': '$#,##0.00'})
         content1 = workbook.add_format({
@@ -451,47 +452,50 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         number_format = workbook.add_format({'num_format': '#,##0.00', 'align': 'center', 'size': 8})
         sheet.set_default_row(15)
         # Cabeceras con filtro
-        sheet.autofilter('A7:C7')
+        sheet.autofilter('B7:D7')
         sheet.write('A1', 'INFORME DIARIO DE OPERACIONES', bold)
         sheet.set_row(1, 2)  # Pintar línea
         sheet.write('A4', 'PROYECTO', bold)
         sheet.write('C4', context['project_id'].name)
         sheet.write('A5', 'FECHA', bold)
         sheet.write('C5', context['start_date'])
-        sheet.write('D5', 'CUADRILLAS', bold)
+        sheet.write('E5', 'CUADRILLAS', bold)
         sheet.write('F5', ', '.join(i.name for i in context.gang_ids))
 
         sheet.set_row(6, 22.5)
-        sheet.write(6, 0, "Cuadrilla", title)
-        sheet.write(6, 1, "Máquina", title)
-        sheet.write(6, 2, "Operador", title)
-        sheet.write(6, 3, "Ayudante", title)
-
-        sheet.write(6, 4, "Horas Hombre", title)
-        sheet.write(6, 5, "Horas Maq.", title)
-        sheet.write(6, 6, "Paro Maeq", title)
-        sheet.write(6, 7, "Paro Mecan.", title)
-        sheet.write(6, 8, "Paro Oper.", title)
-        sheet.write(6, 9, "Paro Cliente", title)
-        sheet.write(6, 10, "Paro N/I", title)
-        sheet.write(6, 11, "Comb. (Gl)", title)
-        sheet.write(6, 12, "Grasa", title)
+        sheet.write(6, 0, "#", title)
+        sheet.write(6, 1, "Cuadrilla", title)
+        sheet.write(6, 2, "Máquina", title)
+        sheet.write(6, 3, "Operador", title)
+        sheet.write(6, 4, "Ayudante", title)
+        sheet.write(6, 5, "Horas Hombre", title)
+        sheet.write(6, 6, "Horas Maq.", title)
+        sheet.write(6, 7, "Paro Maeq", title)
+        sheet.write(6, 8, "Paro Mecan.", title)
+        sheet.write(6, 9, "Paro Oper.", title)
+        sheet.write(6, 10, "Paro Cliente", title)
+        sheet.write(6, 11, "Paro N/I", title)
+        sheet.write(6, 12, "Comb. (Gl)", title)
+        sheet.write(6, 13, "Grasa", title)
         row = 7
+        con1 = 1
         for c1, c3, c2, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13 in (data):
-            sheet.write(row, 0, c1, content1)
-            sheet.write(row, 1, c4, content1)
-            sheet.write(row, 2, c3, content)
-            sheet.write(row, 3, c2 if c2 else '-', content)
-            sheet.write(row, 4, c5, number_format)
-            sheet.write(row, 5, c6, number_format)
-            sheet.write(row, 6, c7, number_format)
-            sheet.write(row, 7, c8, number_format)
-            sheet.write(row, 8, c9, number_format)
-            sheet.write(row, 9, c10, number_format)
-            sheet.write(row, 10, c11, number_format)
-            sheet.write(row, 11, c12, number_format)
-            sheet.write(row, 12, 'Si' if c13 == 1 else 'No', content)
+            sheet.write(row, 0, con1, content1)
+            sheet.write(row, 1, c1, content1)
+            sheet.write(row, 2, c4, content1)
+            sheet.write(row, 3, c3, content)
+            sheet.write(row, 4, c2 if c2 else '-', content)
+            sheet.write(row, 5, c5, number_format)
+            sheet.write(row, 6, c6, number_format)
+            sheet.write(row, 7, c7, number_format)
+            sheet.write(row, 8, c8, number_format)
+            sheet.write(row, 9, c9, number_format)
+            sheet.write(row, 10, c10, number_format)
+            sheet.write(row, 11, c11, number_format)
+            sheet.write(row, 12, c12, number_format)
+            sheet.write(row, 13, 'Si' if c13 == 1 else 'No', content)
             row += 1
+            con1 += 1
         row_chart = row
         # Sumar en horas
         _total = workbook.add_format({
@@ -503,10 +507,10 @@ class OperationsCmcReportXlsx(models.AbstractModel):
             'border': 1
         })
         sum_columns = (
-            ['E', 4], ['F', 5], ['G', 6], ['H', 7],
-            ['I', 8], ['J', 9], ['K', 10], ['L', 11]
+            ['F', 5], ['G', 6], ['H', 7], ['I', 8],
+            ['J', 9], ['K', 10], ['L', 11], ['M', 12]
         )
-        sheet.write(row, 2, "TOTAL", _total)
+        sheet.write(row, 3, "TOTAL", _total)
         for l, c in sum_columns:
             sum_ = '=SUM(%s7:%s%s)' % (l, l, str(row))  # Sumar columnas
             sheet.write(row, c, sum_, _sums)
@@ -547,7 +551,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         chart_1.set_x_axis({'name': 'Máquinas'})
         chart_1.set_y_axis({'name': 'Horas'})
         chart_1.set_style(10)
-        sheet.insert_chart('A%d' % row, chart_1, {'x_offset': 5, 'y_offset': 5, 'x_scale': 0.80, 'y_scale': 1.42})
+        sheet.insert_chart('A%d' % row, chart_1, {'x_offset': 5, 'y_offset': 5, 'x_scale': 0.84, 'y_scale': 1.42})
         # Gráfica 2
         chart_2 = workbook.add_chart({'type': 'bar'})
         chart_2.add_series({
@@ -562,7 +566,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         })
         chart_2.set_title({'name': 'Análisis Combustible'})
         chart_2.set_style(8)
-        sheet.insert_chart('D%d' % row, chart_2, {'x_offset': 80, 'y_offset': 5, 'x_scale': 1.05, 'y_scale': 0.81})
+        sheet.insert_chart('E%d' % row, chart_2, {'x_offset': 80, 'y_offset': 5, 'x_scale': 1.05, 'y_scale': 0.81})
         # Gráfica 3
         chart_3 = workbook.add_chart({'type': 'line'})
         chart_3.add_series({
@@ -576,7 +580,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
             'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
         })
         chart_3.set_style(10)
-        sheet.insert_chart('D%d' % (row + 12), chart_3,
+        sheet.insert_chart('E%d' % (row + 12), chart_3,
                            {'x_offset': 80, 'y_offset': 0, 'x_scale': 1.05, 'y_scale': 0.61})
         o_row = row + 20
         sheet.write(o_row, 0, "Observaciones:", bold)
@@ -586,7 +590,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
             'valign': 'vcenter',
         })
         text = context.comments or "-"
-        sheet.merge_range('A%d:M%d' % (o_row + 2, o_row + 5), text, merge_format)
+        sheet.merge_range('A%d:N%d' % (o_row + 2, o_row + 5), text, merge_format)
 
 
 class OperationsCmcReport(models.TransientModel):
