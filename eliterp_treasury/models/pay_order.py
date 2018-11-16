@@ -210,14 +210,15 @@ class AccountVoucher(models.Model):
             values['date'] = record.date
             values['voucher_type'] = 'purchase'
             values['pay_order_id'] = record.id
-            values['amount_cancel'] = record.amount
+            amount = record.amount - sum(l.amount if l.voucher_id else 0.00 for l in record.lines_employee)
+            values['amount_cancel'] = amount
             lines_account = []
             # Factura
             if record.type == 'fap':
                 invoice = record.invoice_id or record.invoice_ids[0]
                 # Líneas de cuentas
                 lines_account.append([0, 0, {'account_id': invoice.partner_id.property_account_payable_id.id,
-                                             'amount': record.amount,
+                                             'amount': amount,
                                              'project_id': record.project_id.id if record.project_id else False,
                                              'account_analytic_id': invoice.account_analytic_id.id if invoice.account_analytic_id else False,
                                              }])
@@ -242,7 +243,7 @@ class AccountVoucher(models.Model):
                 values['purchase_order_id'] = oc.id
                 values['concept'] = 'Orden de compra %s' % oc.name
                 lines_account.append([0, 0, {
-                    'amount': record.amount,
+                    'amount': amount,
                     'project_id': record.project_id.id if record.project_id else False,
                     'account_analytic_id': oc.account_analytic_id.id if oc.account_analytic_id else False,
                 }])
@@ -254,7 +255,7 @@ class AccountVoucher(models.Model):
                 # Líneas de cuentas
                 lines_account = []
                 lines_account.append([0, 0, {'account_id': account,
-                                             'amount': record.amount,
+                                             'amount': amount,
                                              'project_id': record.project_id.id if record.project_id else False
                                              }])
                 values['lines_account'] = lines_account
@@ -268,7 +269,7 @@ class AccountVoucher(models.Model):
                 # Líneas de cuentas
                 lines_account = []
                 lines_account.append([0, 0, {'account_id': account.id,
-                                             'amount': record.amount,
+                                             'amount': amount,
                                              'project_id': record.project_id.id if record.project_id else False
                                              }])
                 values['lines_account'] = lines_account
@@ -286,7 +287,7 @@ class AccountVoucher(models.Model):
                 values['payment_request_id'] = rp.id
                 values['concept'] = rp.comments or '/'
                 lines_account.append([0, 0, {
-                    'amount': record.amount,
+                    'amount': amount,
                     'project_id': record.project_id.id if record.project_id else False
                 }])
                 values['lines_account'] = lines_account
@@ -302,7 +303,7 @@ class AccountVoucher(models.Model):
                 values['beneficiary'] = lvi.beneficiary.name
                 values['concept'] = "Liquidación de viático por: " + (lvi.comment or '/')
                 lines_account.append([0, 0, {
-                    'amount': record.amount,
+                    'amount': amount,
                     'project_id': record.project_id.id if record.project_id else False,
                     'account_analytic_id': lvi.account_analytic_id.id if lvi.account_analytic_id else False
                 }])
@@ -419,7 +420,7 @@ class PayOrder(models.Model):
         """
         if self.type in ['adq', 'rc'] and self.type_egress == 'bank':
             for line in self.lines_employee:
-                line.update({'generated': self.general_check})
+                line.update({'generated': self.general_check if not line.voucher_id else False})
 
     @api.multi
     def print_hr(self):
@@ -736,7 +737,7 @@ class PurchaseOrder(models.Model):
 class LinesAdvancePayment(models.Model):
     _inherit = 'eliterp.lines.advance.payment'
 
-    @api.depends('pay_lines.pay_order_id.state', 'pay_lines.amount', 'pay_lines.generated')
+    @api.depends('pay_lines.pay_order_id.state', 'pay_lines.amount', 'pay_lines.voucher_id')
     def _compute_amount(self):
         """
         Calculamos los pagos del empleado asignado en las ordenes
@@ -745,7 +746,7 @@ class LinesAdvancePayment(models.Model):
         for record in self:
             paid = 0.00
             for line in record.pay_lines:
-                if line.pay_order_id.state == 'paid' or line.is_check and line.generated:
+                if line.pay_order_id.state == 'paid' or line.voucher_id:
                     paid += line.amount
             record.paid_amount = paid
             record.residual = record.amount_total - record.paid_amount

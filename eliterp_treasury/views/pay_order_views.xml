@@ -105,7 +105,7 @@
                                         string="Generar cheque"
                                         type="object"
                                         class="oe_stat_button"
-                                        attrs="{'invisible': ['|', ('is_check', '=', False), ('voucher_id', '!=', False)]}"
+                                        attrs="{'invisible': ['|', '|', ('is_check', '=', False), ('generated', '=', True), ('voucher_id', '!=', False)]}"
                                         icon="fa-file-text"/>
                             </tree>
                         </field>
@@ -265,6 +265,7 @@
             </xpath>
             <xpath expr='//sheet/group[1]' position="after"><!--Notas y comentarios-->
                 <group string="Datos de pago" col="4"
+                       class="oe_edit_only"
                        attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}">
                     <field name="type_egress"/>
                     <field name="bank_id" options="{'no_open': True, 'no_create': True}"/>
@@ -274,6 +275,7 @@
             <!--Líneas de empleados-->
             <xpath expr="//button[@name='load_employees']" position="after">
                 <field name="select_all"
+                       nolabel="1"
                        attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}"/>
             </xpath>
             <xpath expr="//field[@name='lines_advance']//tree//field[@name='parent_state']"

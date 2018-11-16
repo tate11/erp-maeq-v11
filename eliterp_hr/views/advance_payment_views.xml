@@ -93,9 +93,10 @@
                         <field name="comment" nolabel="1"/>
                     </group>
                     <group string="Lista de empleados" col="1" name="advance employees">
-                        <group co="1" attrs="{'invisible':[('state', '!=', 'draft')]}">
+                        <group col="1">
                             <button name="load_employees"
                                     type="object"
+                                    attrs="{'invisible':[('state', 'in', ('posted', 'deny'))]}"
                                     string="Cargar empleados"
                                     class="oe_highlight"/>
                         </group>
