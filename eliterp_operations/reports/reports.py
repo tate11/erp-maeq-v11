@@ -376,7 +376,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         where = """
                 where a.date between '%s' AND '%s'
                 and e.product_id = 96 
-                """ % (doc.start_date, doc.start_date) # Misma fecha para el reporte diario
+                """ % (doc.start_date, doc.start_date)  # Misma fecha para el reporte diario
         if doc.project_id:
             where += "and a.project_id = %d" % doc.project_id.id
         if doc.gang_ids:
@@ -442,7 +442,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         sheet.set_column("L:L", 5.86)
         sheet.set_column("M:M", 5.57)
         # Formatos de celda
-        _right_format = workbook.add_format({ 'num_format': '$#,##0.00'})
+        _right_format = workbook.add_format({'num_format': '$#,##0.00'})
         content1 = workbook.add_format({
             'size': 8,
             'text_wrap': True,
@@ -457,7 +457,7 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         sheet.write('A4', 'PROYECTO', bold)
         sheet.write('C4', context['project_id'].name)
         sheet.write('A5', 'FECHA', bold)
-        sheet.write('C5', context['start_date'] )
+        sheet.write('C5', context['start_date'])
         sheet.write('D5', 'CUADRILLAS', bold)
         sheet.write('F5', ', '.join(i.name for i in context.gang_ids))
 
@@ -576,7 +576,8 @@ class OperationsCmcReportXlsx(models.AbstractModel):
             'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
         })
         chart_3.set_style(10)
-        sheet.insert_chart('D%d' % (row + 12), chart_3, {'x_offset': 80, 'y_offset': 0, 'x_scale': 1.05, 'y_scale': 0.61})
+        sheet.insert_chart('D%d' % (row + 12), chart_3,
+                           {'x_offset': 80, 'y_offset': 0, 'x_scale': 1.05, 'y_scale': 0.61})
         o_row = row + 20
         sheet.write(o_row, 0, "Observaciones:", bold)
         merge_format = workbook.add_format({
@@ -617,9 +618,8 @@ class OperationsCmcReport(models.TransientModel):
         self.ensure_one()
         return self.env.ref('eliterp_operations.eliterp_action_report_operations_cmc_report').report_action(self)
 
-    start_date = fields.Date('Fecha', required=True)
+    start_date = fields.Date('Fecha inicio', required=True)
     end_date = fields.Date('Fecha fin', default=fields.Date.context_today)
     project_id = fields.Many2one("eliterp.project", string='Proyecto', required=True)
     gang_ids = fields.Many2many("eliterp.gang", string='Cuadrillas')
     comments = fields.Text('Observaciones')
-    daily_report = fields.Boolean(default=False)
