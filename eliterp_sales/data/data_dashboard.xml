@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="sales.dashboard" id="sales_dashboard_invoicing">
+            <field name="name">Facturación</field>
+            <field name="type">bar</field>
+            <field name="description">Gráfica de facturas de ventas con montos totales del mes actual y 2 anteriores.</field>
+        </record>
+    </data>
+</odoo>

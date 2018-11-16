@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vistas del menú SP/OC-->
+        <record id="eliterp_view_form_purchase_order" model="ir.ui.view">
+            <field name="name">eliterp_view_form_purchase_order</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_rfq_send']" position="attributes"><!--Enviar OC Correo 1-->
+                    <attribute name="states">draft</attribute>
+                    <attribute name="string">Enviar SDP por correo</attribute>
+                    <attribute name="class"></attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_view_picking']" position="before"><!--Recibir productos-->
+                    <button name="%(purchase.action_report_purchase_order)d" string="Imprimir orden"
+                            type="action"
+                            attrs="{'invisible': [('state', '!=', 'purchase')]}"
+                            class="oe_highlight"
+                            groups="base.group_user"/>
+                    <button name="to_approve"
+                            states="approve"
+                            string="Solicitar aprobación"
+                            type="object"
+                            class="oe_highlight"/>
+                    <button name="approve"
+                            states="draft,sent"
+                            string="Confirmar orden"
+                            type="object"
+                            class="oe_highlight"/>
+                    <button name="button_confirm"
+                            states="to approve"
+                            string="Aprobar"
+                            type="object"
+                            groups="eliterp_purchases.eliterp_group_approve_purchase_orders"
+                            class="oe_highlight"/>
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm']" position="attributes"><!--Confirmar orden 1-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_confirm']" position="attributes"><!--Confirmar orden 2-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_approve']" position="attributes"><!--Aprobar orden-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+
+                <xpath expr="//button[@name='button_confirm']" position="attributes"><!--Confirmar orden 2-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_done']" position="attributes"><!--Bloquear-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='button_cancel']" position="attributes"><!--Anular-->
+                    <attribute name="attrs"></attribute>
+                    <attribute name="states">to approve</attribute>
+                    <attribute name="string">Negar</attribute>
+                    <attribute name="groups">eliterp_purchases.eliterp_group_deny_purchase_orders</attribute>
+                </xpath>
+
+                <field name="state" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approve,to approve,purchase"
+                           readonly="1"/>
+                </field>
+
+                <xpath expr="//div[@class='oe_title']/label" position="replace"/><!--Label: Solicitud de presupuesto -->
+                <xpath expr="//field[@name='date_order']" position="after"><!--Fecha del Pedido-->
+                    <field name="reference" placeholder="p.e Voucher de compra"/>
+                </xpath>
+                <xpath expr="//field[@name='requisition_id']" position="after"><!--Solicitud de compra-->
+                    <field name="attach_order" filename="attached_name"
+                           widget="binary"/>
+                </xpath>
+                <!--Productos-->
+                <xpath expr="//field[@name='order_line']//tree" position="attributes">
+                    <attribute name="class">eliterp_order_line</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']//tree//field[@name='date_planned']"
+                       position="attributes"><!--Fecha programada-->
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='incoterm_id']" position="replace"/><!--Incoterm-->
+                <xpath expr="//field[@name='fiscal_position_id']" position="replace"/><!--Tipos de Contribuyentes-->
+            </field>
+        </record>
+
+        <!--Vista tree-->
+        <record id="eliterp_view_tree_purchase" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_purchase</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="before"><!--Estado-->
+                    <button name="button_confirm"
+                            string="Aprobar"
+                            type="object"
+                            class="oe_stat_button"
+                            groups="eliterp_purchases.eliterp_group_approve_purchase_orders"
+                            states="to approve"
+                            icon="fa-check"/>
+                    <button name="button_cancel"
+                            string="Negar"
+                            type="object"
+                            class="oe_stat_button"
+                            groups="eliterp_purchases.eliterp_group_deny_purchase_orders"
+                            states="to approve"
+                            icon="fa-close"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+

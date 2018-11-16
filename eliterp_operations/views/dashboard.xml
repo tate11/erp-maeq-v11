@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Búsquedas-->
+        <record id="eliterp_view_search_cmc" model="ir.ui.view">
+            <field name="name">eliterp_view_search_cmc</field>
+            <field name="model">eliterp.cmc</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="prefix_id"/>
+                    <field name="machine_id"/>
+                    <field name="state"/>
+                    <filter string="Validado" name="validate" domain="[('state', '=', 'validate')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Proyecto" name='group_by_project_id' domain="[]"
+                                context="{'group_by': 'project_id'}"/>
+                        <filter string="Ubicación" name='group_by_ubication_id' domain="[]"
+                                context="{'group_by': 'ubication_id'}"/>
+                        <filter string="Prefijo" name='group_by_prefix_id' domain="[]"
+                                context="{'group_by': 'prefix_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <!--Acciones-->
+        <record id="eliterp_action_prefix_cmc" model="ir.actions.act_window">
+            <field name="name">Prefijo de CMC</field>
+            <field name="res_model">eliterp.prefix.cmc</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar una nuevo prefijo de CMC.
+                </p>
+            </field>
+        </record>
+        <record id="eliterp_action_operations_machines_brand" model="ir.actions.act_window">
+            <field name="name">Marca de máquinas</field>
+            <field name="res_model">eliterp.machines.brand</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar una nueva marca de máquinas.
+                </p>
+            </field>
+        </record>
+        <record id="eliterp_action_operations_machines" model="ir.actions.act_window">
+            <field name="name">Máquinas</field>
+            <field name="res_model">eliterp.machine</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain"></field>
+            <field name="context">{'default_type': 'rented'}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar una nueva máquina alquilada.
+                </p>
+            </field>
+        </record>
+        <record id="eliterp_action_operations_machines_model" model="ir.actions.act_window">
+            <field name="name">Modelo de máquinas</field>
+            <field name="res_model">eliterp.machines.model</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar un nuevo modelo.
+                </p>
+            </field>
+        </record>
+        <record id="eliterp_action_gang" model="ir.actions.act_window">
+            <field name="name">Cuadrilla de trabajo</field>
+            <field name="res_model">eliterp.gang</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar una nueva cuadrilla de trabajo.
+                </p>
+            </field>
+        </record>
+
+        <record id="eliterp_action_operations_cmc" model="ir.actions.act_window">
+            <field name="name">CMC</field>
+            <field name="res_model">eliterp.cmc</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{"search_default_group_by_project_id": 1, "search_default_group_by_ubication_id": 1,
+                "search_default_group_by_prefix_id": 1}
+            </field>
+            <field name="search_view_id" ref="eliterp_view_search_cmc"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar un nuevo control de máquinas en campo.
+                </p>
+            </field>
+        </record>
+        <record id="eliterp_action_operations_maintenance" model="ir.actions.act_window">
+            <field name="name">Mantenimientos y reparaciones</field>
+            <field name="res_model">eliterp.maintenance.machines</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar un nuevo mantenimiento y reparación de máquina.
+                </p>
+            </field>
+        </record>
+
+        <record id="eliterp_action_project" model="ir.actions.act_window">
+            <field name="name">Proyecto</field>
+            <field name="res_model">eliterp.project</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Clic para registrar un nuevo proyecto.
+                </p>
+            </field>
+        </record>
+
+        <record id="eliterp_action_production_hectares" model="ir.actions.act_window">
+            <field name="name">Producción de héctareas</field>
+            <field name="res_model">eliterp.production.hectares</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!--Acción/Vista-->
+        <menuitem name="Operaciones"
+                  id="eliterp_menu_operations"
+                  groups="eliterp_operations.eliterp_group_operations_user,eliterp_operations.eliterp_group_operations_manager"
+                  web_icon="eliterp_operations,static/description/icon.png"
+                  sequence="5"/>
+        <menuitem id="eliterp_menu_operations_summary"
+                  name="Operaciones"
+                  parent="eliterp_menu_operations"
+                  sequence="-1"/>
+        <menuitem id="eliterp_menu_operations_operation_control"
+                  name="Control"
+                  parent="eliterp_menu_operations"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_control_cmc"
+                  name="CMC"
+                  parent="eliterp_menu_operations_operation_control"
+                  action="eliterp_action_operations_cmc"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_production_hectares"
+                  parent="eliterp_menu_operations_operation_control"
+                  action="eliterp_action_production_hectares"
+                  sequence="1"/>
+
+
+        <menuitem id="eliterp_menu_operations_equipment"
+                  name="Equipos"
+                  parent="eliterp_menu_operations"
+                  sequence="2"/>
+        <menuitem id="eliterp_menu_operations_equipment_machines"
+                  name="Máquinas"
+                  parent="eliterp_menu_operations_equipment"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_equipment_machines_machine"
+                  name="Máquina"
+                  parent="eliterp_menu_operations_equipment_machines"
+                  action="eliterp_action_operations_machines"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_equipment_machines_maintenance"
+                  name="Mantenimientos y reparaciones"
+                  parent="eliterp_menu_operations_equipment_machines"
+                  action="eliterp_action_operations_maintenance"
+                  sequence="2"/>
+
+
+        <menuitem id="eliterp_menu_operations_configuration"
+                  name="Configuración"
+                  groups="eliterp_operations.eliterp_group_operations_manager"
+                  parent="eliterp_menu_operations"
+                  sequence="100"/>
+        <menuitem id="eliterp_menu_operations_configuration_prefix"
+                  name="Prefijo CMC"
+                  parent="eliterp_menu_operations_configuration"
+                  action="eliterp_action_prefix_cmc"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_configuration_machines"
+                  name="Máquinas"
+                  parent="eliterp_menu_operations_configuration"
+                  sequence="2"/>
+        <menuitem id="eliterp_menu_operations_configuration_machines_brand"
+                  name="Marca de máquinas"
+                  parent="eliterp_menu_operations_configuration_machines"
+                  action="eliterp_action_operations_machines_brand"
+                  sequence="1"/>
+        <menuitem id="eliterp_menu_operations_configuration_machines_model"
+                  name="Modelo de máquinas"
+                  parent="eliterp_menu_operations_configuration_machines"
+                  action="eliterp_action_operations_machines_model"
+                  sequence="2"/>
+        <menuitem id="eliterp_menu_operations_configuration_gang"
+                  name="Cuadrilla de trabajo"
+                  parent="eliterp_menu_operations_configuration"
+                  action="eliterp_action_gang"
+                  sequence="3"/>
+
+        <record id="eliterp_action_operations_information_hours" model="ir.actions.act_window">
+            <field name="name">Análisis de horas</field>
+            <field name="res_model">eliterp.operations.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="view_id"></field>
+            <field name="context">{"search_default_group_machine_id": 1, "search_default_group_date": 1}</field>
+            <field name="help">
+                Le permite verificar y analizar fácilmente el historial de las horas en los procesos operativos.
+            </field>
+        </record>
+
+        <record id="eliterp_action_operations_information_supplies" model="ir.actions.act_window">
+            <field name="name">Análisis de insumos</field>
+            <field name="res_model">eliterp.cmc.supplies.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="view_id"></field>
+            <field name="context">{"search_default_group_machine_id": 1, "search_default_group_product_id": 1,
+                "search_default_group_date": 1}
+            </field>
+            <field name="help">
+                Le permite verificar y analizar fácilmente el historial de los insumos consumidos en el proceso
+                operativo.
+            </field>
+        </record>
+
+
+        <record id="eliterp_action_operations_operations_cmc_report" model="ir.actions.act_window">
+            <field name="name">Reporte de operaciones</field>
+            <field name="res_model">eliterp.operations.cmc.report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="eliterp_operations.eliterp_view_form_operations_cmc_report_wizard"/>
+            <field name="target">new</field>
+        </record>
+
+        <record id="eliterp_action_operations_gang_report" model="ir.actions.act_window">
+            <field name="name">Reporte de cuadrillas</field>
+            <field name="res_model">eliterp.gang.report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="eliterp_operations.eliterp_view_form_gang_report_wizard"/>
+            <field name="target">new</field>
+        </record>
+
+
+        <menuitem id="eliterp_menu_operations_information" name="Informes"
+                  parent="eliterp_menu_operations"
+                  sequence="49"/>
+
+        <menuitem id="eliterp_menu_operations_information_hours"
+                  parent="eliterp_menu_operations_information"
+                  sequence="1"
+                  action="eliterp_action_operations_information_hours"/>
+
+        <menuitem id="eliterp_menu_operations_information_supplies"
+                  parent="eliterp_menu_operations_information"
+                  action="eliterp_action_operations_information_supplies"
+                  sequence="2"/>
+
+        <record id="eliterp_action_daily_report" model="ir.actions.act_window">
+            <field name="name">Informe diario de operaciones</field>
+            <field name="res_model">eliterp.operations.cmc.report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="context">{'default_daily_report': True}</field>
+            <field name="view_id" ref="eliterp_operations.eliterp_view_form_operations_cmc_report_wizard"/>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="eliterp_menu_operations_information_diary"
+                  parent="eliterp_menu_operations_information"
+                  action="eliterp_action_daily_report"
+                  sequence="3"/>
+
+        <menuitem id="eliterp_menu_operations_reports" name="Reportes"
+                  parent="eliterp_menu_operations"
+                  sequence="50"/>
+
+        <menuitem id="eliterp_menu_operations_operations_cmc_report"
+                  parent="eliterp_menu_operations_reports"
+                  sequence="1"
+                  string="Operaciones"
+                  action="eliterp_action_operations_operations_cmc_report"/>
+
+        <menuitem id="eliterp_menu_operations_gang_report"
+                  parent="eliterp_menu_operations_reports"
+                  sequence="2"
+                  string="Cuadrillas"
+                  action="eliterp_action_operations_gang_report"/>
+
+        <!--
+            Menús en módulo de Ventas
+        -->
+        <menuitem id="eliterp_menu_operations_project_sales"
+                  name="Contratos"
+                  parent="sale.sale_order_menu"
+                  sequence="4"/>
+        <menuitem id="eliterp_menu_operations_project_project_sales"
+                  name="Proyecto"
+                  parent="eliterp_menu_operations_project_sales"
+                  action="eliterp_operations.eliterp_action_project"
+                  sequence="1"/>
+
+        <!--
+           Menús en módulo de RRHH
+       -->
+        <menuitem id="eliterp_menu_operations_gang_report_rrhh"
+                  parent="eliterp_hr.eliterp_menu_hr_reports"
+                  string="Cuadrillas"
+                  action="eliterp_operations.eliterp_action_operations_gang_report"
+                  sequence='15'/>
+
+    </data>
+</odoo>

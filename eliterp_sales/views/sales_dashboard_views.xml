@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="view_kanban_sales_dashboard" model="ir.ui.view">
+            <field name="name">view_kanban_sales_dashboard</field>
+            <field name="model">sales.dashboard</field>
+            <field name="arch" type="xml">
+                <kanban create="false" class="oe_background_grey o_kanban_dashboard o_account_kanban">
+                    <field name="id"/>
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="description"/>
+                    <field name="kanban_dashboard"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="#{kanban_color(0)}">
+                                <t t-value="JSON.parse(record.kanban_dashboard.raw_value)" t-set="dashboard"/>
+                                <t t-value="record.type.raw_value" t-set="type"/>
+                                <t t-value="record.name.raw_value" t-set="name"/>
+                                <t t-value="record.description.raw_value" t-set="description"/>
+                                <t t-call="Top"/>
+                                <div class="container o_kanban_card_manage_pane o_invisible">
+                                    <t t-call="Manage"/>
+                                </div>
+                                <div class="container o_kanban_card_content o_visible">
+                                    <t t-call="Graph"/>
+                                </div>
+                            </div>
+                        </t>
+                        <!--Botón-->
+                        <t t-name="Top">
+                            <div t-attf-class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                        <field name="name"/>
+                                    </div>
+                                    <div class="o_secondary" t-att-title="dashboard.title">
+                                        <field name="description"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_manage_button_section">
+                                    <a class="o_kanban_manage_toggle_button" href="#">
+                                        <i class="fa fa-ellipsis-v"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </t>
+                        <!--Gráfica en .js-->
+                        <t t-name="Graph">
+                            <field name="kanban_dashboard_graph"
+                                   t-if="type == 'bar'"
+                                   t-att-graph_type="'bar'"
+                                   widget="sales_dashboard_graph"/>
+                        </t>
+                        <!--Acciones-->
+                        <t t-name="Manage">
+                            <t t-if="type == 'bar'">
+                                <div class="o_kanban_card_manage_section o_kanban_manage_view">
+                                    <div class="o_kanban_card_manage_title text-center">
+                                        <span>Monto total por mes</span>
+                                    </div>
+                                    <t t-value="dashboard.data_dashboard_invoicing" t-set="record"/>
+                                    <div>
+                                        <a type="object" class="btn btn-default" name="open_action"
+                                           context="{'action_name': 'account.action_invoice_tree1', 'type':'invoices', 'month': -2}">
+                                            <span>
+                                                <t t-esc="record[0]['month']"/>
+                                            </span>
+                                            <span class="badge badge-light">
+                                                <t t-esc="record[0]['amount']"/>
+                                            </span>
+                                        </a>
+                                    </div>
+
+                                    <div>
+                                        <a type="object" class="btn btn-default" name="open_action"
+                                           context="{'action_name': 'account.action_invoice_tree1', 'type':'invoices', 'month': -1}">
+                                            <t t-esc="record[1]['month']"/>
+                                            <span class="badge badge-light">
+                                                <t t-esc="record[1]['amount']"/>
+                                            </span>
+                                        </a>
+                                    </div>
+
+                                    <div>
+                                        <a type="object" class="btn btn-default" name="open_action"
+                                           context="{'action_name': 'account.action_invoice_tree1', 'type':'invoices', 'month': 0}">
+                                            <t t-esc="record[2]['month']"/>
+                                            <span class="badge badge-light">
+                                                <t t-esc="record[2]['amount']"/>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+    </data>
+</openerp>
+

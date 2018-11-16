@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Menús-->
+        <menuitem id="sale.sale_menu_root"
+                  name="Ventas"
+                  web_icon="eliterp_sales,static/description/icon.png"
+                  sequence="2"/>
+
+        <record id="action_sales_dashboard" model="ir.actions.act_window">
+            <field name="name">Tablero</field>
+            <field name="res_model">sales.dashboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="usage">menu</field>
+        </record>
+        <menuitem id="menu_sales_dashboard"
+                  action="action_sales_dashboard"
+                  parent="sale.sale_menu_root"
+                  sequence="-1"/>
+    </data>
+</odoo>

@@ -1,0 +1,191 @@
+.o_boxed_footer, .o_boxed_header, .o_report_layout_boxed {
+    font-family: 'Lato';
+    font-size: 12px;
+}
+.o_boxed_header {
+    text-transform: uppercase;
+    color: @gray;
+    border-bottom: 3px solid #F78F1E;
+    img {
+        max-height: 100px;
+    }
+    h4 {
+        color: @o-we-color-text-normal;
+        font-weight: 700;
+    }
+}
+.o_boxed_footer {
+    border-top: 3px solid #F78F1E;
+    padding-top: 15px;
+    img {
+        max-height: 50px;
+        align: top;
+    }
+    color: @gray;
+}
+    p.parrafo
+    {
+        font-size: 18px;
+        line-height: 220%;
+        color: #000000;
+        margin-bottom: 20px;
+        margin-left: 7em;
+        margin-right: 7em;
+     }
+
+    p.parrafomemo1
+    {
+        font-size: 16px;
+        line-height: 220%;
+        color: #000000;
+        margin-bottom: 0px;
+        margin-left: 7em;
+        margin-right: 7em;
+     }
+     p.parrafomemo
+    {
+        font-size: 15px;
+        line-height: 1.5;
+        color: #000000;
+        margin-left: 7em;
+        margin-right: 7em;
+     }
+     p.parrafomemoacta
+    {
+        font-size: 15.5px;
+        line-height: 220%;
+        color: #000000;
+        line-height: 1.2;
+        margin-left: 7em;
+        margin-right: 7em;
+     }
+
+     .wrapper1
+     {
+         position: absolute;
+         top: 990px;
+
+     }
+     .wrapper2
+     {
+         position: absolute;
+         top: 1190px;
+
+     }
+    dl.a
+    {
+        margin-left: 7em;
+    }
+    dt.a
+    {
+        margin-left: 1em;
+    }
+    dd.a
+    {
+        margin-left: 3em;
+    }
+
+    .acta_delivery { /*Para Acta de rec. RRHH*/
+        &tbody {
+            font-size: 9px;
+            margin-left: 7em;
+            margin-right: 7em;
+            border-collapse: collapse;
+            tr{ height:1px; }
+            td { vertical-align:top; }
+            }
+    }
+
+    .acta_delivery tr:nth-child(even){background-color: #f2f2f2;}
+
+    .acta_delivery tr:hover {background-color: #ddd;}
+
+.o_report_layout_boxed {
+    text-transform: uppercase;
+    // This is not a general rule since the id is not used in all the reports,
+    // we should make a general structure for report body to use it everywhere
+    #informations {
+        border: 1px solid @gray;
+        padding-top: 10px;
+        margin: 0;
+    }
+
+    .table_small_letter { /*Para rol individual*/
+        font-size: 9px;
+        border: 0px;
+        tr{ height:1px; }
+        tr:last-child { height:auto; }
+        td { vertical-align:top; }
+    }
+
+    .table_financial_situation { /*Para ESF*/
+        border: 0px;
+        th{ height:1px; border: none !important;}
+        td{ vertical-align:top; border: none !important;}
+        tr{ height:1px; }
+        tr:last-child { height:auto; }
+    }
+
+    .table_general_ledger { /*Para libro mayor*/
+        &tbody {
+            font-size: 10px;
+            tr{ height:1px; }
+            td { vertical-align:top; }
+        }
+    }
+    .tr_sum { /*Para sumas al final de tablas*/
+        font-size: 9px;
+        border-top: 3px solid @gray !important;
+        td{
+            background-color: @gray;
+            color: #fff;
+        }
+        td:last-child{
+            background-color: @gray;
+            color: #fff;
+        }
+        td:first-child {
+            background-color: #fff;
+        }
+
+    }
+    table {
+        border: 1px solid @gray;
+        thead {
+            tr th {
+                border-bottom: 3px solid @gray !important;
+            }
+        }
+        tbody {
+            color: @gray;
+            tr {
+                td {
+                    border-top: none;
+                    border-right: 1px solid @gray;
+                }
+                td:last-child {
+                    background-color: white; /*Evitar color gris en tabla*/
+                }
+
+            }
+        }
+    }
+    /*Total table*/
+    .row > .col-xs-4 > table {
+        td {
+            border-right: none;
+        }
+        tr:last-child td, tr:first-child td {
+            /*we could get rid of this rule if .border-black td would be terminated in report.less*/
+            border-top: none !important;
+        }
+        tr:first-child td {
+            background-color: transparent;
+        }
+        tr:last-child td {
+            background-color: @gray;
+            color: #fff;
+        }
+    }
+}
+

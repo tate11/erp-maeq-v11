@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem name="Aplicaciones"
+                  id="base.menu_management"
+                  web_icon="eliterp_management,static/description/apps.png"
+                  sequence="310"/>
+        <menuitem name="Configuraciones"
+                  id="base.menu_administration"
+                  web_icon="eliterp_management,static/description/configuration.png"
+                  sequence="500"/>
+
+        <!--MAEQ-->
+        <menuitem id="menu_maeq"
+                  name="MAEQ"
+                  parent="base.menu_custom" sequence="100"/>
+
+        <record id="action_change_sequence" model="ir.actions.act_window">
+            <field name="name">Cambiar secuencia de documentos</field>
+            <field name="res_model">eliterp.change.sequence</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_maeq_change_sequence"
+                  parent="menu_maeq"
+                  action="action_change_sequence"
+                  sequence="1"/>
+
+    </data>
+</odoo>
+
+
+
+

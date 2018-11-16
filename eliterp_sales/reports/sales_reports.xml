@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Factura de venta (Excel)-->
+        <report
+                id="eliterp_action_sales_invoice_xlsx"
+                model="account.invoice"
+                string="Factura de venta"
+                report_type="xlsx"
+                name="eliterp_sales.eliterp_sales_invoice_xlsx"
+                file="eliterp_sales.eliterp_sales_invoice_xlsx"
+                print_report_name="Factura de venta"
+                attachment_use="False"
+        />
+    </data>
+</odoo>

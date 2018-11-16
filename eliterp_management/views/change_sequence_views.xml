@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="eliterp_view_form_change_sequence" model="ir.ui.view">
+            <field name="name">eliterp_view_form_change_sequence</field>
+            <field name="model">eliterp.change.sequence</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="change_sequence"
+                                string="Cambiar secuencia"
+                                type="object"/>
+                    </header>
+                    <sheet>
+                        <group col="4">
+                            <field name="model_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="sequence_id"/>
+                            <field name="field_change"
+                                   domain="[('model_id', '=', model_id), ('ttype', '=', 'char')]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="sorty_by"
+                                   domain="[('model_id', '=', model_id), ('ttype', 'in', ['date', 'datetime'])]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="type_ordering" widget="radio"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

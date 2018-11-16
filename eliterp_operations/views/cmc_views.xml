@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vista del menú CMC-->
+        <record id="eliterp_view_tree_cmc" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_cmc</field>
+            <field name="model">eliterp.cmc</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state=='draft'"
+                      decoration-muted="state=='cancel'"
+                      default_order="date desc"
+                      decoration-bf="state == 'validate'"
+                      decoration-success="state == 'validate'"
+                >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="operator"/>
+                    <field name="project_id"/>
+                    <field name="worked_hours"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="eliterp_view_form_cmc" model="ir.ui.view">
+            <field name="name">eliterp.view.form.cmc</field>
+            <field name="model">eliterp.cmc</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="validate"
+                                class="oe_highlight"
+                                string="Validar"
+                                states="draft"
+                                type="object"/>
+                        <button name="change_draft"
+                                string="Cambiar a borrador"
+                                states="validate"
+                                groups="base.group_erp_manager"
+                                type="object"/>
+                        <button name="new_validate"
+                                class="oe_highlight"
+                                string="Dejar validado"
+                                groups="base.group_erp_manager"
+                                states="draft"
+                                type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="prefix_id" string="Prefijo CMC" class="oe_edit_only"/>
+                            <h1>
+                                <field name="prefix_id" options="{'no_create': True, 'no_open': True}"/>
+                            </h1>
+                            <label for="name" string="No. Secuencial" class="oe_edit_only"/>
+                            <h2>
+                                <field name="name" placeholder="p.e 001"/>
+                            </h2>
+                        </div>
+                        <group col="4" string="Información general">
+                            <field name="date"/>
+                            <field name="machine_id"/>
+                            <field name="operator" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="assistant" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="project_id"/>
+                            <field name="customer" readonly="1"/>
+                            <field name="ubication_id" domain="[('project_id', '=', project_id)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="gang_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="work_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="block"/>
+                        </group>
+                        <group>
+                            <group string="Máquina">
+                                <field name="initial_horometro"/>
+                                <field name="final_horometro"/>
+                                <field name="stop_time_1"/>
+                                <field name="stop_time_2"/>
+                                <field name="stop_time_3"/>
+                                <field name="stop_time_4"/>
+                                <field name="stop_time_5"/>
+                                <field name="reason" placeholder="Colocar razón de diferencia entre horómetros"
+                                       attrs="{'invisible':[('horometro_difference','!=', True)], 'required': [('horometro_difference','=', True)]}"/>
+                                <field name="initial_horometro_old" invisible="1"/>
+                                <field name="horometro_difference" invisible="1"/>
+                            </group>
+                            <group string="Operador/Empleado" col="1">
+                                <group string="Asistencia">
+                                    <field name="check_in_am"/>
+                                    <field name="check_out_am"/>
+                                    <field name="check_in_pm"/>
+                                    <field name="check_out_pm"/>
+                                </group>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="men_hours" class="oe_subtotal_footer_separator"/>
+                                </group>
+                                <group string="Horas laborables">
+                                    <field name="worked_hours"/>
+                                    <field name="extra_hours"/>
+                                    <field name="lost_hours"/>
+                                </group>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="total_hours" string="Horas MAEQ" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </group>
+                        </group>
+
+                        <group string="Insumos" col="4">
+                            <field name="picking_type_id"/>
+                            <field name="grease"/>
+                            <field name="picking_id" attrs="{'invisible': [['picking_id', '=', False]]}"/>
+                        </group>
+                        <group>
+                            <field name="supplies" nolabel="1" attrs="{'invisible': [['picking_type_id', '=', False]]}">
+                                <tree editable="bottom">
+                                    <field name="product_id"
+                                           options="{'no_open': True, 'no_create': True}"/>
+                                    <field name="name"/>
+                                    <field name="product_quantity"/>
+                                    <field name="product_uom_id"
+                                           options="{'no_open': True, 'no_create': True}"/>
+                                </tree>
+                            </field>
+                        </group>
+
+                        <!--TODO: Por el momento no se usa
+                        <group string="Piezas">
+                            <field name="piece_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="date"/>
+                                    <field name="technical_report" invisible="1"/>
+                                    <field name="movement_type"/>
+                                    <field name="detail"/>
+                                    <field name="reference"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           domain="[('id', '!=', parent.machine_id)]"/>
+                                    <field name="horometro"/>
+                                    <field name="responsable"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                </tree>
+                            </field>
+                        </group>
+                        -->
+
+                        <group string="Notas y comentarios">
+                            <field name="comment" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_prefix_cmc" model="ir.ui.view">
+            <field name="name">eliterp_view_form_prefix_cmc</field>
+            <field name="model">eliterp.prefix.cmc</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col="4">
+                            <field name="name"/>
+                            <field name="responsable"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

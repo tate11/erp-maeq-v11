@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--Grupos-->
+        <record id="eliterp_group_approve_purchase_orders" model="res.groups">
+            <field name="name">Aprobar orden de compra</field>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+            <field name="category_id" ref="eliterp_management.eliterp_category_approvals"/>
+        </record>
+        <record id="eliterp_group_deny_purchase_orders" model="res.groups">
+            <field name="name">Negar orden de compra</field>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+            <field name="category_id" ref="eliterp_management.eliterp_category_approvals"/>
+        </record>
+    </data>
+</odoo>

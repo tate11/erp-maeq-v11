@@ -1,0 +1,1460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--Asientos contables-->
+        <template id="eliterp_report_account_move">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">TESO-002-COEG-V1</t>
+                    <t t-set="report_title">COMPROBANTE DE DIARIO</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="clearfix text-center">
+                                <h3>Diario:&amp;nbsp;
+                                    <strong>
+                                        <span t-field="doc.journal_id"/>
+                                    </strong>
+                                </h3>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4" t-if="doc.date">
+                                    <strong>Fecha pago:</strong>
+                                    <p t-field="doc.date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Referencia:</strong>
+                                    <p t-field="doc.ref"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Monto:</strong>
+                                    <p t-esc='"%.2f" % sum(line.debit for line in doc.line_ids)'/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Código cuenta</th>
+                                        <th class="text-center">Nombre cuenta o Concepto</th>
+                                        <th class="text-right">Debe</th>
+                                        <th class="text-right">Haber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.account_id.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.account_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.debit"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.credit"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_account_move"
+                model="account.move"
+                string="Asiento contable"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_report_account_move"
+                file="eliterp_accounting.eliterp_report_account_move"
+                print_report_name="'Asiento contable - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Conciliaciones bancarias-->
+        <template id="eliterp_bank_conciliation">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">CONT-006-CBC-V1</t>
+                    <t t-set="report_title">CONCILIACIÓN BANCARIA</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha Documento:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha Inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha Fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.bank_id"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Saldo Banco:</strong>
+                                    <p t-field="doc.amount_account"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Saldo Contable:</strong>
+                                    <p t-field="doc.total"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">FECHA</th>
+                                        <th class="text-center">TIPO DOCUMENTO</th>
+                                        <th class="text-center">REFERENCIA</th>
+                                        <th class="text-center">CONCEPTO</th>
+                                        <th class="text-right">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.lines_banks_move" t-as="line">
+                                        <tr t-if="line.check==True">
+                                            <td>
+                                                <span t-field="line.date"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.journal.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.reference"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.concept"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.amount"/>
+                                            </td>
+                                        </tr>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td class="text-right" colspan="4">
+                                            <span>TOTAL</span>
+                                        </td>
+                                        <td class="text-right col-xs-1">
+                                            <span t-esc='"%.2f" % doc.amount_account'/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <h4 class="text-center">RESUMEN CONCILACIÓN</h4>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <th class="text-center col-xs-1">
+                                        <strong>Saldo Anterior</strong>
+                                    </th>
+                                    <t t-foreach="doc._get_summary()" t-as="line">
+                                        <th class="text-center col-xs-1" colspan="2">
+                                            <strong>
+                                                <span t-esc="line['name']"/>
+                                            </strong>
+                                        </th>
+                                    </t>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-center" style="border: 1px solid black">
+                                            <p t-field="doc.beginning_balance"/>
+                                        </td>
+                                        <t t-foreach="doc._get_summary()" t-as="line">
+                                            <td class="text-center" style="border: 1px solid black">
+                                                <span t-esc="line['quantity']"/>
+                                            </td>
+                                            <td class="text-center" style="border: 1px solid black">
+                                                <span t-esc='"$%.2f" %line["amount"]'/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h4 class="text-center">VALORES GIRADOS NO CONSIDERADOS EN ESTA CONCILACIÓN</h4>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">FECHA</th>
+                                        <th class="text-center">TIPO DOCUMENTO</th>
+                                        <th class="text-center">REFERENCIA</th>
+                                        <th class="text-center">CONCEPTO</th>
+                                        <th class="text-right">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.lines_banks_move" t-as="line">
+                                        <tr t-if="line.check==false">
+                                            <td>
+                                                <span t-field="line.date"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.journal.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.reference"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="line.concept"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.amount"/>
+                                            </td>
+                                        </tr>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_eliterp_bank_conciliation"
+                model="eliterp.bank.conciliation"
+                string="Conciliaciones bancarias"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_bank_conciliation"
+                file="eliterp_accounting.eliterp_bank_conciliation"
+                print_report_name="'Conciliaciones bancarias - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+        <!--Depósitos-->
+        <template id="eliterp_report_account_payment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">CONT-001-DPB-V1</t>
+                    <t t-set="report_title">COMPROBANTE DE DEPÓSITO</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Fecha deposito:</strong>
+                                    <p t-field="doc.payment_date"/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Tipo:</strong>
+                                    <p t-field="doc.deposit_type"/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Monto:</strong>
+                                    <p t-field="doc.amount"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.bank_cash"/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Concepto:</strong>
+                                    <p t-field="doc.concept"/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Código cuenta</th>
+                                        <th class="text-center">Nombre cuenta o Concepto</th>
+                                        <th class="text-right">Debe</th>
+                                        <th class="text-right">Haber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.move_id.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.account_id.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.account_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.debit"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.credit"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_account_payment"
+                model="account.payment"
+                string="Depósito"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_report_account_payment"
+                file="eliterp_accounting.eliterp_report_account_payment"
+                print_report_name="'Deposito - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Notas de crédito-->
+        <template id="eliterp_report_credit_notes">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">CONT-002-NCB-V1</t>
+                    <t t-set="report_title">COMPROBANTE NOTA DE CRÉDITO BANCARIA</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha depósito:</strong>
+                                    <p t-field="doc.date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Monto:</strong>
+                                    <p t-field="doc.amount"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.bank_id"/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Concepto:</strong>
+                                    <p t-field="doc.concept"/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Código cuenta</th>
+                                        <th class="text-center">Nombre cuenta o Concepto</th>
+                                        <th class="text-right">Debe</th>
+                                        <th class="text-right">Haber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.move_id.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.account_id.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.account_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.debit"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.credit"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_credit_note"
+                model="eliterp.credit.debit.notes"
+                string="Nota de crédito bancaria"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_report_credit_notes"
+                file="eliterp_accounting.eliterp_report_credit_notes"
+                print_report_name="'Nota de crédito bancaria - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Notas de débito-->
+        <template id="eliterp_report_debit_notes">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">CONT-002-NCB-V1</t>
+                    <t t-set="report_title">COMPROBANTE NOTA DE DÉBITO BANCARIA</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha deposito:</strong>
+                                    <p t-field="doc.date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Monto:</strong>
+                                    <p t-field="doc.amount"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.bank_id"/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Concepto:</strong>
+                                    <p t-field="doc.concept"/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Código cuenta</th>
+                                        <th class="text-center">Nombre cuenta o Concepto</th>
+                                        <th class="text-right">Debe</th>
+                                        <th class="text-right">Haber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.move_id.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.account_id.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.account_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.debit"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.credit"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_debit_notes"
+                model="eliterp.credit.debit.notes"
+                string="Nota de débito"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_report_debit_notes"
+                file="eliterp_accounting.eliterp_report_debit_notes"
+                print_report_name="'Nota de débito - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Transferencias-->
+        <template id="eliterp_report_account_payment_tr">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">CONT-004-TFB-V1</t>
+                    <t t-set="report_title">COMPROBANTE DE TRANSFERENCIA BANCARIA</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha transferencia:</strong>
+                                    <p t-field="doc.payment_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Monto:</strong>
+                                    <p t-field="doc.amount_transfer"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.account_debit_id"/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Concepto:</strong>
+                                    <p t-field="doc.concept"/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Código cuenta</th>
+                                        <th class="text-center">Nombre cuenta o Concepto</th>
+                                        <th class="text-right">Debe</th>
+                                        <th class="text-right">Haber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.move_id.line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.account_id.code"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.account_id.name"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.debit"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.credit"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_account_payment_tr"
+                model="account.payment"
+                string="Transferencias"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_accounting.eliterp_report_account_payment_tr"
+                file="eliterp_accounting.eliterp_report_account_payment_tr"
+                print_report_name="'Transferencias - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Factura de proveedor-->
+        <template id="eliterp_report_invoice_supplier">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">COMP-004-FPV-V1</t>
+                    <t t-set="report_title">FACTURA DE PROVEEDOR</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <strong>Fecha emisión:</strong>
+                                    <p t-field="doc.date_invoice" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Fecha vencimiento:</strong>
+                                    <p t-field="doc.date_due" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Proveedor:</strong>
+                                    <p t-field="doc.partner_id"/>
+                                </div>
+                                <div class="col-xs-3" t-if="doc.origin">
+                                    <strong>Origen:</strong>
+                                    <p t-field="doc.origin"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Sustento tributario:</strong>
+                                    <p t-field="doc.tax_support_id"/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Autorización:</strong>
+                                    <p t-field="doc.authorization"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Concepto:</strong>
+                                    <p t-field="doc.concept"/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>No. Factura:</strong>
+                                    <p t-esc="'%s-%s-%s' % (doc.establishment, doc.emission_point, doc.reference)"/>
+                                </div>
+                                <div class="col-xs-3" t-if="doc.withhold_id">
+                                    <strong>No. Retención:</strong>
+                                    <p t-field="doc.withhold_id.withhold_number"/>
+                                </div>
+                            </div>
+
+                            <h5 class="clearfix text-center">DETALLE DE FACTURA</h5>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Descripción</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-center">U. Medida</th>
+                                        <th class="text-right">P. Unitario</th>
+                                        <th class="text-center">Descuento (%)</th>
+                                        <th class="text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.invoice_line_ids" t-as="line">
+                                        <td>
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.quantity"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.uom_id"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.price_unit"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.discount"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-field="line.price_subtotal"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div t-if="doc.withhold_id">
+                                <h5 class="clearfix text-center">DETALLE DE RETENCIÓN</h5>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Tipo</th>
+                                            <th class="text-center">C. Retención</th>
+                                            <th class="text-center">% Retenido</th>
+                                            <th class="text-right">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.withhold_id.lines_withhold" t-as="line">
+                                            <td>
+                                                <span t-if="line.retention_type == 'iva'">IVA</span>
+                                                <span t-if="line.retention_type == 'rent'">RENTA</span>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.tax_id.code"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="'%d' % int(line.tax_id.amount)"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="line.amount"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-4 pull-right">
+                                        <table class="table table-condensed">
+                                            <tr>
+                                                <td>
+                                                    <strong>Base imponible</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="doc.amount_untaxed"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>Impuesto</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="doc.amount_tax"/>
+                                                </td>
+                                            </tr>
+                                            <tr t-if="doc.withhold_id">
+                                                <td>
+                                                    <strong>Total a retener</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-esc='"%.2f" % sum(line.amount for line in doc.withhold_id.lines_withhold)'/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <strong>Total</strong>
+                                                </td>
+                                                <td class="text-right">
+                                                    <span t-field="doc.amount_total"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_invoice_supplier"
+                model="account.invoice"
+                string="Factura de proveedor"
+                report_type="qweb-pdf"
+                name="eliterp_accounting.eliterp_report_invoice_supplier"
+                file="eliterp_accounting.eliterp_report_invoice_supplier"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+                print_report_name="'Factura No. %s-%s-%s' % (object.establishment, object.emission_point, object.reference)"
+        />
+        <!--
+            REPORTES DEL MÓDULO DE CONTABILIDAD
+        -->
+        <!--Reporte de estado de situación financiera-->
+        <template id="eliterp_report_financial_situation">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_title">ESTADO DE SITUACIÓN FINANCIERA</t>
+                    <t t-set="report_code">REPO-CONT-001-V1</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Empresa:</strong>
+                                    <p t-field="user.company_id.name"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <table class="col-xs-6 table_financial_situation">
+                                    <tbody>
+                                        <t t-foreach="get_report('1',doc)" t-as="line">
+                                            <t t-if="line['monto']!=0.00">
+                                                <t t-if="line['tipo'] == 'padre'">
+                                                    <tr style="font-size: 12pt;">
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['tipo'] == 'vista'">
+                                                    <tr>
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['sub_cuenta'] != False">
+                                                    <t t-foreach="get_cuentas_orden(line['sub_cuenta'])"
+                                                       t-as="line_movimiento">
+                                                        <t t-if="abs(line_movimiento['monto'])!=0.00">
+                                                            <tr>
+                                                                <td class="text-left col-xs-1">
+                                                                    <span t-esc="line_movimiento['code']"/>
+                                                                </td>
+                                                                <td class="text-left col-xs-8">
+                                                                    <span t-esc="line_movimiento['name']"/>
+                                                                </td>
+                                                                <td class="text-right col-xs-3">
+                                                                    <span t-esc="'{0:,.2f}'.format(line_movimiento['monto'])"/>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td class="text-left col-xs-1">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-3">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="font-size: 12pt;">
+                                            <td class="text-left col-xs-1">
+                                                <span></span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <b>
+                                                    <span>TOTAL ACTIVO</span>
+                                                </b>
+                                            </td>
+                                            <td class="text-right col-xs-3">
+                                                <span t-esc="'{0:,.2f}'.format(get_total_activo())"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <table class="col-xs-6 table_financial_situation">
+                                    <tbody>
+                                        <t t-foreach="get_report('2',doc)" t-as="line">
+                                            <t t-if="line['monto']!=0.00">
+                                                <t t-if="line['tipo'] == 'padre'">
+                                                    <tr style="font-size: 12pt;">
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['tipo'] == 'vista'">
+                                                    <tr>
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['sub_cuenta'] != False">
+                                                    <t t-foreach="get_cuentas_orden(line['sub_cuenta'])"
+                                                       t-as="line_movimiento">
+                                                        <t t-if="abs(line_movimiento['monto'])!=0.00">
+                                                            <tr>
+                                                                <td class="text-left col-xs-1">
+                                                                    <span t-esc="line_movimiento['code']"/>
+                                                                </td>
+                                                                <td class="text-left col-xs-8">
+                                                                    <span t-esc="line_movimiento['name']"/>
+                                                                </td>
+                                                                <td class="text-right col-xs-3">
+                                                                    <span t-esc="'{0:,.2f}'.format(line_movimiento['monto'])"/>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td class="text-left col-xs-1">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-3">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="font-size: 12pt;">
+                                            <td class="text-left col-xs-1">
+                                                <span></span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <b>
+                                                    <span>TOTAL PASIVO</span>
+                                                </b>
+                                            </td>
+                                            <td class="text-right col-xs-3">
+                                                <span t-esc="'{0:,.2f}'.format(get_total_pasivo())"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <hr style="height:1px;border:none;color:#ddd;background-color:#ddd;"/>
+
+                            <div class="row">
+                                <table class="col-xs-6 pull-right table_financial_situation">
+                                    <tbody>
+                                        <t t-foreach="get_report('3',doc)" t-as="line">
+                                            <t t-if="line['monto']!=0.00">
+                                                <t t-if="line['tipo'] == 'padre'">
+                                                    <tr style="font-size: 12pt;">
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['tipo'] == 'vista'">
+                                                    <tr>
+                                                        <td class="text-left col-xs-1">
+                                                            <b>
+                                                                <span t-esc="line['code']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-left col-xs-8">
+                                                            <b>
+                                                                <span t-esc="line['name']"/>
+                                                            </b>
+                                                        </td>
+                                                        <td class="text-right col-xs-3">
+                                                            <b>
+                                                                <span t-esc="'{0:,.2f}'.format(line['monto'])"/>
+                                                            </b>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="line['sub_cuenta'] != False">
+                                                    <t t-foreach="get_cuentas_orden(line['sub_cuenta'])"
+                                                       t-as="line_movimiento">
+                                                        <t t-if="abs(line_movimiento['monto'])!=0.00">
+                                                            <tr>
+                                                                <td class="text-left col-xs-1">
+                                                                    <span t-esc="line_movimiento['code']"/>
+                                                                </td>
+                                                                <td class="text-left col-xs-8">
+                                                                    <span t-esc="line_movimiento['name']"/>
+                                                                </td>
+                                                                <td class="text-right col-xs-3">
+                                                                    <span t-esc="'{0:,.2f}'.format(line_movimiento['monto'])"/>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td class="text-left col-xs-1">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                            <td class="text-left col-xs-3">
+                                                <span>&amp;nbsp;</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="font-size: 12pt;">
+                                            <td class="text-left col-xs-1">
+                                                <span></span>
+                                            </td>
+                                            <td class="text-left col-xs-8">
+                                                <b>
+                                                    <span>PASIVO + PATRIMONIO</span>
+                                                </b>
+                                            </td>
+                                            <td class="text-right col-xs-3">
+                                                <span t-esc="'{0:,.2f}'.format(get_total_ejercicio())"/>
+                                            </td>
+                                        </tr>
+
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_financial_situation"
+                model="eliterp.financial.situation"
+                string="Estado de situación financiera"
+                report_type="qweb-pdf"
+                name="eliterp_accounting.eliterp_report_financial_situation"
+                file="eliterp_accounting.eliterp_report_financial_situation"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <report
+                id="eliterp_action_report_financial_situation_xlsx"
+                model="eliterp.financial.situation"
+                string="Estado de situación financiera"
+                report_type="xlsx"
+                name="eliterp_accounting.eliterp_report_financial_xlsx"
+                file="eliterp_accounting.eliterp_report_financial_xlsx"
+                print_report_name="Estado de situación financiera"
+                attachment_use="False"
+        />
+        <!--Reporte de estado de resultados-->
+        <template id="eliterp_report_status_results">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_title">ESTADO DE RESULTADOS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Empresa:</strong>
+                                    <p t-field="user.company_id.name"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Período:</strong>
+                                    <p t-field="doc.start_date" t-options="{&quot;format&quot;: &quot;yyyy&quot;}"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha de Corte:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                            </div>
+
+                            <table class="table table-condensed" style="border: none; font-size: 12px;">
+                                <tbody>
+                                    <t t-foreach="get_lines(doc, '4')" t-as="line">
+                                        <t t-if="line['amount'] != 0">
+                                            <t t-if="line['type'] == 'principal'">
+                                                <tr style="border: none; font-size: 16px; font-weight: bold;">
+                                                    <td style="border-right: none;" class="text-right col-xs-2">
+                                                        <span t-esc="line['code']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-left col-xs-7">
+                                                        <span t-esc="line['name']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line["amount"]'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="line['type'] == 'view'">
+                                                <tr style="border: none; font-weight: bold;">
+                                                    <td style="border-right: none;" class="text-right col-xs-2">
+                                                        <span t-esc="line['code']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-left col-xs-7">
+                                                        <span t-esc="line['name']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line["amount"]'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="line['subaccounts'] != False">
+                                                <t t-foreach="line['subaccounts']" t-as="line_move">
+                                                    <t t-if="line_move['amount'] != 0">
+                                                        <tr style="border: none;">
+                                                            <td style="border-right: none;" class="text-right col-xs-2">
+                                                                <span t-esc="line_move['code']"/>
+                                                            </td>
+                                                            <td style="border-right: none;" class="text-left col-xs-7">
+                                                                <span t-esc="line_move['name']"/>
+                                                            </td>
+                                                            <td style="border-right: none;" class="text-right col-xs-3">
+                                                                <span t-esc='"%.2f" % line_move["amount"]'/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <table class="table table-condensed" style="border: none; font-size: 12px;">
+                                <tbody>
+                                    <t t-foreach="get_lines(doc, '5')" t-as="line">
+                                        <t t-if="line['amount'] != 0">
+                                            <t t-if="line['type'] == 'principal'">
+                                                <tr style="border: none; font-size: 16px; font-weight: bold;">
+                                                    <td style="border-right: none;" class="text-right col-xs-2">
+                                                        <span t-esc="line['code']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-left col-xs-7">
+                                                        <span t-esc="line['name']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line["amount"]'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="line['type'] == 'view'">
+                                                <tr style="border: none; font-weight: bold;">
+                                                    <td style="border-right: none;" class="text-right col-xs-2">
+                                                        <span t-esc="line['code']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-left col-xs-7">
+                                                        <span t-esc="line['name']"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line["amount"]'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <t t-if="line['subaccounts'] != False">
+                                                <t t-foreach="line['subaccounts']" t-as="line_move">
+                                                    <t t-if="line_move['amount'] != 0">
+                                                        <tr style="border: none;">
+                                                            <td style="border-right: none;" class="text-right col-xs-2">
+                                                                <span t-esc="line_move['code']"/>
+                                                            </td>
+                                                            <td style="border-right: none;" class="text-left col-xs-7">
+                                                                <span t-esc="line_move['name']"/>
+                                                            </td>
+                                                            <td style="border-right: none;" class="text-right col-xs-3">
+                                                                <span t-esc='"%.2f" % line_move["amount"]'/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <h4 t-if="get_result()==True" class="clearfix text-center">GANANCIA DEL EJERCICIO:&amp;nbsp;
+                                <strong>
+                                    <span t-esc='"%.2f" % get_total_exercise()'/>
+                                </strong>
+                            </h4>
+                            <h4 t-if="get_result()==False" class="clearfix text-center">PÉRDIDA DEL EJERCICIO:&amp;nbsp;
+                                <strong>
+                                    <span t-esc='"%.2f" % get_total_exercise()'/>
+                                </strong>
+                            </h4>
+
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_status_results"
+                model="eliterp.general.ledger.report"
+                string="Estado de resultados"
+                report_type="qweb-pdf"
+                name="eliterp_accounting.eliterp_report_status_results"
+                file="eliterp_accounting.eliterp_report_status_results"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+        <!--Reporte de libro mayor-->
+        <template id="eliterp_report_general_ledger">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_title">LIBRO MAYOR</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Empresa:</strong>
+                                    <p t-field="user.company_id.name"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Período:</strong>
+                                    <p t-field="doc.start_date" t-options='{"format": "yyyy"}'/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha de Corte:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                            </div>
+                            <t t-foreach="get_lines(doc)" t-as="account">
+                                <caption class="text-center">
+                                    Cuenta:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="account['code']"/>[<span t-esc="account['account']"/>]
+                                    </strong>
+                                </caption>
+                                <table class="table_general_ledger table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Fecha</th>
+                                            <th class="text-center">No. Compensación</th>
+                                            <th class="text-center">Detalle</th>
+                                            <th class="text-right">Debe</th>
+                                            <th class="text-right">Haber</th>
+                                            <th class="text-right">Saldo</th>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid gray;">
+                                            <td colspan="5" class="text-right">
+                                                <span>SALDO INICIAL</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <b>
+                                                    <span t-esc="'%.2f' % account['beginning_balance']"/>
+                                                </b>
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="account['moves']" t-as="line">
+                                            <td>
+                                                <span t-esc="line['date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['name']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['detail']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['debit']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['credit']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['balance']"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="border-top: 3px solid black; font-size:15px;">
+                                            <td colspan="4" class="text-right">
+                                                <span t-esc="'%.2f' % account['total_debit']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % account['total_credit']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % account['total_balance']"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_general_ledger"
+                model="eliterp.general.ledger.report"
+                string="Libro mayor"
+                report_type="qweb-pdf"
+                name="eliterp_accounting.eliterp_report_general_ledger"
+                file="eliterp_accounting.eliterp_report_general_ledger"
+                print_report_name="'Libro mayor - %s' % (object.account_id.name or 'Todos')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de impuestos (103, 104)-->
+        <report
+                id="eliterp_action_report_taxes_103_104_xlsx"
+                model="eliterp.taxes.103.104.report"
+                string="Reporte de impuestos (103, 104)"
+                report_type="xlsx"
+                name="eliterp_accounting.eliterp_report_taxes_103_104_xlsx"
+                file="eliterp_accounting.eliterp_report_taxes_103_104_xlsx"
+                print_report_name="Reporte de impuestos (103, 104)"
+                attachment_use="False"
+        />
+        <!--Reporte de facturas-->
+        <template id="eliterp_report_bills">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_title">REPORTE DE FACTURAS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Tipo:</strong>
+                                    <p t-field="doc.type_report"/>
+                                </div>
+                                <div class="col-xs-3" t-if="doc.partner">
+                                    <strong>Cliente:</strong>
+                                    <p t-field="doc.partner"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <t t-foreach="get_lines(doc)" t-as="row">
+                            <h5 class="clearfix">Facturas de:&amp;nbsp;
+                                <strong>
+                                    <span t-esc="row['type']"/>
+                                </strong>
+                            </h5>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center col-xs-1">Fecha</th>
+                                        <th class="text-center col-xs-1">Estado</th>
+                                        <th class="text-center col-xs-3">Empresa</th>
+                                        <th class="text-center col-xs-2">No. Factura</th>
+                                        <th class="text-center col-xs-2">No. Retención</th>
+                                        <th class="text-center col-xs-1">Subtotal</th>
+                                        <th class="text-center col-xs-1">Base 0%</th>
+                                        <th class="text-center col-xs-1">Base IVA</th>
+                                        <th class="text-center col-xs-1">Total retener</th>
+                                        <th class="text-center col-xs-1">Total</th>
+                                        <th class="text-center col-xs-1">Saldo</th>
+                                        <th class="text-center col-xs-1">Cobros</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="row['rows']" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-esc="line['date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['state']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['partner']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['invoice_number']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['retention']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['subtotal']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['subtotal_zero']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['iva']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['amount_retention']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['total']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['residual']"/>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="'%.2f' % line['amount_payments']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="border-top: 3px solid black; font-size:15px;">
+                                        <td class="text-right" colspan="5">
+                                            <span>TOTALES</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["subtotal"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["subtotal_zero"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["iva"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["amount_retention"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["total"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["residual"] for x in row["rows"])'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(x["amount_payments"] for x in row["rows"])'/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_bills"
+                model="eliterp.bills.report"
+                string="Facturas"
+                report_type="qweb-pdf"
+                name="eliterp_accounting.eliterp_report_bills"
+                file="eliterp_accounting.eliterp_report_bills"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <report
+                id="eliterp_action_report_bills_xlsx"
+                model="eliterp.bills.report"
+                string="Facturas"
+                report_type="xlsx"
+                name="eliterp_accounting.eliterp_report_bills_xlsx"
+                file="eliterp_accounting.eliterp_report_bills_xlsx"
+                print_report_name="Facturas"
+                attachment_use="False"
+        />
+    </data>
+</odoo>

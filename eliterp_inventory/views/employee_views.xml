@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="eliterp_view_form_employee_uniform" model="ir.ui.view">
+            <field name="name">eliterp_view_form_employee_uniform</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="eliterp_hr.eliterp_view_form_employee"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='equipment_uniform']/group[1]" position="before">
+                    <group string="Uniformes y ERP">
+                        <field name="uniform_history" nolabel="1">
+                            <tree editable="bottom" delete="false" create="false">
+                                <field name="select"/>
+                                <field name="date" readonly="1"/>
+                                <field name="movement" readonly="1"/>
+                                <field name="article" readonly="1"/>
+                                <field name="quantity" readonly="1"/>
+                                <field name="total" readonly="1"/>
+                                <field name="adjunt"
+                                       filename="adjunt_name"
+                                       widget="binary"/>
+                                <field name="adjunt_name" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vistas del menú Proyectos-->
+        <record id="eliterp_view_tree_project" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_project</field>
+            <field name="model">eliterp.project</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="reference"/>
+                    <field name="customer"/>
+                    <field name="lines_location" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+        <record id="eliterp_view_form_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_project</field>
+            <field name="model">eliterp.project</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="p.e Puente de cuenca"/>
+                            </h1>
+                        </div>
+                        <group col="4">
+                            <field name="code"/>
+                            <field name="reference"/>
+                            <field name="customer"/>
+                        </group>
+                        <notebook>
+                            <page string="Ubicaciones">
+                                <group string="Ubicaciones dentro de proyecto">
+                                    <field name="lines_location" colspan="2" nolabel="1">
+                                        <tree editable="bottom">
+                                            <field name="name"/>
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--Proyecto en otros documentos-->
+        <record id="eliterp_view_form_account_move_line_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_account_move_line_project</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='line_ids']//tree//field[@name='analytic_tag_ids']"
+                       position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']//tree//field[@name='analytic_account_id']"
+                       position="replace">
+                    <field name="analytic_account_id"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="eliterp_view_form_travel_allowance_request_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_travel_allowance_request_project</field>
+            <field name="model">eliterp.travel.allowance.request</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_travel_allowance_request"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='account_analytic_id']" position="after"><!--Centro de costo-->
+                    <field name="project_id"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_purchase_order_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_purchase_order_project</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_order']" position="after"><!--Fecha del Pedido-->
+                    <field name="account_analytic_id" required="1"
+                           attrs="{'readonly': [('state', 'in', ('purchase', 'done', 'cancel'))]}"
+                           options="{'no_create': True, 'no_open': True}"/>
+                    <field name="project_id"
+                           attrs="{'readonly': [('state', 'in', ('purchase', 'done', 'cancel'))]}"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_account_invoice_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_account_invoice_project</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_analytic_id']"
+                       position="replace">
+                    <field name="account_analytic_id" invisible="1"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_account_invoice_supplier_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_account_invoice_supplier_project</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='concept']" position="before"><!--Concepto-->
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_analytic_id']"
+                       position="replace">
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_payments_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_payments_project</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="eliterp_accounting.eliterp_view_form_account_payment_deposits"/>
+            <field name="arch" type="xml">
+                <!--Líneas 1-->
+                <xpath expr="//field[@name='lines_deposits_checks']//tree//field[@name='account_id']"
+                       position="after">
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+                <!--Líneas 2-->
+                <xpath expr="//field[@name='lines_deposits_cash']//tree//field[@name='account_id']"
+                       position="after">
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+                <!--Líneas 3-->
+                <xpath expr="//field[@name='lines_deposits_checks_external']//tree//field[@name='account_id']"
+                       position="after">
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="eliterp_view_form_voucher_purchase_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_voucher_purchase_project</field>
+            <field name="model">account.voucher</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_voucher_purchase"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lines_account']//tree//field[@name='account_id']"
+                       position="after">
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"
+                           domain="[('usage', '=', 'movement')]"/>
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_employee_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_employee_project</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='benefits']" position="after"><!--Acumula beneficios?-->
+                    <field name="account_analytic_id"
+                           options="{'no_create': True, 'no_open': True}"/>
+                    <field name="project_id"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!--Órdenes de pago-->
+        <record id="eliterp_view_form_pay_order_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_pay_order_project</field>
+            <field name="model">eliterp.pay.order</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_pay_order"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='create_uid']" position="before">
+                    <field
+                            name="project_id"
+                            attrs="{'invisible': [('project_id', '=', False)]}"
+                            options="{'no_open': True, 'no_create': True}"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_pay_wizard_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_pay_wizard_project</field>
+            <field name="model">eliterp.pay.wizard</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_pay_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="project_id"
+                           options="{'no_open': True, 'no_create': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_payment_request_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_payment_request_project</field>
+            <field name="model">eliterp.payment.request</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_payment_request"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='payment_date']" position="after">
+                    <field name="project_id"
+                           options="{'no_open': True, 'no_create': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_liquidation_settlement_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_liquidation_settlement_project</field>
+            <field name="model">eliterp.liquidation.settlement</field>
+            <field name="inherit_id" ref="eliterp_treasury.eliterp_view_form_liquidation_settlement"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='destination']" position="after">
+                    <field name="project_id"
+                           options="{'no_open': True, 'no_create': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='reason']" position="after">
+                    <field name="account_analytic_id"
+                           options="{'no_open': True, 'no_create': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_attendance_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_attendance_project</field>
+            <field name="model">eliterp.attendance</field>
+            <field name="inherit_id" ref="eliterp_hr.eliterp_view_form_attendance"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='check_out_pm']" position="after">
+                    <field name="project_id"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_advance_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_advance_project</field>
+            <field name="model">eliterp.advance.payment</field>
+            <field name="inherit_id" ref="eliterp_hr.eliterp_view_form_advance"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='total']" position="after">
+                    <field name="project_id"
+                           required="1"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_payslip_run_project" model="ir.ui.view">
+            <field name="name">eliterp_view_form_payslip_run_project</field>
+            <field name="model">hr.payslip.run</field>
+            <field name="inherit_id" ref="eliterp_hr.eliterp_view_form_payslip_run"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='type']" position="before">
+                    <field name="project_id"
+                           required="1"
+                           options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

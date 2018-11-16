@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vista del menú MEMO-->
+        <record id="eliterp_view_tree_memo" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_memo</field>
+            <field name="model">eliterp.memo</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state=='draft'"
+                      decoration-muted="state=='cancel'"
+                      decoration-bf="state == 'validate'"
+                      decoration-success="state == 'validate'"
+                >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="employee"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <!--Vista del menú Tipo MEMO-->
+        <record id="eliterp_view_tree_memo2" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_memo2</field>
+            <field name="model">eliterp.type.memo</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="appearance_id"/>
+                    <field name="provision"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_memo" model="ir.ui.view">
+            <field name="name">eliterp_view_form_memo</field>
+            <field name="model">eliterp.memo</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="imprimir_memo"
+                                string="Imprimir Memorandums"
+                                type="object"
+                                class="oe_highlight"/>
+                        <button name="validate"
+                                class="oe_highlight"
+                                string="Validar"
+                                states="draft"
+                                type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title" attrs="{'invisible': [('state','=', 'draft')]}">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group col="4" string="Información general">
+                            <field name="type_document"/>
+                            <field name="comment_sanction" placeholder="Colocar la sanción"
+                                   attrs="{'invisible':[('type_document','!=', True)], 'required': [('type_document','=', True)]}"/>
+                            <field name="date"/>
+                            <field name="employee" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="document_select"/>
+                            <field name="appearance_id" context="{'default_document_select': document_select}"
+                                   domain="[('document_select', '=', document_select)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="type_id" context="{'default_appearance_id': appearance_id}"
+                                   domain="[('document_select', '=', document_select), ('appearance_id', '=', appearance_id)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="firme" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="adjunt"
+                                   filename="adjunt_name"
+                                   widget="binary"/>
+                            <field name="adjunt_name" invisible="1"/>
+                        </group>
+                        <group string="Notas o comentarios">
+                            <field name="comment" nolabel="1"
+                                   placeholder="p.e Describir de manera clara y concisa la falta cometida, incluir fechas, lugares, y todo detalle importante que deje constancia clara de la falta."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="eliterp_view_form_type_memo" model="ir.ui.view">
+            <field name="name">eliterp_view_form_type_memo</field>
+            <field name="model">eliterp.type.memo</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col="4">
+                            <field name="document_select"/>
+                            <field name="appearance_id" context="{'default_document_select': document_select}"
+                                   domain="[('document_select', '=', document_select)]"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="name"/>
+                            <field name="article"/>
+                            <field name="numeral"/>
+                        </group>
+                        <group string="Provisión">
+                            <field name="provision" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

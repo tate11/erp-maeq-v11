@@ -1,0 +1,2654 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <data>
+        <!--Solicitud de vacaciones-->
+        <template id="eliterp_report_vacations">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">RRHH-004-VAC-V1</t>
+                    <t t-set="report_title">SOLICITUD DE VACACIONES</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-2">
+                                    <strong>Emitido:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.date_from" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.date_to" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Empleado:</strong>
+                                    <p t-field="doc.employee_id"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Período</th>
+                                        <th class="text-center">Disponibles</th>
+                                        <th class="text-center">Solicitados</th>
+                                        <th class="text-center">Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc._get_vacations()" t-as="line">
+                                        <td>
+                                            <span t-esc="line['period']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="line['vacations_available']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="line['requested']"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="line['residue']"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div t-if="doc.report_note">
+                                <h4 class="text-center">Notas y comentarios</h4>
+                                <div class="mb4">
+                                    <span t-field="doc.report_note"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_vacations"
+                model="hr.holidays"
+                string="Solicitud de vacaciones"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_vacations"
+                file="eliterp_hr.eliterp_report_vacations"
+                print_report_name="'Solicitud de vacaciones para %s' % (object.employee_id.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Anticipo de quincena -->
+        <template id="eliterp_report_advance_payment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">RRHH-001-ADQ-V1</t>
+                    <t t-set="report_title">ANTICIPO DE QUINCENA</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-6">
+                                    <strong>Período:</strong>
+                                    <p t-field="doc.period"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Empleado</th>
+                                        <th class="text-center">No. Ident.</th>
+                                        <th class="text-center">Cargo</th>
+                                        <th class="text-center">Fecha ingreso</th>
+                                        <th class="text-center">Días</th>
+                                        <th class="text-right">Monto</th>
+                                        <th class="text-right">Moviliz.</th>
+                                        <th class="text-right">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.lines_advance" t-as="line">
+                                        <td>
+                                            <span t-field="line.employee_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.employee_id.identification_id"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.job_id"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.admission_date"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.antiquity"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.amount_advance"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.mobilization"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.amount_total"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-4  pull-right">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+
+                                                    <td class="col-xs-2 text-right">
+                                                        <div style="font-size:15px;">Total</div>
+
+                                                    </td>
+                                                    <td class="col-xs-2 text-right">
+                                                        <div style="font-size:15px;">
+                                                            <span t-esc="'%.2f' % doc.total"/>
+                                                        </div>
+
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div t-if="doc.comment">
+                                <h4 class="text-center">Notas y comentarios</h4>
+                                <div class="mb4">
+                                    <span t-field="doc.comment"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_advance_payment"
+                model="eliterp.advance.payment"
+                string="Anticipo de quincena"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_advance_payment"
+                file="eliterp_hr.eliterp_report_advance_payment"
+                print_report_name="'Anticipo de quincena - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+        <!--Rol individual-->
+        <template id="eliterp_report_hr_payslip">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">RRHH-002-ROL-V1</t>
+                    <t t-set="report_title">ROL DE PAGO</t>
+                    <t t-set="flag">1</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row" style="margin: 0; padding: 0; font-size: 9px;">
+                                <div class="col-xs-6">
+                                    <strong>Período:</strong>
+                                    <p t-esc="'Del %s hasta el %s' % (doc.date_from, doc.date_to)"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha ingreso:</strong>
+                                    <p t-field="doc.employee_id.admission_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Identificación:</strong>
+                                    <p t-field="doc.employee_id.identification_id"/>
+                                </div>
+                                <div class="col-xs-2" t-if="doc.employee_id.job_id">
+                                    <strong>Cargo:</strong>
+                                    <p t-field="doc.employee_id.job_id.name"/>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin: 0; padding: 0;">
+                                <div class="col-xs-6">
+                                    <table class="table table-condensed table_small_letter">
+                                        <thead>
+                                            <tr style="border: none;">
+                                                <th colspan="2" class="text-center col-xs-12">
+                                                    <strong>INGRESOS</strong>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="doc.input_line_ids" t-as="line">
+                                                <tr style="border: none;">
+                                                    <td style="border-right: none;" class="text-left col-xs-9">
+                                                        <span t-field="line.name"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line.amount'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <tr style="border: none;">
+                                                <td style="border-right: none;" class="text-right col-xs-9">
+                                                    <span>
+                                                        <b>TOTAL INGRESOS</b>
+                                                    </span>
+                                                </td>
+                                                <td style="border-right: none;" class="text-right col-xs-3">
+                                                    <b>
+                                                        <span t-esc='"%.2f" % sum(line.amount for line in doc.input_line_ids)'/>
+                                                    </b>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-xs-6">
+                                    <table class="table table-condensed table_small_letter">
+                                        <thead>
+                                            <tr style="border: none;">
+                                                <th colspan="2" style="border-bottom: none;"
+                                                    class="text-center col-xs-12">
+                                                    <strong>EGRESOS</strong>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="doc.input_line_ids_2" t-as="line">
+                                                <tr style="border: none;">
+                                                    <td style="border-right: none;" class="text-left col-xs-9">
+                                                        <span t-field="line.name"/>
+                                                    </td>
+                                                    <td style="border-right: none;" class="text-right col-xs-3">
+                                                        <span t-esc='"%.2f" % line.amount'/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                            <tr style="border: none;">
+                                                <td style="border-right: none;" class="text-right col-xs-9">
+                                                    <span>
+                                                        <b>TOTAL EGRESOS</b>
+                                                    </span>
+                                                </td>
+                                                <td style="border-right: none;" class="text-right col-xs-3">
+                                                    <b>
+                                                        <span t-esc='"%.2f" % sum(line.amount for line in doc.input_line_ids_2)'/>
+                                                    </b>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <h5 class="clearfix text-center">NETO A RECIBIR:&amp;nbsp;
+                                <strong>
+                                    <span t-esc='"%.2f" % doc.net_receive'/>
+                                </strong>
+                            </h5>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_hr_payslip"
+                model="hr.payslip"
+                string="Rol individual"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_hr_payslip"
+                file="eliterp_hr.eliterp_report_hr_payslip"
+                print_report_name="'Rol de %s' % (object.employee_id.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a5_landscape"
+        />
+        <!--Rol consolidado -->
+        <template id="eliterp_report_hr_payslip_run">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">RRHH-003-NOM-V1</t>
+                    <t t-set="report_title">NÓMINA - ROL CONSOLIDADO</t>
+                    <t t-set="flag">0</t>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <strong>Fecha documento:</strong>
+                                    <p t-field="doc.create_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                </div>
+                                <div class="col-xs-3">
+                                    <strong>Período:</strong>
+                                    <p t-esc="'Del %s hasta el %s' % (doc.date_start, doc.date_end)"/>
+                                </div>
+                                <div class="col-xs-6" t-if="not doc.type">
+                                    <strong>Estructuras salariales:</strong>
+                                    <p t-esc="doc._get_structure_ids()"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed" style="font-size:8px">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">NOMBRE</th>
+                                        <th class="text-center">CI</th>
+                                        <th class="text-center">DÍAS</th>
+                                        <th class="text-center">SLD</th>
+                                        <th class="text-center">H.E.</th>
+                                        <th class="text-center">FR</th>
+                                        <th class="text-center">MOV</th>
+                                        <th class="text-center">13º</th>
+                                        <th class="text-center">14º</th>
+                                        <th class="text-center">O.ING.</th>
+                                        <th class="text-center">T.ING.</th>
+                                        <th class="text-center">AQ</th>
+                                        <th class="text-center">9.45%</th>
+                                        <th class="text-center">17.60%</th>
+                                        <th class="text-right">PAS</th>
+                                        <th class="text-right">PQ</th>
+                                        <th class="text-right">PH</th>
+                                        <th class="text-right">CYG</th>
+                                        <th class="text-right">MUL</th>
+                                        <th class="text-right">F/A</th>
+                                        <th class="text-right">CEL.</th>
+                                        <th class="text-right">O.EGR.</th>
+                                        <th class="text-right">T.EGR.</th>
+                                        <th class="text-right">NETO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.lines_payslip_run.sorted(key=lambda r: r.name)" t-as="line">
+                                        <td>
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.identification_id"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-field="line.worked_days"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="'%.2f' % line.wage"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="'%.2f' % line.additional_hours"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="'%.2f' % line.reserve_funds"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc="'%.2f' % line.mobilization"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.tenth_3"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.tenth_4"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.other_income"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.total_income"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.payment_advance"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.iess_personal"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.iess_patronal"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.loan_payment_advance"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.loan_unsecured"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.loan_mortgage"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.spouses_extension"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.penalty"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.absence"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.cellular_plan"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.other_expenses"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.total_expenses"/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="'%.2f' % line.net_receive"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="tr_sum">
+                                        <td colspan="3" class="text-right"></td>
+                                        <td class="text-center">
+                                            <span t-esc='"%.2f" % sum(line.wage for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc='"%.2f" % sum(line.additional_hours for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc='"%.2f" % sum(line.reserve_funds for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-esc='"%.2f" % sum(line.mobilization for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.tenth_3 for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.tenth_4 for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.other_income for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.total_income for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.payment_advance for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.iess_personal for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.iess_patronal for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.loan_payment_advance for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.loan_unsecured for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.loan_mortgage for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.spouses_extension for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.penalty for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.absence for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.cellular_plan for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.other_expenses for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.total_expenses for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc='"%.2f" % sum(line.net_receive for line in doc.lines_payslip_run)'/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div t-if="doc.comment">
+                                <h6 class="text-center">Notas y comentarios</h6>
+                                <div class="mb4">
+                                    <span t-field="doc.comment"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_hr_payslip_run"
+                model="hr.payslip.run"
+                string="Rol consolidado"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_hr_payslip_run"
+                file="eliterp_hr.eliterp_report_hr_payslip_run"
+                print_report_name="'Rol consolidado - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Formato de contrato MAEQ-->
+        <template id="eliterp_report_employee_contract">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page">
+                            <div class="clearfix text-center">
+                                <h4>CONTRATO DE TRABAJO INDEFINIDO – JORNADA A TIEMPO COMPLETO</h4>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h6>
+                                    <p>
+                                        Comparecen, ante el señor Inspector del Trabajo, para la suscripción del
+                                        presente
+                                        Contrato,
+                                        por una parte, el Señor <b>CARLOS JULIO RIVADENEIRA AGUILAR</b> como
+                                        representante
+                                        de <b>MAEQ MAQUINAS Y EQUIPOS S.A.</b>, en su calidad de <b>EMPLEADOR</b>, parte
+                                        a
+                                        la cual se la podrá denominar simplemente “EL EMPLEADOR”; y, por otra parte
+                                        el(la)
+                                        Sr.(a) &amp;nbsp;
+                                        <strong>
+                                            <span t-field="doc.employee_id"/>
+                                        </strong>
+                                        &amp;nbsp; portador de la cédula de ciudadanía No. &amp;nbsp;
+                                        <strong>
+                                            <span t-field="doc.employee_id.identification_id"/>
+                                        </strong>
+                                        &amp;nbsp; a quien en adelante y para fines de este contrato se le podrá
+                                        denominar
+                                        simplemente “EL TRABAJADOR”.
+                                        Quienes intervienen en este Contrato son de nacionalidad: ecuatoriana EL/LA
+                                        EMPLEADOR/A y ecuatoriana el (la)
+                                        Sr. (a) EL TRABAJADOR, domiciliados en la ciudad de GUAYAQUIL, capaces y hábiles
+                                        para contratar y obligarse,
+                                        quienes libre y voluntariamente convienen en celebrar conjuntamente el presente
+                                        Contrato de Trabajo INDEFINIDO
+                                        jornada completa con sujeción a las declaraciones y estipulaciones contenidas en
+                                        las
+                                        cláusulas siguientes:
+                                        <br/>
+                                        <br/>
+                                        <b>1. ANTECEDENTES.-</b>
+                                        <br/>
+                                        1.1. El EMPLEADOR, es una persona JURÍDICA, existente bajo las leyes de la
+                                        República
+                                        del Ecuador, con domicilio
+                                        en la ciudad de GUAYAQUIL, siendo su actividad principal la venta al por mayor
+                                        de
+                                        maquinaria y equipos de construcción.
+                                        <br/>
+                                        1.2. Por la naturaleza de las actividades el EMPLEADOR requiere contratar los
+                                        servicios lícitos y personales a plazo indefinido por jornada completa
+                                        permanente de EL/LA TRABAJADOR/A,
+                                        <strong>
+                                            <span t-field="doc.employee_id"/>
+                                        </strong>
+                                        ,
+                                        conforme lo señala el Art. 82 del Código del Trabajo y el Art. 2 del Mandato
+                                        Constituyente No. 8, para que desempeñe las funciones de
+                                        <font style="text-transform: uppercase;">
+                                            <strong>
+                                                <span t-field="doc.job_id"/>
+                                            </strong>
+                                        </font>
+                                        <br/>1.3 EL/LA TRABAJADOR/A, ha declarado tener todo el conocimiento y la
+                                        capacidad
+                                        necesarios para llevar a cabo el tipo de
+                                        labores para las cuales le contrata el EMPLEADOR; así como también estar
+                                        debidamente
+                                        habilitado, según las disposiciones
+                                        legales, reglamentarias, administrativas respectivas, para la prestación de los
+                                        servicios contratados.
+                                        <br/>1.4. EL/LA TRABAJADOR/A, ha expresado su voluntad de prestar sus servicios
+                                        lícitos y personales para el EMPLEADOR a
+                                        cambio de la remuneración pactada, de acuerdo a los términos que se detallan en
+                                        el
+                                        presente Contrato.
+                                        <br/>
+                                        <br/>
+                                        <b>2. OBJETO DEL CONTRATO.-</b>
+                                        <br/>Con los antecedentes expuestos y por medio del presente instrumento, el
+                                        EMPLEADOR contrata a EL/LA TRABAJADOR/A y éste acepta
+                                        y se obliga para con el EMPLEADOR, a cambio de la remuneración fijada en este
+                                        Contrato, a prestar sus servicios lícitos y personales
+                                        por jornada completa permanente de EL/LA TRABAJADOR/A, conforme lo señala el
+                                        Art. 82
+                                        del Código del Trabajo y el Art. 2 del Mandato
+                                        Constituyente No. 8, en calidad de Técnico General en los lugares en donde por
+                                        las
+                                        actividades que realiza el EMPLEADOR se requiera
+                                        de los servicios EL/LA TRABAJADOR/A, conforme a las obligaciones que para ambas
+                                        partes se detallan en las cláusulas siguientes.
+                                        <br/>Se deja constancia que EL/LA TRABAJADOR/A, por convenir a sus intereses
+                                        acepta
+                                        y consiente, la asignación temporal de
+                                        otras tareas y responsabilidades siempre que estas sean similares a su cargo y
+                                        no
+                                        representen una disminución en su remuneración,
+                                        por lo que, no se podrá considerar bajo ninguna circunstancia, cambio de
+                                        ocupación o
+                                        despido intempestivo.
+                                        <br/>
+                                        <br/>
+                                        <b>3. OBLIGACIONES DE EL/LA TRABAJADOR/A Y EMPLEADOR.-</b>
+                                        En lo que respecta a las obligaciones, derecho y prohibiciones del empleador y
+                                        trabajador, estos se someten a lo dispuesto en el
+                                        Código de Trabajo, en especial al Capítulo IV denominado “De las obligaciones
+                                        del
+                                        empleador y EL TRABAJADOR, además de las
+                                        estipuladas en este contrato.
+                                        <br/>
+                                        <br/>Adicionalmente son obligaciones especiales de EL TRABAJADOR, las
+                                        siguientes:
+                                        <br/>3.1. Desempeñar el cargo o posición para la cual ha sido contratado, con la
+                                        diligencia y responsabilidad debida y cumpliendo
+                                        con todas las obligaciones que le impone la Ley, manuales, instructivos y demás
+                                        disposiciones del EMPLEADOR, de autoridades competentes
+                                        y el presente contrato;
+                                        <br/>3.2. Mantener la más absoluta reserva y confidencialidad respecto de toda
+                                        la
+                                        información que conozca sobre el manejo o las actividades
+                                        que realiza el EMPLEADOR que llegare a su conocimiento durante el cumplimiento
+                                        de
+                                        sus labores.
+                                        <br/>3.3. Colaborar con autoridades y compañeros de trabajo.
+                                        <br/>3.4. Cumplir con los demás roles y funciones que le correspondan o le sean
+                                        asignados por el EMPLEADOR.
+                                        <br/>3.5. Funciones de EL/LA TRABAJADOR/A
+                                        <strong>
+                                            <span t-field="doc.employee_id"/>
+                                        </strong>
+                                        .
+                                        <br/>
+                                        <br/>
+                                        <b>4. DERECHOS DE EL/LA TRABAJADOR/A.-</b>
+                                        <br/>EL TRABAJADOR, tendrá todos los derechos consagrados en la Constitución de
+                                        la
+                                        República del Ecuador, el Código de Trabajo, el Reglamento
+                                        Interno de Trabajo y este contrato.
+                                        <p style="page-break-before:always;">
+                                            <b>5. JORNADA COMPLETA PERMANENTE DE TRABAJO.-</b>
+                                            <br/>EL/LA TRABAJADOR/A se obliga y acepta laborar la jornada completa
+                                            permanente de
+                                            trabajo, conforme lo señala el Art. 82 del Código del
+                                            Trabajo y el Art. 2 del Mandato Constituyente No. 8, en los horarios
+                                            acordados con
+                                            el EMPLEADOR, esto es de lunes a viernes A TIEMPO COMPLETO,
+                                            CON UN TOTAL DE 40 HORAS SEMANALES LABORADAS, destinándose 30 MINUTOS para
+                                            la
+                                            alimentación de EL TRABAJADOR, adicional a la jornada completa
+                                            señalada. Por tanto, de EL/LA TRABAJADOR/A laborará 8 horas, reconociéndose
+                                            el Art,
+                                            51 del Código de Trabajo (Duración del Descanso).
+                                            <br/>Las partes de común acuerdo puede hacer reajustes o cambios de
+                                            horarios, de
+                                            estimarlo conveniente, o de acuerdo a las necesidades
+                                            de las actividades del empleador con el consentimiento de EL TRABAJADOR En
+                                            caso de
+                                            existir jornada nocturna, horas suplementarias y
+                                            extraordinarias se procederá conforme lo establecido en los Art. 49 y Art.
+                                            55 del
+                                            Código de Trabajo y el Art. 2 del Mandato Constituyente No. 8.
+                                            <br/>
+                                            <br/>
+                                            <b>6. LUGAR DE TRABAJO.-</b>
+                                            <br/>EL/LA TRABAJADOR/A prestará sus servicios en la ciudad de GUAYAQUIL, en
+                                            el
+                                            lugar de trabajo ubicado en AV. JUAN TANCA MARENGO KM 2, así como en
+                                            los lugares en donde por las actividades que realiza el EMPLEADOR se
+                                            requiera de los
+                                            servicios de EL TRABAJADOR. En consecuencia, EL/LA TRABAJADOR/A
+                                            manifiesta expresamente su consentimiento para los cambios ocasionales del
+                                            lugar de
+                                            trabajo, en cualquier sitio que dispusiere EL EMPLEADOR, teniendo
+                                            en cuenta los requerimientos propios de sus actividades. Estos cambios no
+                                            significarán ni podrán ser interpretados, en manera alguna, como cambio de
+                                            ocupación o modificación del presente Contrato, pues cuentan con el acuerdo
+                                            mutuo y
+                                            la aceptación expresa de EL/LA TRABAJADOR/A.
+                                            <br/>El EMPLEADOR, en el caso de cambios ocasionales del lugar de trabajo,
+                                            pagará a
+                                            EL/LA TRABAJADOR/A los gastos de ida y vuelta, alojamiento y
+                                            alimentación cuando, por razones del servicio, tenga que trasladarse a un
+                                            lugar
+                                            distinto de su residencia, conforme lo establecido en el Art. 42
+                                            No. 22 del Código de Trabajo.
+                                            <br/>
+                                            <br/>
+                                            <b>7. REMUNERACIÓN.-</b>
+                                            <br/>Las partes de mutuo acuerdo establecen que el EMPLEADOR reconocerá como
+                                            remuneración mensual por la jornada completa permanente a EL/LA TRABAJADOR/,
+                                            la cantidad de &amp;nbsp;
+                                            <strong>
+                                                <span t-esc="doc._get_wage_letters()"/>
+                                            </strong>
+                                            &amp;nbsp; de los Estados Unidos de América &amp;nbsp;
+                                            <strong>
+                                                <span t-field="doc.wage"/>
+                                            </strong>
+                                            &amp;nbsp; este valor corresponde al pago por la jornada completa permanente
+                                            efectivamente laborada.
+                                            <br/>
+                                            EL/LA TRABAJADOR/A acepta la remuneración acordada como pago por sus
+                                            servicios
+                                            descritos en este Contrato.
+                                            <br/>
+                                            Por otra parte se aclara que esta remuneración no incluye los beneficios que
+                                            conforme a la Ley tuviere derecho
+                                            EL/LA TRABAJADOR/A..
+                                            <br/>
+                                            La remuneración se pagará QUINCENALMENTE, en el lugar de trabajo, mediante
+                                            pago en
+                                            CHEQUE O POR MEDIO DE CRÉDITO
+                                            A CUENTA BANCARIA..
+                                            <br/>
+                                            De la remuneración de EL/LA TRABAJADOR/A se deducirán los valores
+                                            correspondientes
+                                            al Instituto Ecuatoriano de
+                                            Seguridad Social, Impuesto a la Renta en el evento de que sea procedente,
+                                            las
+                                            ordenadas por los jueces o autoridades
+                                            competentes y las demás que establezcan la Ley..
+                                            <br/>
+                                            Si durante la vigencia del presente contrato el EMPLEADOR cancelare a sus
+                                            TRABAJADORES las gratificaciones económicas
+                                            que voluntariamente concede, EL/LA TRABAJADOR/A tendrá derecho a las mismas,
+                                            en
+                                            forma proporcional al tiempo laborado..
+                                            <br/>
+                                            <br/>
+                                            <b>8. DURACIÓN DEL CONTRATO.-</b>
+                                            <br/>
+                                            El presente contrato tendrá por su naturaleza y de acuerdo a la normativa
+                                            legal
+                                            vigente, artículo 14 del código del Trabajo,
+                                            un plazo indefinido con un periodo de prueba de 90 días.
+                                            <br/>
+                                            <br/>
+                                            <b>9. TERMINACIÓN DEL CONTRATO.-</b>
+                                            <br/>
+                                            Este contrato podrá terminar por las causales establecidas en el Art. 169
+                                            del Código
+                                            de Trabajo en cuanto sean aplicables
+                                            para este tipo de contrato.
+                                            <br/>
+                                            <br/>
+                                            <b>10. MODIFICACIÓN.-</b>
+                                            <br/>
+                                            Toda modificación o reforma al presente Contrato deberá adoptarse por
+                                            acuerdo
+                                            escrito entre las partes.
+                                            <br/>
+                                            <br/>
+                                            <b>11. LEY APLICABLE.-</b>
+                                            <br/>
+                                            Las partes se sujetan expresamente a lo acordado en este Contrato y, en todo
+                                            aquello
+                                            que no estuviere especificado, a las
+                                            normas del Código de Trabajo, Ley de Seguridad Social así como al Reglamento
+                                            Interno
+                                            de Trabajo y a los correspondientes
+                                            manuales o procedimientos determinados por el EMPLEADOR.
+                                        </p>
+                                        <b>12. JURISDICCIÓN.-</b>
+                                        <br/>
+                                        En caso de suscitarse discrepancias en la interpretación, cumplimiento y
+                                        ejecución
+                                        del presente Contrato y cuando no
+                                        fuere posible llegar a un acuerdo amistoso entre las Partes, estas se someterán
+                                        a
+                                        los jueces competentes del lugar en
+                                        que este contrato ha sido celebrado, así como al procedimiento oral determinados
+                                        por
+                                        la Ley.
+                                        <br/>
+                                        <br/>
+                                        <b>13. DECLARACIONES FINALES.-</b>
+                                        <br/>
+                                        13.1. El presente contrato constituye y representa la enunciación completa y
+                                        exclusiva de los derechos y obligaciones de
+                                        las Partes, dejándose constancia de que las mismas están conscientes de que no
+                                        existe afectación ni renuncia alguna a ningún
+                                        derecho adquirido EL TRABAJADOR.
+                                        <br/>
+                                        13.2. EL/LA TRABAJADOR/A y el EMPLEADOR acuerdan que los términos y condiciones
+                                        de
+                                        este contrato han sido discutidos,
+                                        negociados y totalmente aceptados por ambas partes.
+                                        <br/>
+                                        13.3. EL/LA TRABAJADORA declara expresamente que no tiene compromiso laboral de
+                                        ninguna especie con entidades o empresas
+                                        que requieran de su atención y que pueden distraerle de sus obligaciones con el
+                                        EMPLEADOR. Igualmente, se compromete a no
+                                        adquirir mientras preste sus servicios al EMPLEADOR compromiso laboral que
+                                        demande
+                                        parte de su tiempo, cuando estas actividades
+                                        provoquen conflicto con sus ocupaciones normales con el EMPLEADOR.
+                                        <br/>
+                                        13.4. Para fines de interpretación, se considerará que este Contrato ha sido
+                                        preparado conjuntamente por las dos partes.
+                                        <br/>
+                                        13.5. CONFIDENCIALIDAD.- EL/LA TRABAJADOR/A mantendrá en estricta reserva y
+                                        confidencialidad la Información Confidencial -
+                                        Reservada y los Materiales Confidenciales, sean de carácter tangible o
+                                        intangible
+                                        que por su naturaleza se repute confidencial
+                                        de propiedad del EMPLEADOR sus compañías relacionadas o clientes, y que en
+                                        consecuencia se obliga a no revelar ni parte ni toda
+                                        información o materiales a un tercero o a usarla para su beneficio personal,
+                                        salvo
+                                        autorización previa, expresa y por escrito
+                                        del EMPLEADOR. Cualquier revelación o utilización de la Información Confidencial
+                                        o
+                                        de los Materiales Confidenciales será considerada
+                                        como competencia desleal y el Colaborador por lo tanto quedará sujeta a las
+                                        sanciones legales respectivas.
+                                        <br/>
+                                        13.6. CONFLICTO DE INTERESES.- EL/LA TRABAJADOR/A declara expresamente que no
+                                        tiene
+                                        conflictos de intereses de
+                                        ninguna especie con personas, entidades o empresas que pueden comprometer el
+                                        cumplimiento de
+                                        las obligaciones con el EMPLEADOR.
+                                        Igualmente, se compromete a no adquirir mientras preste sus servicios a la
+                                        compañía
+                                        compromiso de ninguna naturaleza,
+                                        cuando existan actividades que provoquen conflicto con el EMPLEADOR, en todo
+                                        caso,
+                                        cualquiera fuera el alcance de compromisos
+                                        rentados u honoríficos que en el futuro deseare adquirir, deberá tener el
+                                        consentimiento previo del EMPLEADOR.
+                                        <br/>
+                                        13.7. POLÍTICA DE SEGURIDAD.- EL/LA TRABAJADOR/A se somete a las medidas usuales
+                                        de
+                                        higiene, de seguridad y de
+                                        prevención de accidentes y riesgos del trabajo prescritos por las autoridades
+                                        del
+                                        ramo y las
+                                        que ordene el EMPLEADOR de manera legal.
+                                        <br/>
+                                        <br/>
+                                        <b>14. NOTIFICACIONES.-</b>
+                                        <br/>
+                                        Notificaciones que correspondan se las hará a las siguientes direcciones:
+                                        <br/>
+                                        El EMPLEADOR en la dirección: AV. JUAN TANCA MARENGO KM 2.
+                                        <br/>
+                                        EL TRABAJADOR en la dirección: AV. JUAN TANCA MARENGO KM 2.
+                                        <br/>
+                                        Para constancia de su plena aceptación a todas y cada una de las cláusulas de
+                                        este Contrato,
+                                        las partes suscriben este Contrato, en tres ejemplares de igual contenido y
+                                        valor, que serán sometidos al registro del Inspector de Trabajo del lugar donde
+                                        se realice el
+                                        trabajo.
+                                        <br/>
+                                        <br/>Suscrito en GUAYAQUIL, el&amp;nbsp;<span t-esc="doc._get_date_format()"/>.
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </h6>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-6 text-center">
+                                        <p>_______________</p>
+                                        <p>
+                                            <strong>Gerente General</strong>
+                                        </p>
+                                        <p>
+                                            <strong>RUC 0992898542001</strong>
+                                        </p>
+                                    </div>
+                                    <div class="col-xs-6 text-center">
+                                        <p>_______________</p>
+                                        <p>
+                                            <strong>
+                                                C.C
+                                                <span t-field="doc.employee_id.identification_id"/>
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_contract"
+                model="hr.contract"
+                string="Contrato empleado"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_contract"
+                file="eliterp_hr.eliterp_report_employee_contract"
+                print_report_name="'Contrato - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait2"
+        />
+        <!--Formato de certificado activo MAEQ-->
+        <template id="eliterp_report_employee_certificate_active">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h1>CERTIFICADO</h1>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h3>
+                                    <p class="parrafo">
+                                        Por este medio certifico que el Sr (a).
+                                        <strong>
+                                            <span t-field="doc.employee_id"/>,
+                                        </strong>
+                                        con documento de identidad No.
+                                        <strong>
+                                            <span t-field="doc.employee_id.identification_id"/>;
+                                        </strong>
+                                        labora en la empresa como
+                                        <font style="text-transform: uppercase;">
+                                            <strong>
+                                                <span t-field="doc.job_id"/>
+                                            </strong>
+                                        </font>
+                                        desde el
+                                        <strong>
+                                            <span t-esc="doc._get_date_format()"/>,
+                                        </strong>
+                                        percibiendo como remuneración bruta mensual el valor de
+                                        <strong>
+                                            <span t-field="doc.wage"/>.
+                                        </strong>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        Guayaquil,<span t-esc="doc._get_date_format2()"/>.
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </h3>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-12 text-center">
+                                        <p>_______________</p>
+                                        <p>
+                                            <strong>Gerente General</strong>
+                                        </p>
+                                        <p>
+                                            <strong>RUC 0992898542001</strong>
+                                        </p>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_certificate_active"
+                model="hr.contract"
+                string="Certificado empleado"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_certificate_active"
+                file="eliterp_hr.eliterp_report_employee_certificate_active"
+                print_report_name="'Certificado - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de certificado inactivo MAEQ-->
+        <template id="eliterp_report_employee_certificate_inactive">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h1>CERTIFICADO</h1>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h3>
+                                    <p class="parrafo">
+                                        Por este medio certifico que el Sr (a).
+                                        <strong>
+                                            <span t-field="doc.employee_id"/>,
+                                        </strong>
+                                        con documento de identidad No.
+                                        <strong>
+                                            <span t-field="doc.employee_id.identification_id"/>,
+                                        </strong>
+                                        &amp;nbsp;laboró en la empresa como
+                                        <font style="text-transform: uppercase;">
+                                            <strong>
+                                                <span t-field="doc.job_id"/>
+                                            </strong>
+                                        </font>
+                                        desde el
+                                        <strong>
+                                            <span t-esc="doc._get_date_format()"/>,
+                                        </strong>
+                                        hasta el
+                                        <strong>
+                                            <span t-esc="doc._get_date_format1()"/>.
+                                        </strong>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        Guayaquil,<span t-esc="doc._get_date_format2()"/>.
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </h3>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-12 text-center">
+                                        <p>_______________</p>
+                                        <p>
+                                            <strong>Gerente General</strong>
+                                        </p>
+                                        <p>
+                                            <strong>RUC 0992898542001</strong>
+                                        </p>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_certificate_inactive"
+                model="hr.contract"
+                string="Certificado empleado inactivo"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_certificate_inactive"
+                file="eliterp_hr.eliterp_report_employee_certificate_inactive"
+                print_report_name="'Certificado - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de Memo MAEQ-->
+        <template id="eliterp_report_employee_memo">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq1.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h1>MEMORANDO</h1>
+                                <strong>
+                                    <span t-field="doc.name"/>
+                                </strong>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <p class="parrafomemo1">
+                                    <b>
+                                        <font style="text-transform: uppercase;">
+                                            <br/>
+                                            PARA:&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+                                            <strong>
+                                                <span t-field="doc.employee"/>.
+                                            </strong>
+                                            <br/>
+                                            ASUNTO: &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; INCUMPLIMIENTO DEL
+                                            <strong>
+                                                <span t-field="doc.document_select"/>,
+                                            </strong>
+                                            <strong>
+                                                <span t-field="doc.type_id.article"/>,
+                                            </strong>
+                                            #
+                                            <strong>
+                                                <span t-field="doc.type_id.numeral"/>.
+                                            </strong>
+                                            <br/>
+                                            FECHA: &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+                                            <strong>
+                                                <span t-esc="doc._get_date_format()"/>.
+                                            </strong>
+                                            <br/>
+
+                                        </font>
+                                    </b>
+                                </p>
+                                <p class="parrafomemo">
+                                    <br/>
+                                    <span t-field="doc.comment"/>
+                                    <br/>
+                                    Con esta acción está usted incumpliendo lo que dispone el
+                                    <span t-field="doc.document_select"/>
+                                    del Ecuador en el
+                                    <span t-field="doc.type_id.article"/>,
+                                    literal
+                                    <span t-field="doc.type_id.numeral"/>,
+                                    que señala como
+                                    <span t-field="doc.type_id.name"/>
+                                    del trabajador la siguiente:
+                                    <strong>
+                                        "<span t-field="doc.type_id.provision"/>"
+                                    </strong>
+                                    <br/>
+                                    <div t-if="not doc.comment_sanction">
+                                        <p class="parrafomemo">
+                                            Sírvase tomar los correctivos necesarios a fin de evitar que esta situación
+                                            se repita, caso contrario la empresa aplicará las sanciones que permiten el
+                                            código de trabajo y el reglamento interno.
+                                        </p>
+                                    </div>
+                                    <div t-if="doc.comment_sanction">
+                                        <p class="parrafomemo">
+                                            <br/>
+                                            Como consecuencia de lo sucedido se procede a sancionarlo conforme lo
+                                            permite la Ley con<span t-field="doc.comment_sanction"/>.
+                                        </p>
+                                    </div>
+
+                                    <div class="wrapper1 col-xs-12">
+                                        <p class="parrafomemo">
+                                            Atentamente,
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <div t-if="not doc.firme">
+                                                <p class="parrafomemo">
+                                                    <span t-field="doc.create_uid"/>
+                                                </p>
+                                            </div>
+                                            <div t-if="doc.firme">
+                                                <p class="parrafomemo">
+                                                    <span t-field="doc.firme"/>
+                                                </p>
+                                            </div>
+                                            <p class="parrafomemo">
+                                                c.c.: File personal
+                                                <br/>
+                                                Ministerio de Trabajo
+                                            </p>
+                                        </p>
+                                    </div>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                </p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_memo"
+                model="eliterp.memo"
+                string="Memorandums empleado"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_memo"
+                file="eliterp_hr.eliterp_report_employee_memo"
+                print_report_name="'Memorandums - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de Acta de entrega uniforme-->
+        <template id="eliterp_report_employee_acta_delivery">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq1.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h2>ACTA ENTREGA – RECEPCION</h2>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h3>
+                                    <p class="parrafomemoacta">
+                                        Sirva el presente documento como constancia de la entrega de equipos y
+                                        herramientas que realiza la empresa MAEQ MAQUINAS Y EQUIPOS S.A., a favor del
+                                        Sr.
+                                        <strong>
+                                            <span t-field="doc.name"/>
+                                        </strong>
+                                        -
+                                        <strong>
+                                            <span t-field="doc.identification_id"/>,
+                                        </strong>
+                                        con el cargo de
+                                        <font style="text-transform: uppercase;">
+                                            <strong>
+                                                <span t-field="doc.job_id"/>
+                                            </strong>
+                                        </font>
+                                        <br/>
+                                        <br/>
+                                        Los artículos descritos, forman parte de las herramientas, equipos de protección
+                                        personal, uniforme y credencial que requiere el trabajador para cumplir con sus
+                                        actividades de manera eficiente.
+                                        <br/>
+                                        <br/>
+                                        Es compromiso y responsabilidad del trabajador dar a éstos, el cuidado, buen uso
+                                        y mantenimiento que requieran para garantizar su custodia y tiempo de vida útil.
+                                        <br/>
+                                        <br/>
+                                        Por otro lado, autorizo a mi Empleador según sea el caso, que descuente de mi
+                                        remuneración, o de mi liquidación por finiquito por concepto de uniformes y
+                                        equipos de protección personal los valores que se indican a continuación.
+                                        <br/>
+                                        <br/>
+                                        Teniendo en cuenta los siguientes casos:
+                                        <br/>
+                                        <dl class="a">
+                                            <dt class="a">UNIFORMES: (Buzo, Gorra):</dt>
+                                            <dd class="a">Por recepción y uso de los uniformes, se descontará
+                                                el
+                                                100%.
+                                            </dd>
+                                            <dd class="a">Por daño, pérdida o no devolución del uniforme se
+                                                descontará el
+                                                200%.
+                                            </dd>
+                                            <dt class="a">EPP: (Casco, Orejeras Chaleco reflectivo)</dt>
+                                            <dd class="a">Por recepción y uso de los EPP, no se descontará.
+                                            </dd>
+                                            <dd class="a">Se retendrá el 100% como garantía, el mismo que será
+                                                reembolsado una vez devuelto.
+                                            </dd>
+                                            <dd class="a">Por daño, pérdida o no devolución del EPP se
+                                                descontará el 200%.
+                                            </dd>
+                                            <dt class="a">BOTAS (punta de acero, caucho amarillas)</dt>
+                                            <dd class="a">Por recepción de Botas, se descontará el 100% ya que
+                                                pertenecerán al colaborador.
+                                            </dd>
+                                        </dl>
+                                        <br/>
+                                        <br/>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <table class="table table-condensed acta_delivery">
+                                                <thead style="border: 1px solid black;">
+                                                    <tr style="border: 1px solid black;">
+                                                        <th class="text-center">Articulo</th>
+                                                        <th class="text-center">Movimiento</th>
+                                                        <th class="text-center">Cantidad</th>
+                                                        <th class="text-center">Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody style="border: 1px solid black;">
+                                                    <t t-set="lines"
+                                                       t-value="doc.uniform_history.filtered(lambda r: r.select)"/>
+                                                    <tr t-foreach="lines" t-as="line">
+                                                        <td>
+                                                            <span t-field="line.category"/>
+                                                            -
+                                                            <span t-field="line.article"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.movement"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-esc="'%.0f' % line.quantity"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-esc="'%.2f' %line.total"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+                                        </div>
+                                        <br/>
+                                    </p>
+                                </h3>
+                            </div>
+                            <div class="wrapper1 col-xs-12">
+                                <p class="parrafomemoacta">
+                                    <br/>
+                                    Fecha:
+                                    <span t-esc="doc._get_date_formattoday()"/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                </p>
+                                <div class="col-xs-12 text-center">
+                                    <p>_______________</p>
+                                    <p>
+                                        <strong>Recibí conforme</strong>
+                                    </p>
+                                    <p>
+                                        <strong>
+                                            <span t-field="doc.identification_id"/>
+                                        </strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_acta_delivery"
+                model="hr.employee"
+                string="Acta de entrega"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_acta_delivery"
+                file="eliterp_hr.eliterp_report_employee_acta_delivery"
+                print_report_name="'Acta de entrega - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de Acta de entrega equipos-->
+        <template id="eliterp_report_employee_acta_delivery_equiment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq1.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h2>ACTA ENTREGA – RECEPCION</h2>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h3>
+                                    <p class="parrafomemo1">
+                                        Sirva el presente documento como constancia de la entrega de equipos y
+                                        herramientas que realiza la empresa MAEQ MAQUINAS Y EQUIPOS S.A., a favor del
+                                        Sr. (Sra.)
+                                        <strong>
+                                            <span t-field="doc.name"/>
+                                        </strong>
+                                        -
+                                        <strong>
+                                            <span t-field="doc.identification_id"/>.
+                                        </strong>
+                                        Los artículos descritos a continuación, forman parte de las
+                                        herramientas, equipos de protección personal, suministros de
+                                        oficina, uniformes, credenciales o medios de comunicación que requiere el
+                                        trabajador para cumplir con sus actividades de manera eficiente.
+                                        <br/>
+                                        <b>
+                                            Es compromiso y responsabilidad del trabajador dar a éstos, el cuidado, buen
+                                            uso y mantenimiento que requieran para garantizar su custodia y tiempo de
+                                            vida útil.
+                                        </b>
+                                        <br/>
+                                        En caso de daño o pérdida por negligencia del usuario, el costo de reposición o
+                                        reparación será descontado de su renumeración.
+                                        <br/>
+                                        Al finalizar la relación laboral, el trabajador deberá devolver en
+                                        buen estado las herramientas y equipos de trabajo que le hubieren sido
+                                        asignados, caso contrario el costo por daño o pérdida de éstos, será descontado
+                                        en su liquidación de finiquito. Asumirá también el costo del equipo en caso de
+                                        pérdida.
+                                        <br/>
+                                        <br/>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <table class="table table-condensed acta_delivery">
+                                                <thead style="border: 1px solid black;">
+                                                    <tr style="border: 1px solid black;">
+                                                        <th class="text-center">TIPO</th>
+                                                        <th class="text-center">MOVIMIENTO</th>
+                                                        <th class="text-center">ARTICULO</th>
+                                                        <th class="text-center">ACCESORIOS</th>
+                                                        <th class="text-center">ESTADO</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody style="border: 1px solid black;">
+                                                    <t t-set="lines"
+                                                       t-value="doc.equipment_history.filtered(lambda r: r.select)"/>
+                                                    <tr t-foreach="lines" t-as="line">
+                                                        <td>
+                                                            <span t-field="line.type"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.movement"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.article"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.accessories"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.state_product"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+                                        </div>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </h3>
+                            </div>
+                            <p class="parrafomemo1">
+                                <br/>
+                                OBSERVACIONES.-
+                                <br/>
+                                <span t-field="doc.commentary"/>
+                                <br/>
+                                Fecha:
+                                <span t-esc="doc._get_date_formattoday()"/>
+                                <br/>
+                            </p>
+                            <p class="parrafomemo1">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                            </p>
+                            <div class="wrapper2 col-xs-12">
+                                <div class="clearfix">
+                                    <div class="row">
+                                        <div class="col-xs-6 text-center">
+                                            <p>_______________</p>
+                                            <p>
+                                                <strong>RECURSO HUMANOS</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col-xs-6 text-center">
+                                            <p>_________________</p>
+                                            <p>
+                                                <strong>EL TRABAJADOR (a)</strong>
+                                            </p>
+                                            <p>
+                                                <strong>
+                                                    C.I.
+                                                    <span t-field="doc.identification_id"/>
+                                                </strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_acta_delivery_equiment"
+                model="hr.employee"
+                string="Acta de entrega Recepción"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_acta_delivery_equiment"
+                file="eliterp_hr.eliterp_report_employee_acta_delivery_equiment"
+                print_report_name="'Acta de entrega - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de Acta de devuelta equipos-->
+        <template id="eliterp_report_employee_acta_delivery_equiment1">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq1.png') no-repeat fixed ">
+                            <div class="clearfix text-center">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <h2>ACTA DEVOLUCION – RECEPCION</h2>
+                                <br/>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h3>
+                                    <p class="parrafomemo1">
+                                        Sirva el presente documento como constancia de la devolución de equipos y
+                                        herramientas que realiza el Sr. (Sra.)
+                                        <strong>
+                                            <span t-field="doc.name"/>
+                                        </strong>
+                                        -
+                                        <strong>
+                                            <span t-field="doc.identification_id"/>,
+                                        </strong>
+                                        a la empresa MAEQ MAQUINAS Y EQUIPOS S.A., por motivo de salida (renuncia) de la
+                                        empresa.
+                                        <br/>
+                                        <br/>
+                                        Tal como se indicó en el acta de entrega inicial es responsabilidad el empleado
+                                        / usuario el buen uso y mantenimiento de los equipos a él asignados, y en caso
+                                        de que la relación laboral termine, el trabajador deberá devolver en buen estado
+                                        las herramientas y equipos de trabajo que le hubieren sido asignados, caso
+                                        contrario el costo por daño o pérdida de éstos, será descontado en su
+                                        liquidación de finiquito. Asumirá también el costo del equipo en caso de
+                                        pérdida.
+                                        <br/>
+                                        <br/>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+                                        </div>
+                                        <div class="col-xs-8">
+                                            <table class="table table-condensed acta_delivery">
+                                                <thead style="border: 1px solid black;">
+                                                    <tr style="border: 1px solid black;">
+                                                        <th class="text-center">TIPO</th>
+                                                        <th class="text-center">MOVIMIENTO</th>
+                                                        <th class="text-center">ARTICULO</th>
+                                                        <th class="text-center">ACCESORIOS</th>
+                                                        <th class="text-center">ESTADO</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody style="border: 1px solid black;">
+                                                    <t t-set="lines"
+                                                       t-value="doc.equipment_history.filtered(lambda r: r.select)"/>
+                                                    <tr t-foreach="lines" t-as="line">
+                                                        <td>
+                                                            <span t-field="line.type"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.movement"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.article"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.accessories"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="line.state_product"/>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-xs-2 text-center">
+                                            <br/>
+                                        </div>
+                                        <br/>
+                                        <br/>
+                                        <br/>
+                                    </p>
+                                </h3>
+                            </div>
+                            <p class="parrafomemo1">
+                                <br/>
+                                OBSERVACIONES.-
+                                <br/>
+                                <span t-field="doc.commentary"/>
+                                <br/>
+                                Fecha:
+                                <span t-esc="doc._get_date_formattoday()"/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                            </p>
+                            <div class="wrapper2 col-xs-12">
+                                <div class="clearfix">
+                                    <div class="row">
+                                        <div class="col-xs-6 text-center">
+                                            <p>_______________</p>
+                                            <p>
+                                                <strong>Recibí Conforme</strong>
+                                            </p>
+                                        </div>
+                                        <div class="col-xs-6 text-center">
+                                            <p>_________________</p>
+                                            <p>
+                                                <strong>Entregado por</strong>
+                                            </p>
+                                            <p>
+                                                <strong>
+                                                    C.I.
+                                                    <span t-field="doc.identification_id"/>
+                                                </strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_acta_delivery_equiment1"
+                model="hr.employee"
+                string="Acta de devolución"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_employee_acta_delivery_equiment1"
+                file="eliterp_hr.eliterp_report_employee_acta_delivery_equiment1"
+                print_report_name="'Acta de entrega - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de terminacion de contrato-->
+        <template id="eliterp_report_term_contract">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page"
+                             style="background: url('eliterp_management/static/src/img/maeq1.png') no-repeat fixed ">
+                            <div class="clearfix text-justify">
+                                <p class="parrafomemo1">
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    GUAYAQUIL, el&amp;nbsp;<span t-esc="doc._get_date_format()"/>.
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    Señor
+                                    <br/>
+                                    <strong>
+                                        <span t-field="doc.employee"/>
+                                    </strong>
+                                    <br/>
+                                    Ciudad
+                                    <br/>
+                                    <br/>
+                                    De mis consideraciones:
+                                    <br/>
+                                    <br/>
+                                    Por medio de la presente se le comunica que con fecha&amp;nbsp;<span
+                                        t-esc="doc._get_date_formatend()"/>, damos por concluido su Contrato a Plazo
+                                    Indefinido y en consecuencia finaliza toda relación laboral con MAEQ MAQUINAS Y
+                                    EQUIPOS S.A., por motivo de terminación del contrato durante el periodo de
+                                    prueba.
+                                    <br/>
+                                    Sin otro particular, me suscribo.
+                                    <br/>
+                                    <br/>
+                                    Atentamente,
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    Carlos J. Rivadeneira A.
+                                    <br/>
+                                    Gerente
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    He tomado conocimiento de la decisión de la empresa y como constancia de aquello
+                                    registro mi firma.
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                </p>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-12 text-center">
+                                        <p>__________________________</p>
+                                        <p>
+                                            <strong>
+                                                <span t-field="doc.employee"/>
+                                            </strong>
+                                        </p>
+                                        <p>
+                                            <strong>
+                                                <span t-field="doc.identification_id"/>
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_term_contract"
+                model="eliterp.term.contract"
+                string="Terminación de contrato "
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_term_contract"
+                file="eliterp_hr.eliterp_report_term_contract"
+                print_report_name="'Terminación de contrato - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"
+        />
+        <!--Formato de renuncia-->
+        <template id="eliterp_report_resignation_employment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page">
+                            <div class="clearfix text-justify">
+                                <p class="parrafomemo1">
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    Guayaquil, el&amp;nbsp;<span t-esc="doc._get_date_format()"/>.
+                                    <br/>
+                                    <br/>
+                                    Ingeniero
+                                    <br/>
+                                    <b>Carlos Julio Rivadeneira</b>
+                                    <br/>
+                                    Gerente
+                                    <br/>
+                                    <b>MAEQ MAQUINAS Y EQUIPOS S.A.</b>
+                                    <br/>
+                                    Ciudad
+                                    <br/>
+                                    <br/>
+                                    De mis consideraciones:
+                                    <br/>
+                                    <br/>
+                                    Por medio de la presente comunico a usted, que por motivos personales, renuncio
+                                    al cargo de&amp;nbsp;<span t-field="doc.job"/>, que he venido desempeñando en la
+                                    empresa
+                                    bajo su dirección.
+                                    <br/>
+                                    <br/>
+                                    Aprovecho la ocasión para agradecerle la oportunidad que me brindó y desearle a
+                                    la empresa muchos éxitos.
+                                    <br/>
+                                    <br/>
+                                    Atentamente,
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                </p>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-12 text-center">
+                                        <p>__________________________</p>
+                                        <p>
+                                            <strong>
+                                                <span t-field="doc.employee"/>
+                                            </strong>
+                                        </p>
+                                        <p>
+                                            <strong>
+                                                <span t-field="doc.identification_id"/>
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_resignation_employment"
+                model="eliterp.resignation.employment"
+                string="Renuncia"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_resignation_employment"
+                file="eliterp_hr.eliterp_report_resignation_employment"
+                print_report_name="'Renuncia - %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait3"/>
+        <!--Formato de contrato Destajo-->
+        <template id="eliterp_report_contract_term">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.basic_layout">
+                        <div class="page">
+                            <div class="clearfix text-center">
+                                <h4>CONTRATO DE TRABAJO A DESTAJO</h4>
+                            </div>
+                            <div class="clearfix text-justify">
+                                <h6>
+                                    <p>
+                                        En la ciudad de Guayaquil, a los&amp;nbsp;
+                                        <span t-esc="doc._get_date_formatlarge()"/>,
+                                        &amp;nbsp; comparecen, por una parte MAEQ MAQUINAS Y EQUIPOS S.A. con RUC No.
+                                        0992898542001 debidamente representada por Carlos Julio Rivadeneira Aguilar,
+                                        portador de la cédula de ciudadanía Nro. 0917844805 en calidad de EMPLEADOR; y
+                                        por otra parte, el señor:
+                                        <strong>
+                                            <span t-field="doc.employee"/>,
+                                        </strong>
+                                        &amp;nbsp;portador de la cédula de ciudadanía Nro.
+                                        <strong>
+                                            <span t-field="doc.identification_id"/>
+                                        </strong>
+                                        en calidad de TRABAJADOR. Los comparecientes son ecuatorianos, domiciliados en
+                                        la
+                                        ciudad de Guayaquil y capaces para contratar, quienes libre y voluntariamente
+                                        convienen en celebrar este
+                                        <b>CONTRATO DE TRABAJO A DESTAJO</b>
+                                        con sujeción a las declaraciones y estipulaciones contenidas en las siguientes
+                                        cláusulas:
+                                        <br/>
+                                        <br/>
+                                        <b>PRIMERA. ANTECEDENTES:</b>
+                                        <br/>
+                                        <br/>
+                                        Del empleador.- MAEQ Máquinas y Equipos, es una persona jurídica, legalmente
+                                        constituida, domiciliada en la ciudad de Guayaquil, cuya actividad comercial
+                                        está encaminada a alquilar maquinaria agrícola.
+                                        <br/>
+                                        <br/>
+                                        El empleador, representada por el señor Carlos Julio Rivadeneira Aguilar,
+                                        requiere contratar los servicios del trabajador para que realice el siguiente
+                                        trabajo a destajo: Trinchado de suelo agrícola mediante la operación de mini
+                                        excavadoras, con el debido cuidado general del área trabajada y mantenimiento de
+                                        sus equipos asignados.
+                                        <br/>
+                                        <br/>
+                                        <b>SEGUNDA. OBJETO DEL CONTRATO:</b>
+                                        <br/>
+                                        <br/>
+                                        El TRABAJADOR es operador de maquinaria agrícola, por lo cual declara tener los
+                                        conocimientos necesarios para ejecutar la labor por la que es contratado, En tal
+                                        virtud, el EMPLEADOR, contrata los servicios lícitos y personales del TRABAJADOR
+                                        para que ejecute lo que se detalla a continuación: Trinchado de terreno agrícola
+                                        asignado, en el sector y bloque especificado en la planificación mensual,
+                                        debiendo el trabajador cumplir con el trinchado de 1 hectárea por semana. Para
+                                        el cumplimiento del objeto de este contrato, el trabajador deberá entregar el
+                                        área correctamente trinchada y cumpliendo las normas establecidas, es decir,
+                                        cuidar la plantación, cuidar el sistema de riego y cuidar el equipo asignado. El
+                                        área establecida y asignada al trabajador es de 35 hectáreas.
+                                        <br/>
+                                        <br/>
+                                        <b>TERCERA.- REMUNERACIÓN Y FORMA DE PAGO:</b>
+                                        <br/>
+                                        <br/>
+                                        Por cada hectárea elaborada, el valor a cancelarse será de
+                                        <strong>
+                                            <span t-esc="doc._get_wage_letters()"/>
+                                        </strong>
+                                        &amp;nbsp;dólares de los Estados Unidos de Norte América, mediante acreditación
+                                        a la cuenta bancaria del trabajador.
+                                        <br/>
+                                        <br/>
+                                        <b>CUARTA.- DURACIÓN DEL CONTRATO:</b>
+                                        <br/>
+                                        <br/>
+                                        El plazo de vigencia de éste contrato será hasta la fecha de terminación y
+                                        entrega de la labor señalada en la cláusula segunda del presente contrato. A la
+                                        terminación de dicha labor, automáticamente fenecerá este contrato de trabajo y
+                                        se extinguirá el vínculo laboral entre las partes, sin necesidad de trámite
+                                        alguno.
+                                        <br/>
+                                        <br/>
+                                        Además, este contrato podrá terminar por las causales establecidas en los
+                                        artículos 169, 172 y 173 del Código del Trabajo.
+                                        <br/>
+                                        <br/>
+                                        <b>QUINTA.- HORARIO DE TRABAJO:</b>
+                                        <br/>
+                                        <br/>
+                                        Por tratarse de un contrato de trabajo a destajo, “EL TRABAJADOR”, no está
+                                        sujeto a horario de trabajo alguno, toda vez que es su obligación entregar la
+                                        “labor” conforme lo acordado en el contrato, quedando a su libre criterio las
+                                        horas diarias que invertirá para ejecutar la labor.
+                                        <br/>
+                                        <br/>
+                                        <b>SEXTA.- LUGAR DE TRABAJO:</b>
+                                        <br/>
+                                        <br/>
+                                        Las labores indicadas en el objeto de este contrato, se las ejecutará en
+                                        <span t-field="doc.comment"/>
+
+                                        <p style="page-break-before:always;">
+                                            <b>SÉPTIMA.- OBLIGACIONES DE LOS TRABAJADORES Y EMPLEADORES:</b>
+                                            <br/>
+                                            <br/>
+                                            En lo que respecta a las obligaciones, derecho y prohibiciones del empleador
+                                            y
+                                            trabajador, estos se sujetan estrictamente a lo dispuesto  en el Código del
+                                            Trabajo en su Capítulo IV de las obligaciones del empleador y del
+                                            trabajador, a
+                                            más de las estipuladas en este contrato, salvando las excepciones
+                                            determinadas
+                                            para los contratos a destajo.
+                                            <br/>
+                                            <br/>
+                                            <b>OCTAVA.- LEGISLACIÓN APLICABLE:</b>
+                                            <br/>
+                                            <br/>
+                                            En todo lo no previsto en este Contrato, cuyas modalidades especiales las
+                                            reconocen y aceptan las partes, éstas se sujetan al Código del Trabajo, bajo
+                                            la
+                                            modalidad de contratación a destajo.
+                                            <br/>
+                                            <br/>
+                                            <b>NOVENA.- JURISDICCIÓN Y COMPETENCIA:</b>
+                                            <br/>
+                                            <br/>
+                                            En caso de suscitarse discrepancias en la interpretación, cumplimiento y
+                                            ejecución del presente Contrato y cuando no fuere posible llegar a un
+                                            acuerdo
+                                            entre las partes, estas se someterán a los jueces competentes del lugar en
+                                            que
+                                            este contrato ha sido celebrado, así como al procedimiento oral determinados
+                                            por
+                                            la Ley.
+                                            <br/>
+                                            <br/>
+                                            <b>DÉCIMA.- SUSCRIPCIÓN:</b>
+                                            <br/>
+                                            <br/>
+                                            Las partes se ratifican en todas y cada una de las cláusulas precedentes y
+                                            para constancia y plena validez de lo estipulado firman este contrato en
+                                            original y dos ejemplares de igual tenor y valor, en la ciudad de Guayaquil,
+                                            el&amp;nbsp;<span t-esc="doc._get_date_formatlarges()"/>.
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                            <br/>
+                                        </p>
+                                    </p>
+                                </h6>
+                            </div>
+                            <div class="clearfix">
+                                <div class="row">
+                                    <div class="col-xs-6 text-center">
+                                        <p>_______________</p>
+                                        <p>
+                                            <strong>EL EMPLEADOR</strong>
+                                        </p>
+                                        <p>
+                                            <strong>C.I. 0917844805</strong>
+                                        </p>
+                                    </div>
+                                    <div class="col-xs-6 text-center">
+                                        <p>_________________</p>
+                                        <p>
+                                            <strong>EL TRABAJADOR (a)</strong>
+                                        </p>
+                                        <p>
+                                            <strong>
+                                                C.I.
+                                                <span t-field="doc.identification_id"/>
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_contract_term"
+                model="eliterp.contract.term"
+                string="Contrato destajo"
+                report_type="qweb-pdf"
+                menu="False"
+                name="eliterp_hr.eliterp_report_contract_term"
+                file="eliterp_hr.eliterp_report_contract_term"
+                print_report_name="'Contrato destajo- %s' % (object.name or '/')"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait2"
+        />
+
+        <!--
+                Reportes del módulo RRHH
+        -->
+        <!--Reporte de empleados-->
+        <template id="eliterp_report_employee_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-RRHH-001-V1</t>
+                    <t t-set="report_title">REPORTE DE EMPLEADOS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Tipo:</strong>
+                                    <p t-field="doc.type"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">No.</th>
+                                        <th class="text-center">Nombres</th>
+                                        <th class="text-center">Cédula</th>
+                                        <th class="text-center">Edad</th>
+                                        <th class="text-center">Estado civil</th>
+                                        <th class="text-center">F. ingreso</th>
+                                        <th class="text-center">F. salida</th>
+                                        <th class="text-center">Cuadrilla</th>
+                                        <th class="text-center">Cargo</th>
+                                        <th class="text-center">A. Beneficios</th>
+                                        <th class="text-center">Sueldo</th>
+                                        <th class="text-center">C. Bancaria</th>
+                                        <th class="text-center">E. Salarial</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="get_lines(doc)" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-esc="line['number']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['name']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['identification_id']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['age']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['civil_status']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['admission_date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['departure_date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['gang_id']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['job_id']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['benefits']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['wage']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['bank_account']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['struct_id']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_employee_report"
+                model="eliterp.employee.report"
+                string="Reporte de empleados"
+                report_type="qweb-pdf"
+                name="eliterp_hr.eliterp_report_employee_report"
+                file="eliterp_hr.eliterp_report_employee_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de asistencias-->
+        <template id="eliterp_report_attendance_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-RRHH-002-V1</t>
+                    <t t-set="report_title">REPORTE DE ASISTENCIAS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-4" t-if="doc.type_employees == 'all'">
+                                    <strong>Tipo:</strong>
+                                    <p>Todos</p>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center col-xs-5">Empleado</th>
+                                        <th class="text-center col-xs-2">Fecha</th>
+                                        <th class="text-center col-xs-1">Entrada</th>
+                                        <th class="text-center col-xs-1">Salida</th>
+                                        <th class="text-center col-xs-3">Novedad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="get_lines(doc)" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-esc="line['employee']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['in']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['out']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['comments']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_attendance_report"
+                model="eliterp.attendance.report"
+                string="Reporte de asistencias"
+                report_type="qweb-pdf"
+                name="eliterp_hr.eliterp_report_attendance_report"
+                file="eliterp_hr.eliterp_report_attendance_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de ausencias-->
+        <template id="eliterp_report_report_absences">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-RRHH-003-V1</t>
+                    <t t-set="report_title">REPORTE DE AUSENCIAS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-2">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-2" t-if="doc.holidays_status_id">
+                                    <strong>Ausencia:</strong>
+                                    <p t-field="doc.holidays_status_id"/>
+                                </div>
+                                <div class="col-xs-6" t-if="doc.employee_id">
+                                    <strong>Empleado:</strong>
+                                    <p t-field="doc.employee_id"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed table_general_ledger">
+                                <thead>
+                                    <tr>
+                                        <th width="35%" class="text-center">Empleado</th>
+                                        <th width="15%" class="text-center">Tipo de ausencia</th>
+                                        <th width="7.5%" class="text-center">Fecha novedad</th>
+                                        <th width="5%" class="text-center">Día(s)</th>
+                                        <th width="37.5%" class="text-center">Notas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="get_lines(doc)" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-esc="line['employee']"/>
+                                            </td>
+                                            <td t-att-style="'background-color:' + line['color']">
+                                                <span style="color: white;" t-esc="line['holiday']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['date_from']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['days']"/>
+                                            </td>
+                                            <td style="font-size: 9px;">
+                                                <span t-esc="line['report_note']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_report_absences"
+                model="eliterp.report.absences"
+                string="Reporte de ausencias"
+                report_type="qweb-pdf"
+                name="eliterp_hr.eliterp_report_report_absences"
+                file="eliterp_hr.eliterp_report_report_absences"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de vacaciones-->
+        <template id="eliterp_reprt_holiday_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-RRHH-004-V1</t>
+                    <t t-set="report_title">REPORTE DE VACACIONES</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-2">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Tipo de reporte:</strong>
+                                    <p t-field="doc.type_report"/>
+                                </div>
+                                <div class="col-xs-6" t-if="doc.type_report != 'all'">
+                                    <strong>Empleado:</strong>
+                                    <p t-field="doc.employee_id"/>
+                                </div>
+                            </div>
+                            <t t-foreach="get_lines(doc)" t-as="employee">
+                                <caption class="text-center">
+                                    Empleado:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="employee['name']"/>
+                                    </strong>
+                                    , fecha de ingreso:
+                                    <span t-esc="employee['admission_date']"/>
+                                </caption>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Período</th>
+                                            <th class="text-center">Generadas</th>
+                                            <th class="text-center">Gozadas</th>
+                                            <th class="text-center">Disponibles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="employee['holidays']" t-as="line">
+                                            <td>
+                                                <span t-esc="line['period']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['vacations_generated']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['vacations_taken']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['vacations_available']"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_holiday_report"
+                model="eliterp.holiday.report"
+                string="Reporte de vacaciones"
+                report_type="qweb-pdf"
+                name="eliterp_hr.eliterp_reprt_holiday_report"
+                file="eliterp_hr.eliterp_reprt_holiday_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de hora extra-->
+        <template id="eliterp_reprt_extra_hour_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-RRHH-005-V1</t>
+                    <t t-set="report_title">REPORTE DE HORAS EXTRAS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Tipo de reporte:</strong>
+                                    <p t-field="doc.type_report"/>
+                                </div>
+                            </div>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th t-if="doc.type_report == 'all'" class="text-center">Fecha</th>
+                                        <th class="text-center">Nombres</th>
+                                        <th class="text-center">Horas</th>
+                                        <th class="text-center">Monto total horas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="get_lines(doc)" t-as="line">
+                                        <tr>
+                                            <td t-if="doc.type_report == 'all'">
+                                                <span t-esc="line['date']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="line['employee']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="'%.2f' % line['additional_hours']"/>
+                                            </td>
+                                            <td>
+                                                <span t-esc="'%.2f' % line['total_hours']"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_extra_hour_report"
+                model="eliterp.extra_hour.report"
+                string="Reporte de hora extra"
+                report_type="qweb-pdf"
+                name="eliterp_hr.eliterp_reprt_extra_hour_report"
+                file="eliterp_hr.eliterp_reprt_extra_hour_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+
+        <!--
+                Reportes del módulo RRHH EXCEL
+        -->
+        <!--Reporte Empleado (Excel)-->
+        <report
+                id="eliterp_action_report_employee_xlsx"
+                model="eliterp.employee.report"
+                string="Reporte Empleado Excel"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_report_employee_xlsx"
+                file="eliterp_hr.eliterp_report_employee_xlsx"
+                print_report_name="Reporte de Empleado"
+                attachment_use="False"
+        />
+        <!--Reporte hora extra (Excel)-->
+        <report
+                id="eliterp_action_report_extra_hour_xlsx"
+                model="eliterp.extra_hour.report"
+                string="Reporte hora extra Excel"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_report_extra_hour_xlsx"
+                file="eliterp_hr.eliterp_report_extra_hour_xlsx"
+                print_report_name="Reporte de hora extra"
+                attachment_use="False"
+        />
+        <!--Reporte Rol Consolidado (Excel)-->
+        <report
+                id="eliterp_action_report_payslip_run_xlsx"
+                model="hr.payslip.run"
+                string="Rol Consolidado EXCEL"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_report_payslip_run_xlsx"
+                file="eliterp_hr.eliterp_report_payslip_run_xlsx"
+                print_report_name="Rol Consolidado"
+                attachment_use="False"
+        />
+        <!--Reporte Rol Anticipo (Excel)-->
+        <report
+                id="eliterp_action_report_payslip_xlsx"
+                model="eliterp.advance.payment"
+                string="Rol Anticipo EXCEL"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_report_payslip_xlsx"
+                file="eliterp_hr.eliterp_report_payslip_xlsx"
+                print_report_name="Rol Consolidado"
+                attachment_use="False"
+        />
+        <!--Asistencia Excel-->
+        <report
+                id="eliterp_action_report_attendance_xlsx"
+                model="eliterp.attendance.report"
+                string="Asistencia "
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_action_report_attendance_xlsx"
+                file="eliterp_hr.eliterp_action_report_attendance_xlsx"
+                print_report_name="Asistencia"
+                attachment_use="False"
+        />
+        <!--Ausencia Excel-->
+        <report
+                id="eliterp_action_report_absences_xlsx"
+                model="eliterp.report.absences"
+                string="Ausencia "
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_action_report_absences_xlsx"
+                file="eliterp_hr.eliterp_action_report_absences_xlsx"
+                print_report_name="Ausencia"
+                attachment_use="False"
+        />
+        <!--Vacaciones Excel-->
+        <report
+                id="eliterp_action_report_holiday_xlsx"
+                model="eliterp.holiday.report"
+                string="Vacaciones"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_action_report_holiday_xlsx"
+                file="eliterp_hr.eliterp_action_report_holiday_xlsx"
+                print_report_name="Vacaciones"
+                attachment_use="False"
+        />
+    </data>
+</odoo>
+

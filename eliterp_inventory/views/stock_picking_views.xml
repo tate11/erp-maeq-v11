@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vistas del menú Transferencias-->
+        <record id="eliterp_view_tree_stock_picking" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_stock_picking</field>
+            <field name='model'>stock.picking</field>
+            <field name='inherit_id' ref='stock.vpicktree'/>
+            <field name='arch' type='xml'>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="string">Proveedor/Cliente</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="eliterp_view_form_stock_picking" model="ir.ui.view">
+            <field name="name">eliterp_view_form_stock_picking</field>
+            <field name='model'>stock.picking</field>
+            <field name='inherit_id' ref='stock.view_picking_form'/>
+            <field name='arch' type='xml'>
+                <button name="%(stock.action_report_delivery)d" position="replace">
+                    <button name="print_picking"
+                            string="Imprimir"
+                            type="object"
+                            groups="stock.group_stock_manager,stock.group_stock_user"
+                            class="oe_highlight">
+                    </button>
+                </button>
+                <xpath expr="//button[@name='do_print_picking']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="string">Proveedor/Cliente</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="show_employee" invisible="1"/>
+                    <field name="employee_id"
+                           attrs="{'invisible': [('show_employee', '=', False)], 'required': [('show_employee', '=', True)]}" options="{'no_create': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//page[@name='extra']" position="attributes"><!--Información Adicional-->
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='extra']//field[@name='picking_type_id']"
+                       position="replace"/>
+                <xpath expr="//field[@name='partner_id']" position="before">
+                    <field name="picking_type_id" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                </xpath>
+
+                <!--Fecha para movimientos de empleado-->
+                <xpath expr="//field[@name='move_lines']//tree//field[@name='product_id']"
+                       position="after">
+                    <field name="date_delivery"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+

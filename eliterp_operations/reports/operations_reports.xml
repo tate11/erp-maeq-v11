@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--
+                Reportes del módulo Operaciones
+        -->
+        <!--Reporte de cuadrillas-->
+        <template id="eliterp_report_gang_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-OPER-001-V1</t>
+                    <t t-set="report_title">REPORTE DE CUADRILLAS</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-2">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-2">
+                                    <strong>Tipo de reporte:</strong>
+                                    <p t-field="doc.type_report"/>
+                                </div>
+                                <div class="col-xs-3" t-if="doc.ubication_id">
+                                    <strong>Ubicación:</strong>
+                                    <p t-field="doc.ubication_id"/>
+                                </div>
+                                <div class="col-xs-3" t-if="doc.struct_id">
+                                    <strong>Estructura salarial:</strong>
+                                    <p t-field="doc.struct_id"/>
+                                </div>
+                            </div>
+                            <t t-foreach="get_lines(doc)" t-as="row">
+                                <h5 class="clearfix text-center">Cuadrilla:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="row['gang']"/>
+                                    </strong>
+                                </h5>
+                                <caption t-if="doc.type_report == 'production'">
+                                    HA:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="'%.4f' % row['hectares']"/>
+                                    </strong>
+                                    &amp;nbsp;Distribución HA para Grupo/Período:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="'%.4f' % row['average']"/>
+                                    </strong>
+                                </caption>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Nombre de empleado</th>
+                                            <th class="text-center">Días</th>
+                                            <th t-if="doc.type_report != 'production'" class="text-center">Horas
+                                                trabajadas
+                                            </th>
+                                            <th t-if="doc.type_report == 'production'" class="text-center">HA * Operador
+                                                / Días
+                                            </th>
+                                            <th t-if="doc.type_report == 'production'" class="text-right">Valor HA
+                                                trabajadas * Operador
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="row['rows']" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['name']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['count']"/>
+                                                </td>
+                                                <td t-if="doc.type_report != 'production'">
+                                                    <span t-esc="'%.2f' % line['worked_hours']"/>
+                                                </td>
+                                                <td t-if="doc.type_report == 'production'">
+                                                    <span t-esc="'%.2f' % line['hectares']"/>
+                                                </td>
+                                                <td t-if="doc.type_report == 'production'" class="text-right">
+                                                    <span t-esc="'%.2f' % line['money']"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="border-top: 3px solid black; font-size:15px;">
+                                            <td>
+                                                <b>
+                                                    <span>Totales</span>
+                                                </b>
+                                            </td>
+                                            <td>
+                                                <span t-esc='sum(x["count"] for x in row["rows"])'/>
+                                            </td>
+                                            <td t-if="doc.type_report != 'production'">
+                                                <span t-esc='"%.2f" % sum(x["worked_hours"] for x in row["rows"])'/>
+                                            </td>
+                                            <td t-if="doc.type_report == 'production'">
+                                                <span t-esc='"%.2f" % sum(x["hectares"] for x in row["rows"])'/>
+                                            </td>
+                                            <td t-if="doc.type_report == 'production'" class="text-right">
+                                                <span t-esc='"%.2f" % sum(x["money"] for x in row["rows"])'/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_gang_report"
+                model="eliterp.gang.report"
+                string="Reporte de cuadrillas"
+                report_type="qweb-pdf"
+                name="eliterp_operations.eliterp_report_gang_report"
+                file="eliterp_operations.eliterp_report_gang_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de operaciones-->
+        <template id="eliterp_report_operations_cmc_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="report_code">REPO-OPER-002-V1</t>
+                    <t t-set="report_title">REPORTE DE OPERACIONES</t>
+                    <t t-set="is_report" t-value="True"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-xs-4">
+                                    <strong>Fecha inicio:</strong>
+                                    <p t-field="doc.start_date"/>
+                                </div>
+                                <div class="col-xs-4">
+                                    <strong>Fecha fin:</strong>
+                                    <p t-field="doc.end_date"/>
+                                </div>
+                                <div class="col-xs-4" t-if="doc.project_id">
+                                    <strong>Proyecto:</strong>
+                                    <p t-field="doc.project_id"/>
+                                </div>
+                            </div>
+                            <t t-foreach="get_lines(doc)" t-as="row">
+                                <h5 class="clearfix text-center">Cuadrilla:&amp;nbsp;
+                                    <strong>
+                                        <span t-esc="row['gang']"/>
+                                    </strong>
+                                </h5>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">Operador</th>
+                                            <th class="text-center">Máquina</th>
+                                            <th class="text-center">Horas trabajadas</th>
+                                            <th class="text-center">Horas no trabajadas</th>
+                                            <th class="text-center">Paro MAEQ</th>
+                                            <th class="text-center">Paro Cliente</th>
+                                            <th class="text-center">Paro Operador</th>
+                                            <th class="text-center">Paro Mecánico</th>
+                                            <th class="text-center">Paro No/Id</th>
+                                            <th class="text-center">Diesel (Gl)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="row['rows']" t-as="line">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['operator']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['machine']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['worked_hours']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['lost_hours']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['stop_1']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['stop_2']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['stop_3']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['stop_4']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="line['stop_5']"/>
+                                                </td>
+                                                <td>
+                                                    <span t-esc="'%.2f' % line['diesel']"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="border-top: 3px solid black; font-size:15px;">
+                                            <td colspan="2">
+                                                <b>
+                                                    <span>Totales</span>
+                                                </b>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["worked_hours"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["lost_hours"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["stop_1"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["stop_2"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["stop_3"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["stop_4"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["stop_5"] for x in row["rows"])'/>
+                                            </td>
+                                            <td>
+                                                <span t-esc='"%.2f" % sum(x["diesel"] for x in row["rows"])'/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+        <report
+                id="eliterp_action_report_operations_cmc_report"
+                model="eliterp.operations.cmc.report"
+                string="Reporte de operaciones"
+                report_type="qweb-pdf"
+                name="eliterp_operations.eliterp_report_operations_cmc_report"
+                file="eliterp_operations.eliterp_report_operations_cmc_report"
+                paperformat="eliterp_management.eliterp_paperformat_a4_landscape"
+        />
+        <!--Reporte de operaciones (Excel)-->
+        <report
+                id="eliterp_action_report_operations_cmc_xlsx"
+                model="eliterp.operations.cmc.report"
+                string="Reporte de operaciones"
+                report_type="xlsx"
+                name="eliterp_operations.eliterp_operations_cmc_xlsx"
+                file="eliterp_operations.eliterp_operations_cmc_xlsx"
+                print_report_name="Reporte de operaciones"
+                attachment_use="False"
+        />
+        <report
+                id="eliterp_action_report_operations_cmc_report_xlsx"
+                model="eliterp.operations.cmc.report"
+                string="Informe diario"
+                report_type="xlsx"
+                name="eliterp_operations.eliterp_operations_cmc_report_xlsx"
+                file="eliterp_operations.eliterp_operations_cmc_report_xlsx"
+                print_report_name="Informe diario"
+                attachment_use="False"
+        />
+        <report
+                id="eliterp_action_gang_report_xlsx"
+                model="eliterp.gang.report"
+                string="Reporte de cuadrilla "
+                report_type="xlsx"
+                name="eliterp_operations.eliterp_action_gang_report_xlsx"
+                file="eliterp_operations.eliterp_action_gang_report_xlsx"
+                print_report_name="Reporte Cuadrilla"
+                attachment_use="False"
+        />
+
+    </data>
+</odoo>
+

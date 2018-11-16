@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!--Vista del menú Termino de contrato-->
+        <record id="eliterp_view_tree_term_contract" model="ir.ui.view">
+            <field name="name">eliterp_view_tree_term_contract</field>
+            <field name="model">eliterp.term.contract</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state=='draft'"
+                      decoration-muted="state=='cancel'"
+                      decoration-bf="state == 'validate'"
+                      decoration-success="state == 'validate'"
+                >
+                    <field name="date"/>
+                    <field name="employee"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="eliterp_view_form_term_contract" model="ir.ui.view">
+            <field name="name">eliterp_view_form_term_contract</field>
+            <field name="model">eliterp.term.contract</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="imprimir_term_contract"
+                                    string="Imprimir Terminación de contrato"
+                                    type="object"
+                                    states="validate"
+                                    class="oe_highlight"/>
+                        <button name="validate"
+                                class="oe_highlight"
+                                string="Validar"
+                                states="draft"
+                                type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title" attrs="{'invisible': [('state','=', 'draft')]}">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group col="4" string="Información general">
+                            <field name="date"/>
+                            <field name="employee" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="identification_id" readonly="1"/>
+                            <field name="end_date"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

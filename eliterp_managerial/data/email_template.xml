@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="eliterp_approve_payment_request_mail" model="mail.template">
+            <field name="name">Correo para revisión/aprobación de requerimientos de pago</field>
+            <field name="model_id" ref="eliterp_treasury.model_eliterp_payment_request"/>
+            <field name="email_from">sistemas@elitumgroup.com</field>
+            <field name="subject">Petición para revisar/aprobar requerimiento de pago</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <table cellspacing="0" cellpadding="0" style="width:600px;border-collapse:collapse;background:inherit;color:inherit">
+        <tbody><tr>
+            <td valign="center" width="200" style="padding:10px 10px 10px 5px;font-size: 12px">
+                <img src="https://maeqsa.odoo.com/logo.png" style="padding: 0px; margin: 0px; height: auto; width: 80px;" alt="${user.company_id.name}">
+            </td>
+        </tr></tbody>
+    </table>
+</div>
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <p>Estimado(a),</p>
+    <p>Tiene una nueva solicitud de revisión/aprobación en el sistema.</p>
+    <div style="text-align: center; margin-top: 16px;">
+        <a href="${ctx['url']}" style="padding: 5px 10px; font-size: 12px; line-height: 18px; color: #FFFFFF; border-color:#875A7B; text-decoration: none; display: inline-block; margin-bottom: 0px; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; white-space: nowrap; background-image: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius:3px">Ir al registro</a>
+    </div>
+    <p>Saludos cordiales,</p>
+</div>
+<div style="padding:0px;width:600px;margin:auto; margin-top: 10px; background: #fff repeat top /100%;color:#777777">
+    ${user.signature | safe}
+    <p style="font-size: 11px; margin-top: 10px;">
+        <strong>Enviado por ${user.company_id.name} using <a href="www.odoo.com" style="text-decoration:none; color: #875A7B;">Odoo</a></strong>
+    </p>
+</div>]]></field>
+        </record>
+
+        <record id="eliterp_approve_advance_mail" model="mail.template">
+            <field name="name">Correo para revisión/aprobación de anticipo de quincena</field>
+            <field name="model_id" ref="eliterp_hr.model_eliterp_advance_payment"/>
+            <field name="email_from">sistemas@elitumgroup.com</field>
+            <field name="subject">Petición para revisar/aprobar anticipo de quincena</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <table cellspacing="0" cellpadding="0" style="width:600px;border-collapse:collapse;background:inherit;color:inherit">
+        <tbody><tr>
+            <td valign="center" width="200" style="padding:10px 10px 10px 5px;font-size: 12px">
+                <img src="https://maeqsa.odoo.com/logo.png" style="padding: 0px; margin: 0px; height: auto; width: 80px;" alt="${user.company_id.name}">
+            </td>
+        </tr></tbody>
+    </table>
+</div>
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <p>Estimado(a),</p>
+    <p>Tiene una nueva solicitud de revisión/aprobación en el sistema.</p>
+    <div style="text-align: center; margin-top: 16px;">
+        <a href="${ctx['url']}" style="padding: 5px 10px; font-size: 12px; line-height: 18px; color: #FFFFFF; border-color:#875A7B; text-decoration: none; display: inline-block; margin-bottom: 0px; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; white-space: nowrap; background-image: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius:3px">Ir al registro</a>
+    </div>
+    <p>Saludos cordiales,</p>
+</div>
+<div style="padding:0px;width:600px;margin:auto; margin-top: 10px; background: #fff repeat top /100%;color:#777777">
+    ${user.signature | safe}
+    <p style="font-size: 11px; margin-top: 10px;">
+        <strong>Enviado por ${user.company_id.name} using <a href="www.odoo.com" style="text-decoration:none; color: #875A7B;">Odoo</a></strong>
+    </p>
+</div>]]></field>
+        </record>
+
+        <record id="eliterp_approve_payslip_run_mail" model="mail.template">
+            <field name="name">Correo para revisión/aprobación de rol consolidado</field>
+            <field name="model_id" ref="hr_payroll.model_hr_payslip_run"/>
+            <field name="email_from">sistemas@elitumgroup.com</field>
+            <field name="subject">Petición para revisar/aprobar rol consolidado</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <table cellspacing="0" cellpadding="0" style="width:600px;border-collapse:collapse;background:inherit;color:inherit">
+        <tbody><tr>
+            <td valign="center" width="200" style="padding:10px 10px 10px 5px;font-size: 12px">
+                <img src="https://maeqsa.odoo.com/logo.png" style="padding: 0px; margin: 0px; height: auto; width: 80px;" alt="${user.company_id.name}">
+            </td>
+        </tr></tbody>
+    </table>
+</div>
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <p>Estimado(a),</p>
+    <p>Tiene una nueva solicitud de revisión/aprobación en el sistema.</p>
+    <div style="text-align: center; margin-top: 16px;">
+        <a href="${ctx['url']}" style="padding: 5px 10px; font-size: 12px; line-height: 18px; color: #FFFFFF; border-color:#875A7B; text-decoration: none; display: inline-block; margin-bottom: 0px; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; white-space: nowrap; background-image: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius:3px">Ir al registro</a>
+    </div>
+    <p>Saludos cordiales,</p>
+</div>
+<div style="padding:0px;width:600px;margin:auto; margin-top: 10px; background: #fff repeat top /100%;color:#777777">
+    ${user.signature | safe}
+    <p style="font-size: 11px; margin-top: 10px;">
+        <strong>Enviado por ${user.company_id.name} using <a href="www.odoo.com" style="text-decoration:none; color: #875A7B;">Odoo</a></strong>
+    </p>
+</div>]]></field>
+        </record>
+
+        <record id="eliterp_approve_purchase_order_mail" model="mail.template">
+            <field name="name">Correo para confirmación de orden de compra</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="email_from">sistemas@elitumgroup.com</field>
+            <field name="subject">Petición para confirmar orden de compra</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <table cellspacing="0" cellpadding="0" style="width:600px;border-collapse:collapse;background:inherit;color:inherit">
+        <tbody><tr>
+            <td valign="center" width="200" style="padding:10px 10px 10px 5px;font-size: 12px">
+                <img src="https://maeqsa.odoo.com/logo.png" style="padding: 0px; margin: 0px; height: auto; width: 80px;" alt="${user.company_id.name}">
+            </td>
+        </tr></tbody>
+    </table>
+</div>
+<div style="padding:0px;width:600px;margin:auto;background: #FFFFFF repeat top /100%;color:#777777">
+    <p>Estimado(a),</p>
+    <p>Tiene una nueva solicitud de revisión/aprobación en el sistema.</p>
+    <div style="text-align: center; margin-top: 16px;">
+        <a href="${ctx['url']}" style="padding: 5px 10px; font-size: 12px; line-height: 18px; color: #FFFFFF; border-color:#875A7B; text-decoration: none; display: inline-block; margin-bottom: 0px; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; white-space: nowrap; background-image: none; background-color: #875A7B; border: 1px solid #875A7B; border-radius:3px">Ir al registro</a>
+    </div>
+    <p>Saludos cordiales,</p>
+</div>
+<div style="padding:0px;width:600px;margin:auto; margin-top: 10px; background: #fff repeat top /100%;color:#777777">
+    ${user.signature | safe}
+    <p style="font-size: 11px; margin-top: 10px;">
+        <strong>Enviado por ${user.company_id.name} using <a href="www.odoo.com" style="text-decoration:none; color: #875A7B;">Odoo</a></strong>
+    </p>
+</div>]]></field>
+        </record>
+
+    </data>
+</odoo>

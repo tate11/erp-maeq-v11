@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="eliterp_assets_rrhh" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link href="/eliterp_hr/static/src/less/styles.less" rel="stylesheet" />
+        </xpath>
+    </template>
+</odoo>
