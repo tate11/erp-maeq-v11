@@ -10,6 +10,8 @@ from datetime import datetime
 class LinesAdvancePayment(models.Model):
     _name = 'eliterp.lines.advance.payment'
 
+    _rec_name = "employee_id"
+
     _description = 'Líneas de anticipo de quincena'
 
     @api.multi
