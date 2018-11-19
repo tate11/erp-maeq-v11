@@ -48,6 +48,12 @@
             <secRetencion1>{{ detalle_compras['secRetencion1'] }}</secRetencion1>
             <autRetencion1>{{ detalle_compras['autRetencion1'] }}</autRetencion1>
             <fechaEmiRet1>{{ detalle_compras['fechaEmiRet1'] }}</fechaEmiRet1>{% endif %}
+            {% if detalle_compras['es_nc'] %}
+            <docModificado>{{ detalle_compras['docModificado'] }}</docModificado>
+            <estabModificado>{{ detalle_compras['estabModificado'] }}</estabModificado>
+            <ptoEmiModificado>{{ detalle_compras['ptoEmiModificado'] }}</ptoEmiModificado>
+            <secModificado>{{ detalle_compras['secModificado'] }}</secModificado>
+            <autModificado>{{ detalle_compras['autModificado'] }}</autModificado>{% endif %}
         </detalleCompras>{% endfor %}
     </compras>
     <ventas>{% for detalle_ventas in ventas %}

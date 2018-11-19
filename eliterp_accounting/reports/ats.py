@@ -228,13 +228,12 @@ class AtsXml(models.TransientModel):
         :param invoice:
         :return:
         """
-        refund = self.env['account.invoice'].search([('invoice_reference', '=', invoice.id)])
         return {
             'docModificado': '01',
-            'estabModificado': refund.establishment,
-            'ptoEmiModificado': refund.emission_point,
-            'secModificado': refund.reference,
-            'autModificado': refund.origin,
+            'estabModificado': invoice.establishment,
+            'ptoEmiModificado': invoice.emission_point,
+            'secModificado': invoice.reference,
+            'autModificado': invoice.authorization
         }
 
     def _get_withhold(self, w):
@@ -357,16 +356,16 @@ class AtsXml(models.TransientModel):
                     'totbasesImpReemb': '0.00',
                     'detalleAir': self._process_lines(line)
                 })
-                if line.amount_total >= pay_limit:  # Formas de pago
-                    detallecompras.update({'pay': True})
-                    detallecompras.update({'formaPago': line.way_pay_id.code})
+                detallecompras.update({'pay': True})
+                detallecompras.update({'formaPago': line.way_pay_id.code})
                 if line.have_withhold:  # Si tiene retención entregada (Física)
                     if line.withhold_id.is_sequential:
                         detallecompras.update({'retencion': True})
                         detallecompras.update(self._get_withhold(line.withhold_id))
-                if line.have_credit_note:  # Si tiene nota de cŕedito
-                    detallecompras.update({'nota': True})
-                    detallecompras.update(self._get_refund(line))
+                if line.type in ['out_refund', 'in_refund']:
+                    if line.invoice_reference:
+                        detallecompras.update({'es_nc': True})
+                        detallecompras.update(self._get_refund(line.invoice_reference))
                 ats_purchases.append(detallecompras)
         return ats_purchases
 
