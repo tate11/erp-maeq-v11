@@ -519,32 +519,32 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         chart_1 = workbook.add_chart({'type': 'column', 'subtype': 'stacked'})
         chart_1.add_series({
             'name': "='IO-Diario'!$F$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
         })
         chart_1.add_series({
             'name': "='IO-Diario'!$G$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$G$8:$G$%d" % row_chart,
         })
         chart_1.add_series({
             'name': "='IO-Diario'!$H$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$H$8:$H$%d" % row_chart,
         })
         chart_1.add_series({
             'name': "='IO-Diario'!$I$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$I$8:$I$%d" % row_chart,
         })
         chart_1.add_series({
             'name': "='IO-Diario'!$J$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$J$8:$J$%d" % row_chart,
         })
         chart_1.add_series({
             'name': "='IO-Diario'!$K$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$K$8:$K$%d" % row_chart,
         })
         chart_1.set_title({'name': 'Horas Máquinas'})
@@ -555,14 +555,14 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         # Gráfica 2
         chart_2 = workbook.add_chart({'type': 'bar'})
         chart_2.add_series({
-            'name': "='IO-Diario'!$F$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
-            'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
+            'name': "='IO-Diario'!$G$7",
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
+            'values': "='IO-Diario'!$G$8:$G$%d" % row_chart,
         })
         chart_2.add_series({
-            'name': "='IO-Diario'!$L$7",
-            'categories': "='IO-Diario'!$B$8:$B$%d" % row_chart,
-            'values': "='IO-Diario'!$L$8:$L$%d" % row_chart,
+            'name': "='IO-Diario'!$M$7",
+            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
+            'values': "='IO-Diario'!$M$8:$M$%d" % row_chart,
         })
         chart_2.set_title({'name': 'Análisis Combustible'})
         chart_2.set_style(8)
@@ -570,14 +570,14 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         # Gráfica 3
         chart_3 = workbook.add_chart({'type': 'line'})
         chart_3.add_series({
-            'name': "='IO-Diario'!$E$7",
-            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
-            'values': "='IO-Diario'!$E$8:$E$%d" % row_chart,
+            'name': "='IO-Diario'!$F$7",
+            'categories': "='IO-Diario'!$D$8:$D$%d" % row_chart,
+            'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
         })
         chart_3.add_series({
-            'name': "='IO-Diario'!$F$7",
-            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
-            'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
+            'name': "='IO-Diario'!$G$7",
+            'categories': "='IO-Diario'!$D$8:$D$%d" % row_chart,
+            'values': "='IO-Diario'!$G$8:$G$%d" % row_chart,
         })
         chart_3.set_style(10)
         sheet.insert_chart('E%d' % (row + 12), chart_3,
