@@ -96,8 +96,7 @@ class AtsXml(models.TransientModel):
         """
         domain = [
             ('state', '=', 'cancel'),
-            ('date_invoice', '>=', period.start_date),
-            ('date_invoice', '<=', period.closing_date),
+            ('period', '=', period.id),
             ('type', '=', 'out_invoice')
         ]
         canceled = []
@@ -165,8 +164,7 @@ class AtsXml(models.TransientModel):
         """
         domain = [
             ('state', 'in', ('open', 'paid')),
-            ('date_invoice', '>=', period.start_date),
-            ('date_invoice', '<=', period.closing_date),
+            ('period', '=', period.id),
             ('type', '=', 'out_invoice')
         ]
         sales = []
@@ -315,14 +313,20 @@ class AtsXml(models.TransientModel):
         object_invoice = self.env['account.invoice']
         domain_purchase = [
             ('state', 'in', ['open', 'paid']),
-            ('date_invoice', '>=', period.start_date),
-            ('date_invoice', '<=', period.closing_date),
+            ('period', '=', period.id),
             ('type', 'in', ['in_invoice', 'in_refund'])
         ]
         purchases = object_invoice.search(domain_purchase)
         ats_purchases = []
         for line in purchases:
             if not line.partner_id.type_documentation == '06':  # TODO: Proveedores con pasaporte no se procesa
+                if line.type == 'in_invoice':
+                    if line.is_sale_note:
+                        code = '02'
+                    else:
+                        code = '01'
+                else:
+                    code = '04'
                 detallecompras = {}
                 valRetBien10, valRetServ20, valorRetBienes, valorRetServicios, valRetServ100 = self._get_retention_iva(
                     line)
@@ -330,7 +334,7 @@ class AtsXml(models.TransientModel):
                     'codSustento': line.tax_support_id.code,
                     'tpIdProv': line.partner_id.type_documentation,
                     'idProv': line.partner_id.documentation_number,
-                    'tipoComprobante': '01' if line.type == 'in_invoice' else '02',
+                    'tipoComprobante': code,
                     'parteRel': 'NO',
                     'fechaRegistro': self._convert_date(line.date_invoice),
                     'establecimiento': line.establishment,
@@ -376,7 +380,7 @@ class AtsXml(models.TransientModel):
                           FROM account_invoice \
                           WHERE type IN ('out_invoice', 'out_refund') \
                           AND state IN ('open','paid') \
-                          AND date_invoice BETWEEN '%s' AND '%s'" % (period.start_date, period.closing_date)
+                          AND period = '%s'" % period.id
         sql += " GROUP BY type;"
         self.env.cr.execute(sql)
         res = self.env.cr.fetchall()
@@ -423,7 +427,7 @@ class AtsXml(models.TransientModel):
         out = base64.b64encode(bytes(buf.getvalue(), 'utf-8'))
         buf.close()
         buf_error = StringIO()
-        for error in schema.error_log: # Si tiene errores se imprimen en documento
+        for error in schema.error_log:  # Si tiene errores se imprimen en documento
             buf_error.write("ERROR ON LINE %s: %s" % (error.line, error.message.encode("utf-8")) + '\n')
         out_error = base64.b64encode(bytes(buf_error.getvalue(), 'utf-8'))
         buf_error.close()
