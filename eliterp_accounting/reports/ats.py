@@ -177,7 +177,7 @@ class AtsXml(models.TransientModel):
                 'tipoEm': 'F',
                 'numeroComprobantes': 1,
                 'baseNoGraIva': 0.00,
-                'baseImponible': inv.amount_untaxed,
+                'baseImponible': 0.00,
                 'baseImpGrav': inv.amount_untaxed,
                 'montoIva': inv.amount_tax,
                 'montoIce': '0.00',
