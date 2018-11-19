@@ -289,8 +289,7 @@ class AccountInvoice(models.Model):
             return self.env['eliterp.tax.support'].search([])[0].id
 
     way_pay_id = fields.Many2one('eliterp.way.pay', string='Forma de pago',
-                                 default=lambda self: self._default_way_pay(), readonly=True,
-                                 states={'draft': [('readonly', False)]})
+                                 default=lambda self: self._default_way_pay())
     sri_authorization_id = fields.Many2one('eliterp.sri.authorization', string='Autorización del SRI', copy=False,
                                            readonly=True,
                                            states={'draft': [('readonly', False)]})
@@ -299,8 +298,7 @@ class AccountInvoice(models.Model):
     invoice_number = fields.Char('No. Factura', compute='_compute_invoice_number', store=True, readonly=True,
                                  copy=False)
     tax_support_id = fields.Many2one('eliterp.tax.support', string='Sustento tributario',
-                                     default=lambda self: self._default_tax_support(), readonly=True,
-                                     states={'draft': [('readonly', False)]})
+                                     default=lambda self: self._default_tax_support())
     # Campos para documentos no emitidos por Companía
     establishment = fields.Char('No. Establecimiento', size=3, default='001', readonly=True,
                                 states={'draft': [('readonly', False)]})
