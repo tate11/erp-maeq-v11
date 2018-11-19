@@ -107,8 +107,9 @@
                                 </div>
                                 <field name="wage"/>
                                 <field name="mobile_phone" string="Móvil"/>
-                                <field name="contract_id" invisible="1"/>
+                                <field name="wage_bono" string="Bono variable ref"/>
                                 <field name="departure_date" attrs="{'invisible':[('contract_id', '=', False)]}"/>
+                                <field name="contract_id" invisible="1"/>
                                 <field name="coach_id" invisible="1"/><!--Monitor-->
                             </group>
                         </page>

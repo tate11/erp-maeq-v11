@@ -348,3 +348,4 @@ class Employee(models.Model):
     memo_quantity = fields.Integer('Memorandums', compute='_compute_memo_quantity')
     memo_ids = fields.One2many('eliterp.memo', 'employee', string='Memos')
     commentary = fields.Text('Comentario')
+    wage_bono = fields.Float('Bono variable ref')
