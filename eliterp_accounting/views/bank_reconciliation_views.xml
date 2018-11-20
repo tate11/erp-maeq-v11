@@ -91,7 +91,10 @@
                         <group col="1" string="Líneas de movimiento bancarios">
                             <field name="lines_banks_move"
                                    nolabel="1" attrs="{'readonly':[('state','=', 'posted')]}">
-                                <tree editable="bottom" create="false">
+                                <tree editable="bottom"
+                                      decoration-success="check"
+                                      decoration-bf="check"
+                                      create="false">
                                     <field name="check"/>
                                     <field name="date" readonly="1"/>
                                     <field name="journal" readonly="1"/>

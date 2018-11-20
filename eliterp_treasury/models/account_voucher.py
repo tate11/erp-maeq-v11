@@ -744,7 +744,7 @@ class AccountVoucher(models.Model):
         """
         Número del siguiente cheque según secuencia, caso contrario colocamos en falso
         """
-        if self.type_egress == 'credit_card': # Colocamos cuenta por defecto en TC
+        if self.type_egress == 'credit_card':  # Colocamos cuenta por defecto en TC
             account = self.env['account.account'].search([('code', '=', '2.1.2.4')])[0]
             self.account_id = account if account else False
         if self.bank_id:
@@ -774,14 +774,16 @@ class AccountVoucher(models.Model):
         if self.check_number:
             # TODO: Revisar
             if int(self.check_number) < int(self.bank_id.start):
-                raise ValidationError("Cheque %s menor al configurado en banco (%s)." % (self.check_number, self.bank_id.start))
+                raise ValidationError(
+                    "Cheque %s menor al configurado en banco (%s)." % (self.check_number, self.bank_id.start))
             check = self.env['eliterp.checks'].search([
                 ('bank_id', '=', self.bank_id.id),
                 ('name', '=', self.check_number)
             ])
             if check:
                 raise ValidationError("Ya existe un cheque "
-                                      "registrado para el banco %s con ese número (%s)." % (self.bank_id.name, self.check_number))
+                                      "registrado para el banco %s con ese número (%s)." % (
+                                      self.bank_id.name, self.check_number))
 
     def load_small_box(self):
         """
@@ -884,12 +886,16 @@ class AccountVoucher(models.Model):
         ('transfer', 'Transferencia'),
         ('credit_card', 'Tarjeta de crédito'),
         ('debit_note', 'Nota de débito')
-    ], string='Forma de pago', default='cash', required=True, track_visibility='onchange', readonly=True, states={'draft': [('readonly', False)]})
-    beneficiary = fields.Char('Beneficiario', readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
-    check_number = fields.Char('No. Cheque', readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
-    check_date = fields.Date('Fecha Che./Tra.', readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
-    bank_id = fields.Many2one('res.bank', string="Banco", readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
-    amount_cancel = fields.Float('Monto a cancelar', readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
+    ], string='Forma de pago', default='cash', required=True, track_visibility='onchange', readonly=True,
+        states={'draft': [('readonly', False)]})
+    beneficiary = fields.Char('Beneficiario', readonly=True, states={'draft': [('readonly', False)]},
+                              track_visibility='onchange')
+    check_date = fields.Date('Fecha Che./Tra.', readonly=True, states={'draft': [('readonly', False)]},
+                             track_visibility='onchange')
+    bank_id = fields.Many2one('res.bank', string="Banco", readonly=True, states={'draft': [('readonly', False)]},
+                              track_visibility='onchange')
+    amount_cancel = fields.Float('Monto a cancelar', readonly=True, states={'draft': [('readonly', False)]},
+                                 track_visibility='onchange')
     total_payments = fields.Monetary('Total de cobros', compute='_get_total_payments', track_visibility='onchange')
     total_invoices = fields.Monetary('Total facturas', compute='_get_total_invoices')
     # CM

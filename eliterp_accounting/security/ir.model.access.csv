@@ -7,7 +7,7 @@ access_account_period_user,account_period_user,model_eliterp_account_period,acco
 access_lines_banks_move_manager,lines_banks_move_manager,model_eliterp_lines_banks_move,account.group_account_manager,1,1,1,1
 access_bank_conciliation_manager,bank_conciliation_manager,model_eliterp_bank_conciliation,account.group_account_manager,1,1,1,1
 
-access_checks_manager,checks_manager,model_eliterp_checks,account.group_account_manager,1,1,1,1
+access_checks_manager,checks_manager,model_eliterp_checks,account.group_account_manager,1,1,1,0
 
 access_credit_debit_notes_manager,credit_debit_notes_manager,model_eliterp_credit_debit_notes,account.group_account_manager,1,1,1,1
 

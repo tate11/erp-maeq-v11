@@ -20,7 +20,8 @@
         'sale',
         'stock',
         'payment',
-        'purchase'
+        'purchase',
+        'account_voucher'
     ],
     'data': [
         'data/accounts.xml',

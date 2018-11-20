@@ -8,6 +8,8 @@ from odoo import api, fields, models
 class Voucher(models.Model):
     _inherit = 'account.voucher'
 
+    check_number = fields.Char('No. Cheque', readonly=True, states={'draft': [('readonly', False)]},
+                               track_visibility='onchange')
     reconcile = fields.Boolean('Conciliado?', default=False, track_visibility='onchange')
 
 
@@ -48,6 +50,7 @@ class Checks(models.Model):
         ('charged', 'Debitado'),
         ('protested', 'Anulado')
     ], string='Estado', track_visibility='onchange')
+
     voucher_id = fields.Many2one('account.voucher', string='Pago/Cobro')
     reconcile = fields.Boolean(related='voucher_id.reconcile', string='Conciliado?')
-    name = fields.Char('No. Cheque')
+    name = fields.Char('No. Cheque', related='voucher_id.check_number')
