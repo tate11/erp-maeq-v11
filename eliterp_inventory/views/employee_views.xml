@@ -9,7 +9,9 @@
                 <xpath expr="//notebook/page[@name='equipment_uniform']/group[1]" position="before">
                     <group string="Uniformes y ERP">
                         <field name="uniform_history" nolabel="1">
-                            <tree editable="bottom" delete="false" create="false">
+                            <tree editable="bottom" delete="false"
+                                  decoration-muted="movement == 'returned'"
+                                  create="false">
                                 <field name="select"/>
                                 <field name="date" readonly="1"/>
                                 <field name="movement" readonly="1"/>
