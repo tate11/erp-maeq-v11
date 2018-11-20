@@ -70,6 +70,5 @@ class StockPicking(models.Model):
         else:  # Transferencia
             return self.env.ref('eliterp_inventory.eliterp_action_report_stock_picking_trans').report_action(self)
 
-    employee_id = fields.Many2one('hr.employee', string='Empleado', readonly=True,
-                                  states={'draft': [('readonly', False)]})
+    employee_id = fields.Many2one('hr.employee', string='Empleado')
     show_employee = fields.Boolean('Mostrar', compute='_get_parameter')
