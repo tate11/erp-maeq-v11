@@ -437,6 +437,7 @@ class LiquidationSettlement(models.Model):
                     'name': name,
                     'account': account,
                     'account_credit': line.account_id,
+                    'invoice': line.invoice_id.id or line.sale_note_id.id or False,
                     'amount': line.amount_total
                 })
         else:
@@ -458,6 +459,7 @@ class LiquidationSettlement(models.Model):
                     'account_id': register['account'],
                     'move_id': move_id.id,
                     'debit': register['amount'],
+                    'invoice_id': register['invoice'],
                     'credit': 0.00,
                     'date': self.application_date
                 })
@@ -493,24 +495,18 @@ class LiquidationSettlement(models.Model):
                          'date': self.application_date})
         move_id.with_context(eliterp_moves=True, move_name=self.name).post()
         move_id.write({'ref': 'LV por motivo de %s' % self.reason})
+        # Liquidamos con factura
+        for line in self.document_lines_without.filtered(lambda l: l.type_voucher in ['invoice', 'note']):
+            d = line.invoice_id or line.sale_note_id
+            movelines = d.move_id.line_ids or d.move_id.line_ids
+            line_ = move_id.line_ids.filtered(lambda x: x.invoice_id == d)
+            line_x = movelines.filtered(lambda x: x.invoice_id == d and x.account_id.user_type_id.type == 'payable')
+            (line_x + line_).reconcile()
         self.write({
             'state': 'liquidated',
             'move_id': move_id.id
         })
-
-    @api.multi
-    def reconcile(self):
-        """
-        Conciliamos diario de liquidación con facturas
-        :return:
-        """
-        for line in self.document_lines_without.filtered(lambda l: l.type_voucher != 'vale'):
-            movelines = line.invoice_id.move_id.line_ids or line.sale_note_id.move_id.line_ids
-            for line in movelines:
-                line_ = self.move_id.line_ids.filtered(
-                    lambda x: x.account_id == line.account_id and x.partner_id == line.partner_id)
-                (line + line_).reconcile()
-
+        return True
 
     @api.onchange('with_request')
     def _onchange_with_request(self):
