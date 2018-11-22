@@ -737,7 +737,7 @@ class PurchaseOrder(models.Model):
 class LinesAdvancePayment(models.Model):
     _inherit = 'eliterp.lines.advance.payment'
 
-    @api.depends('pay_lines.pay_order_id.state', 'pay_lines.amount', 'pay_lines.voucher_id')
+    @api.depends('pay_lines.pay_order_id.state', 'pay_lines.amount', 'amount_total', 'pay_lines.voucher_id')
     def _compute_amount(self):
         """
         Calculamos los pagos del empleado asignado en las ordenes
