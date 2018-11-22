@@ -108,7 +108,7 @@ class PayslipRun(models.Model):
             raise UserError("No hay líneas de roles creadas en el sistema.")
         self.update({'state': 'to_approve'})
         # Enviar correo a usuarios para aprobación
-        #self.env['eliterp.managerial.helps'].send_mail(self.id, self._name, 'eliterp_approve_payslip_run_mail')
+        self.env['eliterp.managerial.helps'].send_mail(self.id, self._name, 'eliterp_approve_payslip_run_mail')
 
     @api.multi
     def approve(self):
@@ -440,8 +440,8 @@ class PayslipRun(models.Model):
         """
         self.total = sum(line.net_receive for line in self.lines_payslip_run)
 
-    @api.depends('lines_payslip_run')
     @api.one
+    @api.depends('lines_payslip_run')
     def _get_count_employees(self):
         """
         Calculamos el total de empleados en rol
@@ -474,7 +474,7 @@ class PayslipRun(models.Model):
     @api.multi
     def duplicate(self):
         """
-        Duplicar el rol consolidado, creando nuevas funciones
+        TODO: Duplicar el rol consolidado, creando nuevas funciones
         :return: object
         """
         start = time.strftime('%Y-%m-01')

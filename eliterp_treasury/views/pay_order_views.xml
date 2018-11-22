@@ -290,15 +290,13 @@
                 <attribute name="decoration-bf">flag==True</attribute>
                 <attribute name="class">lines_checkbox</attribute>
             </xpath>
-            <xpath expr="//field[@name='lines_advance']//tree//field[@name='mobilization']"
+            <xpath expr="//field[@name='lines_advance']//tree//field[@name='amount_total']"
                    position="after">
-                <field name="all"
-                       attrs="{'invisible': ['|', ('flag', '=', True), ('parent_state', '!=', 'posted')], 'readonly': [('flag', '=', True)]}"
-                />
+                <field name="paid_amount" sum="Total pagado"/>
+                <field name="residual" sum="Total saldo" string="Saldo"/>
                 <field name="amount_payable"
                        attrs="{'invisible': ['|', ('flag', '=', True), ('parent_state', '!=', 'posted')], 'readonly': [('flag', '=', True)]}"/>
-                <field name="paid_amount" sum="Total pagado"/>
-                <field name="residual" invisible="1"/>
+
             </xpath>
         </field>
     </record>

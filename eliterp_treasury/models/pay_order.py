@@ -767,29 +767,10 @@ class LinesAdvancePayment(models.Model):
                 self.amount_payable, self.residual, self.employee_id.name
             ))
 
-    @api.onchange('all')
-    def _onchange_all(self):
-        """
-        Al cambiar seleccionar el saldo no más a pagar
-        :return:
-        """
-        if self.all:
-            self.amount_payable = self.residual
-
-    @api.onchange('selected')
-    def _onhcange_selected(self):
-        """
-        Seleccionamos todos en general
-        :return:
-        """
-        if self.selected:
-            self.all = True
-
     selected = fields.Boolean('Seleccionar?', default=False)
     flag = fields.Boolean('Conciliado', compute="_compute_amount", store=True)
-    all = fields.Boolean('Todo?', default=False)
     paid_amount = fields.Float('Pagado', compute='_compute_amount', store=True)
-    residual = fields.Float('Pagado', compute='_compute_amount', store=True)
+    residual = fields.Float('Saldo', compute='_compute_amount', store=True)
     amount_payable = fields.Float('A pagar')
     pay_lines = fields.One2many('eliterp.list.employees.order', 'pay_order_line_id', string="Líneas de ordenes de pago",
                                 readonly=True,
@@ -798,6 +779,16 @@ class LinesAdvancePayment(models.Model):
 
 class AdvancePayment(models.Model):
     _inherit = 'eliterp.advance.payment'
+
+    @api.multi
+    def posted_advance(self):
+        """
+        Acualizamos el monto a pagar
+        :return:
+        """
+        for line in self.lines_advance:
+            line.update({'amount_payable': line.amount_total})
+        return super(AdvancePayment, self).posted_advance()
 
     @api.multi
     def generate_request(self):
