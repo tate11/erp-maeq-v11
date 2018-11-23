@@ -141,7 +141,11 @@ class Payslip(models.Model):
                 safe_eval(input.condition_python, local_dict, mode='exec', nocopy=True)
                 amount = local_dict['result']
             elif input.code == 'ADQ':  # TODO: Esto se hace para MAEQ
-                last_advance_payment = self.env['eliterp.advance.payment'].search([('state', '=', 'posted')])
+                last_advance_payment = self.env['eliterp.advance.payment'].search([
+                    ('state', '=', 'posted'),
+                    ('date', '>=', self.date_from),
+                    ('date', '<=', self.date_to)
+                ])
                 if last_advance_payment:
                     for line in last_advance_payment[-1].lines_advance:
                         if line.employee_id in [self.employee_id, employee_id]:
@@ -205,7 +209,8 @@ class Payslip(models.Model):
 
     worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30)
     number_absences = fields.Integer(string="Nº de ausencias", default=0)
-    extra_hours = fields.Float('Horas extras ($)', track_visibility='onchange')  # TODO: MAEQ, hasta igualar en día a día
+    extra_hours = fields.Float('Horas extras ($)',
+                               track_visibility='onchange')  # TODO: MAEQ, hasta igualar en día a día
     # Egresos
     input_line_ids_2 = fields.One2many('eliterp.payslip.input.2', 'payslip_id', string='Egresos rol',
                                        readonly=True, states={'draft': [('readonly', False)]})
@@ -216,6 +221,6 @@ class Payslip(models.Model):
                                  states={'draft': [('readonly', False)]},
                                  default=lambda self: self.env['account.journal'].search([('type', '=', 'general')],
                                                                                          limit=1))
-    net_receive = fields.Float('Neto a recibir', compute='_get_net_receive', store=True,track_visibility='onchange')
+    net_receive = fields.Float('Neto a recibir', compute='_get_net_receive', store=True, track_visibility='onchange')
     approval_user = fields.Many2one('res.users', 'Aprobado por')
     reviewed_user = fields.Many2one('res.users', string='Revisado por')
