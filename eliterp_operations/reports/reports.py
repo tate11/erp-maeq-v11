@@ -518,11 +518,6 @@ class OperationsCmcReportXlsx(models.AbstractModel):
         # Gráfica 1
         chart_1 = workbook.add_chart({'type': 'column', 'subtype': 'stacked'})
         chart_1.add_series({
-            'name': "='IO-Diario'!$F$7",
-            'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
-            'values': "='IO-Diario'!$F$8:$F$%d" % row_chart,
-        })
-        chart_1.add_series({
             'name': "='IO-Diario'!$G$7",
             'categories': "='IO-Diario'!$C$8:$C$%d" % row_chart,
             'values': "='IO-Diario'!$G$8:$G$%d" % row_chart,
