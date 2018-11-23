@@ -31,7 +31,7 @@ class BankConciliationWizard(models.TransientModel):
     @api.multi
     def save_conciliation(self):
         """
-        Creamos una nueva conciliación bancaria
+        Creamos una nueva conciliación bancaria del banco y compañía
         :return: dict
         """
         moves = self.env['account.move.line'].search([
@@ -119,6 +119,7 @@ class LinesBanksMove(models.Model):
     _name = 'eliterp.lines.banks.move'
 
     _description = 'Lineas de movimientos bancarios'
+    _order = "date asc"
 
     move_line_id = fields.Many2one('account.move.line', string='Movimiento')
     check = fields.Boolean(default=False, string="Seleccionar?")
@@ -134,6 +135,7 @@ class BankConciliation(models.Model):
     _name = 'eliterp.bank.conciliation'
 
     _description = 'Concilación bancaria'
+    _order = "bank_id, posted_date desc"
 
     @api.one
     @api.depends('lines_banks_move')
@@ -221,7 +223,7 @@ class BankConciliation(models.Model):
     def unlink(self):
         for order in self:
             if not order.state == 'draft':
-                raise UserError("No se puede borrar una conciliación contabilizada.")
+                raise UserError("No se puede borrar una conciliación validadass.")
         return super(BankConciliation, self).unlink()
 
     name = fields.Char('No. Documento', default='Nueva conciliación')
