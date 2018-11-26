@@ -62,12 +62,12 @@
                                       decoration-info="state == 'free'"
                                       decoration-muted="state == 'lack'">
                                     <field name="employee_id"/>
-                                    <field name="state"/>
+                                    <field name="state" invisible="1"/>
                                     <field name='check_in_am' widget='float_time' string='Entrada'/>
                                     <field name='check_out_am' widget='float_time' string='Salida Almuerzo'/>
                                     <field name='check_in_pm' widget='float_time' string='Retorno Almuerzo'/>
                                     <field name='check_out_pm' widget='float_time' string='Salida'/>
-                                    <field name="news" attrs="{'required' : [('state', '!=', 'no news')]}"/>
+                                    <field name="news" invisible="1" attrs="{'required' : [('state', '!=', 'no news')]}"/>
                                 </tree>
                             </field>
                         </group>
