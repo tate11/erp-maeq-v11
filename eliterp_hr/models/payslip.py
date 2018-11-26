@@ -165,7 +165,7 @@ class Payslip(models.Model):
             res += [input_data]
         return res
 
-    @api.onchange('employee_id', 'date_from')
+    @api.onchange('employee_id', 'date_from', 'worked_days')
     def onchange_employee(self):
         """
         MM: Cálculo de ingresos, egresos y provisiones
@@ -207,7 +207,7 @@ class Payslip(models.Model):
 
         return
 
-    worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30)
+    worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30, required=True)
     number_absences = fields.Integer(string="Nº de ausencias", default=0)
     extra_hours = fields.Float('Horas extras ($)',
                                track_visibility='onchange')  # TODO: MAEQ, hasta igualar en día a día

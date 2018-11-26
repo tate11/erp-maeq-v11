@@ -148,7 +148,7 @@ class VoucherCancelReason(models.TransientModel):
             voucher.line_employee_id.update({'voucher_id': False})
         else:
             pay.update({'state': 'cancel'})
-        if pay.type in ['adq', 'rc']:  # Soló para RC y ADQ
+        if pay.type in ['adq', 'rc']:  # TODO: Soló para RC y ADQ, no sirve
             if not voucher.line_employee_id:
                 lines = []
                 for l in pay.lines_employee:
@@ -157,11 +157,6 @@ class VoucherCancelReason(models.TransientModel):
                     lines = pay.advance_payment_id.lines_advance.filtered(lambda x: x.employee_id.id in lines)
                 else:
                     lines = pay.payslip_run_id.lines_payslip_run.filtered(lambda x: x.role_id.employee_id.id in lines)
-                for line in lines:
-                    line.update({
-                        'selected': False,
-                        'flag': False
-                    })
         else:
             object_ = pay.invoice_id or pay.purchase_order_id or pay.payment_request_id
             object_._get_customize_amount()

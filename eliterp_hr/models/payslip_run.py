@@ -54,8 +54,6 @@ class LinesPayslipRun(models.Model):
     net_receive = fields.Float('Neto a recibir')
     role_id = fields.Many2one('hr.payslip', 'Rol individual')
     payslip_run_id = fields.Many2one('hr.payslip.run', 'Rol consolidado')
-    selected = fields.Boolean('Seleccionar?', default=False)
-    flag = fields.Boolean('Bandera', default=False)
     parent_state = fields.Char(compute="_compute_parent_state", string="Estado de anticipo")
 
 

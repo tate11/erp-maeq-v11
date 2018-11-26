@@ -90,9 +90,10 @@ class PayWizard(models.TransientModel):
             for line in rc.lines_payslip_run:
                 if line.selected and not line.flag:
                     employees.append([0, 0, {'employee_id': line.role_id.employee_id.id,
-                                             'amount': line.net_receive,
+                                             'amount': line.amount_payable,
+                                             'pay_order_line_id_rc': line.id,
                                              'is_check': True if rc.type_egress == 'bank' else False}])
-                    line.update({'flag': True})
+                    line.update({'selected': False})
             vals.update({
                 'origin': rc.move_id.name,
                 'type_egress': rc.type_egress,
@@ -375,6 +376,9 @@ class ListEmployeesOrder(models.Model):
     pay_order_id = fields.Many2one('eliterp.pay.order', 'Orden de pago', ondelete="cascade")
     is_check = fields.Boolean('Es cheque?')
     pay_order_line_id = fields.Many2one('eliterp.lines.advance.payment', 'Línea de empleado', ondelete="cascade",
+                                        index=True,
+                                        readonly=True)
+    pay_order_line_id_rc = fields.Many2one('eliterp.lines.payslip.run', 'Línea de rol', ondelete="cascade",
                                         index=True,
                                         readonly=True)
 
@@ -917,8 +921,61 @@ class AdvancePayment(models.Model):
     pay_orders_count = fields.Integer('No. OP', compute='_compute_pay_orders_count')
 
 
+class LinesPayslipRun(models.Model):
+    _inherit = 'eliterp.lines.payslip.run'
+
+    @api.depends('pay_lines.pay_order_id.state', 'pay_lines.amount', 'pay_lines.voucher_id')
+    def _compute_amount(self):
+        """
+        Calculamos los pagos del empleado asignado en las ordenes
+        :return:
+        """
+        for record in self:
+            paid = 0.00
+            for line in record.pay_lines:
+                if line.pay_order_id.state == 'paid' or line.voucher_id:
+                    paid += line.amount
+            record.paid_amount = paid
+            record.residual = record.net_receive - record.paid_amount
+            if float_is_zero(record.residual, precision_rounding=0.01):
+                record.flag = True
+            else:
+                record.flag = False
+
+    @api.constrains('amount_payable')
+    @api.one
+    def _check_amount_payable(self):
+        """
+        Verificamos monto a pagar no sea mayor al  total menos el residuo
+        :return:
+        """
+        if self.amount_payable > self.residual:
+            raise ValidationError("Monto a pagar (%.2f) mayor al saldo a recibir (%.2f) para %s." % (
+                self.amount_payable, self.residual, self.role_id.employee_id.name
+            ))
+
+    selected = fields.Boolean('Seleccionar?', default=False)
+    flag = fields.Boolean('Conciliado', compute="_compute_amount", store=True)
+    paid_amount = fields.Float('Pagado', compute='_compute_amount', store=True)
+    residual = fields.Float('Saldo', compute='_compute_amount', store=True)
+    amount_payable = fields.Float('A pagar')
+    pay_lines = fields.One2many('eliterp.list.employees.order', 'pay_order_line_id_rc', string="Líneas de ordenes de pago",
+                                readonly=True,
+                                copy=False)
+
+
 class PayslipRun(models.Model):
     _inherit = 'hr.payslip.run'
+
+    @api.multi
+    def confirm_payslip_run(self):
+        """
+        Acualizamos el monto a pagar
+        :return:
+        """
+        for line in self.lines_payslip_run:
+            line.update({'amount_payable': line.net_receive})
+        return super(PayslipRun, self).confirm_payslip_run()
 
     @api.multi
     def generate_request(self):
@@ -978,7 +1035,7 @@ class PayslipRun(models.Model):
         total = 0.00
         for line in self.lines_payslip_run:
             if line.selected and not line.flag:
-                total += line.net_receive
+                total += line.amount_payable
         self.total_pay_order = round(total, 2)
 
     @api.onchange('select_all')

@@ -122,46 +122,40 @@
                 <field name="lines_payslip_run">
                     <tree create="false"
                           delete="false"
-                          class="lines_checkbox"
                           editable="top"
-                          decoration-bf="flag==True"
-                          decoration-success="flag == True"
                           default_order="name asc">
                         <field name="parent_state" invisible="1"/>
-                        <field name="selected"
-                               attrs="{'invisible': [('parent_state', '!=', 'closed')], 'readonly': [('flag', '=', True)]}"/>
-                        <field name="flag" invisible="1"/>
-                        <field name="name"/>
+                        <field name="name" readonly="1"/>
                         <!--TODO: VIEW
                         <field name="departament"/>
                         -->
-                        <field name="admission_date"/>
+                        <field name="admission_date" readonly="1"/>
                         <field name="identification_id" invisible="1"/>
-                        <field name="worked_days"/>
-                        <field name="wage" sum="Total"/>
-                        <field name="mobilization" sum="Total"/><!--MAEQ-->
+                        <field name="worked_days" readonly="1"/>
+                        <field name="wage" readonly="1" sum="Total"/>
+                        <field name="mobilization" readonly="1" sum="Total"/><!--MAEQ-->
                         <!--<field name="extra_hours" sum="Total"/>-->
-                        <field name="additional_hours" sum="Total"/>
-                        <field name="reserve_funds"/>
-                        <field name="tenth_3"/>
-                        <field name="tenth_4"/>
-                        <field name="other_income"/>
-                        <field name="total_income"/>
+                        <field name="additional_hours" readonly="1" sum="Total"/>
+                        <field name="reserve_funds" readonly="1"/>
+                        <field name="tenth_3" readonly="1"/>
+                        <field name="tenth_4" readonly="1"/>
+                        <field name="other_income" readonly="1"/>
+                        <field name="total_income" readonly="1"/>
 
-                        <field name="payment_advance"/>
-                        <field name="iess_personal" sum="Total"/>
-                        <field name="iess_patronal"/>
+                        <field name="payment_advance" readonly="1"/>
+                        <field name="iess_personal" readonly="1" sum="Total"/>
+                        <field name="iess_patronal" readonly="1"/>
                         <!--TODO: VIEW
                         <field name="loan_payment_advance"/>
                         -->
-                        <field name="loan_unsecured"/>
-                        <field name="loan_mortgage"/>
-                        <field name="penalty"/>
-                        <field name="absence"/>
-                        <field name="cellular_plan"/>
-                        <field name="other_expenses"/>
-                        <field name="total_expenses"/>
-                        <field name="net_receive" sum="Total"/>
+                        <field name="loan_unsecured" readonly="1"/>
+                        <field name="loan_mortgage" readonly="1"/>
+                        <field name="penalty" readonly="1"/>
+                        <field name="absence" readonly="1"/>
+                        <field name="cellular_plan" readonly="1"/>
+                        <field name="other_expenses" readonly="1"/>
+                        <field name="total_expenses" readonly="1"/>
+                        <field name="net_receive" readonly="1" sum="Total"/>
                         <field name="role_id" invisible="1"/>
                     </tree>
                 </field>
