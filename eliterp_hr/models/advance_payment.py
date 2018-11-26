@@ -42,7 +42,7 @@ class LinesAdvancePayment(models.Model):
         self.amount_total = round(self.amount_advance + self.mobilization, 2)
 
     employee_id = fields.Many2one('hr.employee', string='Empleado')
-    job_id = fields.Many2one('hr.job', string='Cargo', related='employee_id.job_id', store=True)
+    job_id = fields.Many2one('hr.job', string='Cargo de trabajo', related='employee_id.job_id', store=True)
     admission_date = fields.Date(related='employee_id.admission_date', store=True, string='Fecha ingreso')
     amount_advance = fields.Float('Monto', default=0.00)
     mobilization = fields.Float(string='Movilización')
