@@ -7,6 +7,7 @@ from datetime import datetime
 import time
 from odoo.tools.safe_eval import safe_eval
 import babel
+from odoo.exceptions import ValidationError
 
 
 class PayrollStructure(models.Model):
@@ -141,16 +142,15 @@ class Payslip(models.Model):
                 safe_eval(input.condition_python, local_dict, mode='exec', nocopy=True)
                 amount = local_dict['result']
             elif input.code == 'ADQ':  # TODO: Esto se hace para MAEQ
-                last_advance_payment = self.env['eliterp.advance.payment'].search([
-                    ('state', '=', 'posted'),
-                    ('date', '>=', self.date_from),
-                    ('date', '<=', self.date_to)
+                advance_payment = self.env['eliterp.lines.advance.payment'].search([
+                    ('parent_state', '=', 'posted'),
+                    ('employee_id', '=', employee_id.id),
+                    ('advanced_id.date', '>=', self.date_from),
+                    ('advanced_id.date', '<=', self.date_to)
                 ])
-                if last_advance_payment:
-                    for line in last_advance_payment[-1].lines_advance:
-                        if line.employee_id in [self.employee_id, employee_id]:
-                            amount = line.amount_total
-                            break
+                if advance_payment:
+                    # Si existen se suman todos los anticipos contabilizados en ese período
+                    amount = sum(line.amount_total for line in advance_payment)
                 else:
                     amount = 0.00
             else:
@@ -206,6 +206,11 @@ class Payslip(models.Model):
         self.input_line_ids_3 = input_lines_3
 
         return
+
+    @api.constrains('worked_days')
+    def _check_worked_days(self):
+        if self.worked_days > 30:
+            raise ValidationError(_('No puede haber más de 30 días trabajados en período.'))
 
     worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30, required=True)
     number_absences = fields.Integer(string="Nº de ausencias", default=0)
