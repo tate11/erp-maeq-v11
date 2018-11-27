@@ -206,6 +206,15 @@ class BankConciliation(models.Model):
             ])
             voucher.update({'reconcile': True})
 
+    def _remove_reconcile(self):
+        # Colocamos cómo no conciliados los documentos seleccionados al cancelar
+        for line in self.lines_banks_move.filtered(lambda x: x.journal.name == 'Comprobante de egreso' and x.check):
+            move = line.move_line_id.move_id
+            voucher = self.env['account.voucher'].search([
+                ('move_id', '=', move.id)
+            ])
+            voucher.update({'reconcile': False})
+
     @api.multi
     def posted_conciliation(self):
         """
@@ -218,6 +227,17 @@ class BankConciliation(models.Model):
             'name': new_name,
             'posted_date': fields.Date.today(),
             'amount_conciliation': self.total
+        })
+
+    @api.multi
+    def button_cancel(self):
+        """
+        Cancelamos la conciliación y quitamos el check de conciliación
+        :return:
+        """
+        self._remove_reconcile()
+        return self.write({
+            'state': 'cancel'
         })
 
     @api.model
@@ -254,6 +274,7 @@ class BankConciliation(models.Model):
     amount_account = fields.Float('Saldo banco', compute='_get_total', store=True)
     lines_banks_move = fields.One2many('eliterp.lines.banks.move', 'conciliation_id',
                                        string=u"Líneas de Movimientos")
-    state = fields.Selection([('draft', 'Borrador'), ('posted', 'Validada')], string="Estado", default='draft')
+    state = fields.Selection([('draft', 'Borrador'), ('posted', 'Validada'), ('cancel', 'Cancelada')], string="Estado",
+                             default='draft')
     notes = fields.Text('Notas', readonly=True, states={'draft': [('readonly', False)]})
     code = fields.Char('Código', size=6, required=True)  # Para no crear dos conciliaciones del mismo mes

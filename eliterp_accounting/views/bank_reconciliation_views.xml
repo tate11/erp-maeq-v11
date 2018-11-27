@@ -32,6 +32,7 @@
                 <tree create="false"
                       decoration-info="state=='draft'"
                       decoration-success="state == 'posted'"
+                      decoration-muted="state == 'cancel'"
                       decoration-bf="state == 'posted'"
                       default_order='start_date desc'
                 >
@@ -60,12 +61,10 @@
                                 type="object"
                                 class="oe_highlight"
                                 string="Imprimir conciliación"/>
-                        <!--TODO: Si algún día deciden anular conciliación
-                        <button name="discard_conciliation"
+                        <button name="button_cancel"
                                 type="object"
                                 states="posted"
-                                string="A borrador"/>
-                        -->
+                                string="Anular"/>
                         <field name="state" widget="statusbar"
                                modifiers="{'readonly': true}"/>
                     </header>
