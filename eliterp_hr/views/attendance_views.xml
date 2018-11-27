@@ -46,10 +46,10 @@
                             <field name="comments" placeholder="p.e Poner comentarios" nolabel="1"/>
                         </group>
                         <group states="draft" string="Datos por defecto" col="4" name="information_check">
-                            <field name='check_in_am' widget='float_time'/>
-                            <field name='check_out_am' widget='float_time'/>
-                            <field name='check_in_pm' widget='float_time'/>
-                            <field name='check_out_pm' widget='float_time'/>
+                            <field name='check_in_am' widget='float_time' required="1"/>
+                            <field name='check_out_am' widget='float_time' required="1"/>
+                            <field name='check_in_pm' widget='float_time' required="1"/>
+                            <field name='check_out_pm' widget='float_time' required="1"/>
                         </group>
                         <group col="1">
                             <button name="charge"
@@ -57,7 +57,12 @@
                                     type="object"
                                     string="Cargar datos"
                                     class="oe_highlight"/>
-                            <field name="lines_employee" nolabel="1">
+                            <field name="lines_employee"
+                                   context="{'default_check_in_am': check_in_am,
+                                      'default_check_out_am': check_out_am,
+                                      'default_check_in_pm': check_in_pm,
+                                      'default_check_out_pm': check_out_pm}"
+                                   nolabel="1">
                                 <tree editable="bottom"
                                       decoration-info="state == 'free'"
                                       decoration-muted="state == 'lack'">
