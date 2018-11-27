@@ -38,7 +38,7 @@
                             class="oe_highlight"/>
                     <button name="print_hr"
                             string="Imprimir pago"
-                            attrs="{'invisible': ['|', ('state','!=','paid'), ('type', 'not in', ('adq', 'rc'))]}"
+                            attrs="{'invisible': ['|', ('type', 'not in', ('adq', 'rc'))]}"
                             type="object"
                             class="oe_highlight"/>
                 </header>
