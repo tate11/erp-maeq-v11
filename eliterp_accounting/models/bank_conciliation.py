@@ -240,11 +240,11 @@ class BankConciliation(models.Model):
     concept = fields.Char('Concepto', readonly=True, states={'draft': [('readonly', False)]})
     beginning_balance = fields.Float('Saldo inicial', required=True, readonly=True,
                                      states={'draft': [('readonly', False)]})
-    total = fields.Float('Saldo contable', compute='_get_total')
+    total = fields.Float('Saldo contable', compute='_get_total', store=True)
     amount_conciliation = fields.Float('Total de conciliación')
     journal_id = fields.Many2one('account.journal', string="Diario", default=_default_journal, readonly=True,
                                  states={'draft': [('readonly', False)]})
-    amount_account = fields.Float('Saldo banco', compute='_get_total')
+    amount_account = fields.Float('Saldo banco', compute='_get_total', store=True)
     lines_banks_move = fields.One2many('eliterp.lines.banks.move', 'conciliation_id',
                                        string=u"Líneas de Movimientos")
     state = fields.Selection([('draft', 'Borrador'), ('posted', 'Validada')], string="Estado", default='draft')
