@@ -60,18 +60,10 @@ class BankConciliationWizard(models.TransientModel):
             beginning_balance = last_conciliation.total
             for line in last_conciliation.lines_banks_move:
                 if not line.check:
-                    move_lines.append([0, 0, {'move_line_id': line.move_line_id.id,
-                                              'valor': line.amount}])
+                    move_lines.append([0, 0, {'move_line_id': line.move_line_id.id}])
         for line in moves:
             if line.move_id.state == 'posted' and not line.move_id.reversed:
-                amount = 0.00
-                if line.credit == 0.00:
-                    amount = abs(line.debit)
-                if line.debit == 0.00:
-                    amount = abs(line.credit)
-                    amount = -1 * amount
-                move_lines.append([0, 0, {'move_line_id': line.id,
-                                          'amount': amount}])
+                move_lines.append([0, 0, {'move_line_id': line.id}])
         conciliation = self.env['eliterp.bank.conciliation'].create({
             'bank_id': self.bank_id.id,
             'start_date': self.start_date,
@@ -122,13 +114,29 @@ class LinesBanksMove(models.Model):
     _description = 'Lineas de movimientos bancarios'
     _order = "date asc"
 
+    @api.depends('move_line_id')
+    def _compute_amount(self):
+        """
+        Calculamos el signo de la línea de movimiento
+        :return:
+        """
+        for line in self:
+            amount = 0.00
+            move = line.move_line_id
+            if move.credit == 0.00:
+                amount = abs(move.debit)
+            if move.debit == 0.00:
+                amount = abs(move.credit)
+                amount = -1 * amount
+            line.amount = amount
+
     move_line_id = fields.Many2one('account.move.line', string='Movimiento')
     check = fields.Boolean(default=False, string="Seleccionar?")
     date = fields.Date(related='move_line_id.date', string="Fecha de movimiento", store=True)
     journal = fields.Many2one('account.journal', related='move_line_id.journal_id', string="Diario", store=True)
     concept = fields.Char(related='move_line_id.name', string="Concepto", store=True)
     reference = fields.Char(related='move_line_id.ref', string="Referencia", store=True)
-    amount = fields.Float('Monto')
+    amount = fields.Float('Monto', compute='_compute_amount', store=True)
     conciliation_id = fields.Many2one('eliterp.bank.conciliation', ondelete='cascade', string="Conciliación bancaria")
 
 
@@ -138,7 +146,7 @@ class BankConciliation(models.Model):
     _description = 'Concilación bancaria'
 
     @api.one
-    @api.depends('lines_banks_move')
+    @api.depends('lines_banks_move.check', 'beginning_balance')
     def _get_total(self):
         """
         Obtenemos saldo banco y saldo contable
