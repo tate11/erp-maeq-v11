@@ -95,8 +95,8 @@
                                     <p t-field="doc.beneficiary"/>
                                 </div>
                                 <div class="col-xs-3">
-                                    <strong>Origen:</strong>
-                                    <p t-field="doc.pay_order_id.origin"/>
+                                    <strong>Orden de pago:</strong>
+                                    <p t-field="doc.pay_order_id"/>
                                 </div>
                                 <div class="col-xs-3">
                                     <strong>Monto:</strong>
@@ -128,7 +128,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-xs-12" t-if="doc.concept">
+                                <div class="col-xs-6" t-if="doc.concept">
                                     <strong>Concepto:</strong>
                                     <p t-field="doc.concept"/>
                                 </div>
@@ -579,7 +579,7 @@
                 print_report_name="'Liquidaciones de viático - %s' % (object.name or '/')"
                 paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
         />
-         <!--Orden de pago (RRHH)-->
+        <!--Orden de pago (RRHH)-->
         <template id="eliterp_report_pay_order_hr">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
@@ -603,6 +603,12 @@
                                 <div class="col-xs-3">
                                     <strong>Total:</strong>
                                     <p t-esc='"%.2f" % sum(line.amount for line in doc.lines_employee)'/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12" t-if="doc.comment">
+                                    <strong>Nota:</strong>
+                                    <p t-field="doc.comment"/>
                                 </div>
                             </div>
                             <table class="table table-condensed">
@@ -689,7 +695,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-
                             <div t-if="doc.comments">
                                 <h6 class="text-center">Notas y comentarios</h6>
                                 <div class="mb4">
