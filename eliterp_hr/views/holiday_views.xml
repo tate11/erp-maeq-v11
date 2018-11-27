@@ -83,9 +83,8 @@
                     <tree decoration-info="state=='draft'"
                           decoration-muted="state=='refuse'"
                           decoration-success="state == 'validate'"
-                          decoration-bf="state == 'validate'"
-                          default_order='date_from desc'>
-                        <field name="display_name" string="Nombre"/>
+                          decoration-bf="state == 'validate'">
+                        <field name="employee_id" string="Nombre de empleado"/>
                         <field name="holiday_type" string="Aplica"/>
                         <field name="holiday_status_id"/>
                         <field name="name"/>

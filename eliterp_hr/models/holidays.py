@@ -77,6 +77,7 @@ class Employee(models.Model):
 
 class Holidays(models.Model):
     _inherit = 'hr.holidays'
+    _order = "employee_id asc, date_from desc"
 
     def _get_number_of_days(self, date_from, date_to, employee_id):
         """
@@ -382,3 +383,4 @@ class Holidays(models.Model):
     approval_user = fields.Many2one('res.users', 'Aprobado por')
     adjunt = fields.Binary('Adjunto', attachment=True, copy=False)
     adjunt_name = fields.Char('Nombre de adjunto', copy=False)
+    employee_active = fields.Boolean('Empleado activo?', related='employee_id.active', store=True)
