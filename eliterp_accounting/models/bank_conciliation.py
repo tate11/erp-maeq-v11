@@ -136,7 +136,6 @@ class BankConciliation(models.Model):
     _name = 'eliterp.bank.conciliation'
 
     _description = 'Concilación bancaria'
-    _order = "bank_id, posted_date desc"
 
     @api.one
     @api.depends('lines_banks_move')
