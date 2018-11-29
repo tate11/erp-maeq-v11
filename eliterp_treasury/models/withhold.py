@@ -6,6 +6,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import re
 from odoo.exceptions import ValidationError
+from datetime import datetime
 
 
 class AccountInvoice(models.Model):
@@ -403,9 +404,12 @@ class Withhold(models.Model):
             if withhold.state == 'confirm':
                 raise UserError("No se puede eliminar una retención en estado confirmada.")
             else:
-                # TODO: Falta eliminar las líneas de impuestos de la retención
+                for tax in withhold.invoice_id.tax_line_ids:
+                    if tax.tax_id.tax_type == 'retention':
+                        tax.unlink()
                 withhold.invoice_id.have_withhold = False
                 withhold.invoice_id.withhold_id = False
+                withhold.invoice_id._compute_amount()
         return super(Withhold, self).unlink()
 
     @api.constrains('withhold_number')
@@ -414,6 +418,20 @@ class Withhold(models.Model):
             PATTERN = "[0-9]{3}-[0-9]{3}-[0-9]{9}"
             if not re.match(PATTERN, self.withhold_number):
                 raise ValidationError("Formato de No. Retención incorrecto.")
+
+    @api.constrains('date_withhold')
+    def _check_date_withhold(self):
+        """
+        Verificamos retención no sea mayor a 5 días
+        :return:
+        """
+        if self.type == 'sale':
+            return
+        d1 = datetime.strptime(self.invoice_id.date_invoice, "%Y-%m-%d").date()
+        d2 = datetime.strptime(self.date_withhold, "%Y-%m-%d").date()
+        if (d2 - d1).days > 5 or d2 < d1:
+            raise ValidationError(_("La retención no puede tener una fecha mayor "
+                                    "a 5 días o menor del documento a retener."))
 
     name = fields.Char('Nombre', default='Nueva retención')
     withhold_number = fields.Char('No. Retención')
