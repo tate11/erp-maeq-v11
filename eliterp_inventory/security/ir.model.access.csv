@@ -4,4 +4,4 @@ access_line_product_manager,line_product_manager,model_eliterp_line_product,stoc
 
 access_line_product_employee,line_product_employee,model_eliterp_line_product,base.group_user,1,0,0,0
 
-access_lines_uniform_employee_employee,lines_uniform_employee_employee,model_eliterp_lines_uniform_employee,base.group_user,1,0,1,0
+access_lines_uniform_employee_employee,lines_uniform_employee_employee,model_eliterp_lines_uniform_employee,base.group_user,1,1,1,0
