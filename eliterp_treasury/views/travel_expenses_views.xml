@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <tree
                         decoration-info="state == 'draft'"
-                        decoration-success="state == 'liquidated'"
-                        decoration-bf="state == 'liquidated'"
+                        decoration-success="state == 'approve'"
+                        decoration-bf="state == 'approve'"
                         decoration-muted="state == 'deny'"
                         default_order='application_date desc'>
                     <field name="name"/>
@@ -142,13 +142,11 @@
                                 groups="eliterp_treasury.eliterp_group_approve_liquidation_settlement"
                                 type="object"
                                 class="oe_highlight"/>
-                        <!--TODO: No necesario
                         <button name="open_reason_deny_liquidation"
                                 states="to_approve"
                                 string="Negar"
                                 groups="eliterp_treasury.eliterp_group_deny_liquidation_settlement"
                                 type="object"/>
-                        -->
                         <button name="liquidate"
                                 string="Liquidar"
                                 type="object"

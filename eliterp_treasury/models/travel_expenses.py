@@ -234,7 +234,8 @@ class VoucherLiquidationSettlement(models.Model):
                                                                               ('state', '=', 'open')])
     sale_note_id = fields.Many2one('account.invoice', string='Nota de venta', domain=[('viaticum', '=', True),
                                                                                       (
-                                                                                      'invoice_liquidated', '=', False),
+                                                                                          'invoice_liquidated', '=',
+                                                                                          False),
                                                                                       ('state', '=', 'open'),
                                                                                       ('is_sale_note', '=', True)
                                                                                       ])
@@ -369,15 +370,8 @@ class LiquidationSettlement(models.Model):
 
     @api.multi
     def open_reason_deny_liquidation(self):
-        return {
-            'name': "Explique la Razón",
-            'view_mode': 'form',
-            'view_type': 'form',
-            'res_model': 'eliterp.provision.liquidate.cancel.reason',
-            'type': 'ir.actions.act_window',
-            'target': 'new',
-            'context': {},
-        }
+        # TODO: Verificar luego si se abre la ventana
+        self.write({'state': 'deny'})
 
     @api.multi
     def approve(self):
@@ -416,83 +410,77 @@ class LiquidationSettlement(models.Model):
         Realizamos la liquidación
         """
         list_accounts = []
-        if not self.with_request:
-            for line in self.document_lines_without:
-                if not line.account_id:
-                    raise ValidationError("Debe seleccionar una cuenta en la línea de comprobante.")
-                if line.type_voucher != 'vale':
-                    partner = line.invoice_id.partner_id.id or line.sale_note_id.partner_id.id
-                    account = line.invoice_id.account_id.id or line.sale_note_id.account_id.id
-                    name = line.invoice_id.concept or line.sale_note_id.concept
-                    if line.type_voucher == 'invoice':
-                        line.invoice_id.write({'invoice_liquidated': True})  # Para no volverla a seleccionar
-                    else:
-                        line.sale_note_id.write({'invoice_liquidated': True})  # Para no volverla a seleccionar
+        for line in self.document_lines_without:
+            if not line.account_id:
+                raise ValidationError("Debe seleccionar una cuenta en la línea de comprobante.")
+            if line.type_voucher != 'vale':
+                partner = line.invoice_id.partner_id.id or line.sale_note_id.partner_id.id
+                account = line.invoice_id.account_id.id or line.sale_note_id.account_id.id
+                name = line.invoice_id.concept or line.sale_note_id.concept
+                if line.type_voucher == 'invoice':
+                    line.invoice_id.write({'invoice_liquidated': True})  # Para no volverla a seleccionar
                 else:
-                    account = line.viatical_concepts_id.account_id.id
-                    partner = False
-                    name = line.viatical_concepts_id.name
-                list_accounts.append({
-                    'partner': partner,
-                    'name': name,
-                    'account': account,
-                    'account_credit': line.account_id,
-                    'invoice': line.invoice_id.id or line.sale_note_id.id or False,
-                    'amount': line.amount_total
-                })
-        else:
-            # TODO: Pendiente de terminar
-            return
+                    line.sale_note_id.write({'invoice_liquidated': True})  # Para no volverla a seleccionar
+            else:
+                account = line.viatical_concepts_id.account_id.id
+                partner = False
+                name = line.viatical_concepts_id.name
+            list_accounts.append({
+                'partner': partner,
+                'name': name,
+                'account': account,
+                'account_credit': line.account_id,
+                'invoice': line.invoice_id.id or line.sale_note_id.id or False,
+                'amount': line.amount_total
+            })
         # Generamos Asiento contable
         move_id = self.env['account.move'].create({
             'journal_id': self.journal_id.id,
             'date': self.date
         })
-        # Sin solicitud
-        if not self.with_request:
-            for register in list_accounts:
-                # Gastos de viáticos (Debe)
-                self.env['account.move.line'].with_context(check_move_validity=False).create({
-                    'name': register['name'],
-                    'journal_id': self.journal_id.id,
-                    'partner_id': register['partner'],
-                    'account_id': register['account'],
-                    'move_id': move_id.id,
-                    'debit': register['amount'],
-                    'invoice_id': register['invoice'],
-                    'credit': 0.00,
-                    'date': self.application_date
-                })
-            moves_credit = []
-            for account, group in groupby(list_accounts, key=itemgetter('account_credit')):
-                amount = 0.00
-                for i in group:
-                    amount += i['amount']
-                moves_credit.append({
-                    'account': account,
-                    'amount': amount
-                })
-            count = len(moves_credit)
-            for line in moves_credit:
-                count -= 1
-                if count == 0:
-                    self.env['account.move.line'].with_context(check_move_validity=True).create(
-                        {'name': line['account'].name,
-                         'journal_id': self.journal_id.id,
-                         'account_id': line['account'].id,
-                         'move_id': move_id.id,
-                         'credit': line['amount'],
-                         'debit': 0.00,
-                         'date': self.application_date})
-                else:
-                    self.env['account.move.line'].with_context(check_move_validity=False).create(
-                        {'name': line['account'].name,
-                         'journal_id': self.journal_id.id,
-                         'account_id': line['account'].id,
-                         'move_id': move_id.id,
-                         'credit': line['amount'],
-                         'debit': 0.00,
-                         'date': self.application_date})
+        for register in list_accounts:
+            # Gastos de viáticos (Debe)
+            self.env['account.move.line'].with_context(check_move_validity=False).create({
+                'name': register['name'],
+                'journal_id': self.journal_id.id,
+                'partner_id': register['partner'],
+                'account_id': register['account'],
+                'move_id': move_id.id,
+                'debit': register['amount'],
+                'invoice_id': register['invoice'],
+                'credit': 0.00,
+                'date': self.application_date
+            })
+        moves_credit = []
+        for account, group in groupby(list_accounts, key=itemgetter('account_credit')):
+            amount = 0.00
+            for i in group:
+                amount += i['amount']
+            moves_credit.append({
+                'account': account,
+                'amount': amount
+            })
+        count = len(moves_credit)
+        for line in moves_credit:
+            count -= 1
+            if count == 0:
+                self.env['account.move.line'].with_context(check_move_validity=True).create(
+                    {'name': line['account'].name,
+                     'journal_id': self.journal_id.id,
+                     'account_id': line['account'].id,
+                     'move_id': move_id.id,
+                     'credit': line['amount'],
+                     'debit': 0.00,
+                     'date': self.application_date})
+            else:
+                self.env['account.move.line'].with_context(check_move_validity=False).create(
+                    {'name': line['account'].name,
+                     'journal_id': self.journal_id.id,
+                     'account_id': line['account'].id,
+                     'move_id': move_id.id,
+                     'credit': line['amount'],
+                     'debit': 0.00,
+                     'date': self.application_date})
         move_id.with_context(eliterp_moves=True, move_name=self.name).post()
         move_id.write({'ref': 'LV por motivo de %s' % self.reason})
         # Liquidamos con factura
@@ -502,6 +490,9 @@ class LiquidationSettlement(models.Model):
             line_ = move_id.line_ids.filtered(lambda x: x.invoice_id == d)
             line_x = movelines.filtered(lambda x: x.invoice_id == d and x.account_id.user_type_id.type == 'payable')
             (line_x + line_).reconcile()
+        # Cambiamos estado de la solicitud
+        if self.with_request:
+            self.travel_allowance_request_id.update({'state': 'liquidated'})
         self.write({
             'state': 'liquidated',
             'move_id': move_id.id
@@ -548,8 +539,6 @@ class LiquidationSettlement(models.Model):
             if not record.state == 'draft':
                 raise UserError("No se puede borrar una liquidación si no está en borrador.")
         return super(LiquidationSettlement, self).unlink()
-
-
 
     name = fields.Char('No. Documento', copy=False)
     date = fields.Date('Fecha de documento', default=fields.Date.context_today, required=True,

@@ -513,7 +513,9 @@
                 <field name="state_pay_order" invisible="1"/>
                 <button name="generate_request" string="Generar orden de pago"
                         type="object"
-                        attrs="{'invisible':['|', ('state','!=', 'liquidated'), ('state_pay_order', '=', 'paid')]}"
+                        attrs="{'invisible':['|', '|', ('state','!=', 'liquidated'),
+                        ('with_request','=', True),
+                        ('state_pay_order', '=', 'paid')]}"
                         class="oe_highlight"/>
             </xpath>
         </field>
