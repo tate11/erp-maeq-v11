@@ -5,6 +5,12 @@
 from odoo import api, fields, models
 from datetime import datetime, time, timedelta
 import math
+from odoo.exceptions import UserError
+
+class HrAttendance(models.Model):
+    _inherit = 'hr.attendance'
+
+    attendance_id = fields.Many2one('eliterp.attendance', string="Registro diario", ondelete='cascade')
 
 
 class Attendance(models.Model):
@@ -90,7 +96,8 @@ class Attendance(models.Model):
                 object_attendance.create({
                     'employee_id': line.employee_id.id,
                     'check_in': check_in + timedelta(hours=5),
-                    'check_out': check_out + timedelta(hours=5)
+                    'check_out': check_out + timedelta(hours=5),
+                    'attendance_id': self.id
                 })
         self.write({'state': 'validate'})
 
@@ -102,7 +109,8 @@ class Attendance(models.Model):
     week = fields.Integer('Semana', compute='_get_week', store=True)
     state = fields.Selection([
         ('draft', 'Borrador'),
-        ('validate', 'Validado')
+        ('validate', 'Validado'),
+        ('cancel', 'Cancelado')
     ], string='Estado', default='draft')
     comments = fields.Text('Notas y comentarios')
     lines_employee = fields.One2many('eliterp.attendance.lines', 'attendance_id', 'Empleados', readonly=True,
