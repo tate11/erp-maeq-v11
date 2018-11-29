@@ -342,7 +342,7 @@ class AtsXml(models.TransientModel):
                     'fechaEmision': self._convert_date(line.date_invoice),
                     'autorizacion': line.authorization,
                     'baseNoGraIva': '0.00',
-                    'baseImponible': '%.2f' % line.amount_untaxed,
+                    'baseImponible': '0.00',
                     'baseImpGrav': '%.2f' % line.amount_untaxed,
                     'baseImpExe': '0.00',
                     'montoIce': '0.00',
