@@ -20,7 +20,7 @@ class ReasonCancelPayment(models.TransientModel):
         """
         payment = self.env['account.payment'].browse(self._context['active_id'])
         move_id = payment.move_id
-        move_id.with_context(from_payment=True, payment_id=payment.id).reverse_moves(fields.Date.today(),
+        move_id.with_context(from_payment=True, payment_id=payment.id).reverse_moves(move_id.date,
                                                                                      payment.journal_id or False)
         move_id.write({'state': 'cancel', 'ref': self.description})
         payment.write({'state': 'cancel'})

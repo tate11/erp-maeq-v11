@@ -21,7 +21,7 @@ class NotesCancelReason(models.TransientModel):
         """
         note = self.env['eliterp.credit.debit.notes'].browse(self._context['active_id'])
         move_id = note.move_id
-        move_id.with_context(from_note=True, note_id=note.id).reverse_moves(fields.Date.today(),
+        move_id.with_context(from_note=True, note_id=note.id).reverse_moves(move_id.date,
                                                                             note.journal_id or False)
         move_id.write({
             'state': 'cancel',
