@@ -199,7 +199,7 @@ class Payslip(models.Model):
         return len(absences)
 
 
-    @api.onchange('employee_id', 'date_from', 'worked_days')
+    @api.onchange('employee_id', 'date_from', 'date_to', 'worked_days')
     def onchange_employee(self):
         """
         MM: Cálculo de ingresos, egresos y provisiones
