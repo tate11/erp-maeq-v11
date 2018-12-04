@@ -177,27 +177,10 @@ class Payslip(models.Model):
         arg.append(('holiday_type', '=', 'employee'))
         arg.append(('date_from', '>=', df))
         arg.append(('date_from', '<=', dt))
-        arg.append(('holiday_status_id', '=', 10))
+        arg.append(('holiday_status_id.name', '=', 'FNJ'))
         arg.append(('employee_id', '=', employee.id))
         absences = self.env['hr.holidays'].search(arg)
         return len(absences)
-
-    def _get_number_absences(self, employee=None, df=None, dt=None):
-        """
-        Obtenemos los días de ausencias por perídoo
-        :param df:
-        :param dt:
-        :return int:
-        """
-        arg = []
-        arg.append(('state', '=', 'validate'))
-        arg.append(('holiday_type', '=', 'employee'))
-        arg.append(('date_from', '>=', df))
-        arg.append(('date_from', '<=', dt))
-        arg.append(('employee_id', '=', employee.id))
-        absences = self.env['hr.holidays'].search(arg)
-        return len(absences)
-
 
     @api.onchange('employee_id', 'date_from', 'date_to', 'worked_days')
     def onchange_employee(self):
