@@ -177,7 +177,7 @@ class Payslip(models.Model):
         arg.append(('holiday_type', '=', 'employee'))
         arg.append(('date_from', '>=', df))
         arg.append(('date_from', '<=', dt))
-        arg.append(('holiday_status_id.name', '=', 'FNJ'))
+        arg.append(('holiday_status_id', '=', 10))
         arg.append(('employee_id', '=', employee.id))
         absences = self.env['hr.holidays'].search(arg)
         return len(absences)
