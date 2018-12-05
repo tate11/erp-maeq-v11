@@ -36,7 +36,9 @@
             <field name="model">hr.contract</field>
             <field name="arch" type="xml">
                 <search>
+                    <field name="employee_id"/>
                     <field name="state_customize"/>
+                    <filter string="Activo" name="active" domain="[('state_customize', '=', 'active')]"/>
                     <filter string="Finalizado" name="finalized" domain="[('state_customize', '=', 'finalized')]"/>
                     <group expand="1" string="Group By">
                         <filter string="Cargo" domain="[]" context="{'group_by': 'job_id'}"/>
@@ -435,7 +437,6 @@
                   action="eliterp_action_extra_hour_report"
                   parent="eliterp_menu_hr_assistance_news"
                   sequence='4'/>
-
 
 
         <menuitem id="eliterp_menu_hr_config"

@@ -221,6 +221,13 @@ class Contract(models.Model):
             res['context'] = "{'default_contract_id': " + str(self.id) + "}"
         return res
 
+    @api.multi
+    def unlink(self):
+        for record in self:
+            if record.state_customize != 'draft':
+                raise ValidationError("No se puede borrar contratos activos o finalizados.")
+        return super(Contract, self).unlink()
+
     name = fields.Char('Nº de documento', required=False, copy=False)  # CM
     count_functions = fields.Integer(compute='_get_count_functions', string="Funciones")
     test_days = fields.Integer('Días de prueba')  # Configuración RRHH
