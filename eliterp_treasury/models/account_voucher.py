@@ -341,6 +341,7 @@ class AccountVoucher(models.Model):
             if self.type_egress == 'bank':  # Soló con cheques y generamos el consecutivo
                 if self.bank_id.check_sequence_id:
                     self.bank_id.check_sequence_id.next_by_id()
+                self._check_check_number() # Verificamos cheque
                 self.env['eliterp.checks'].create({
                     'partner_id': self.partner_id.id if self.partner_id else False,
                     'name': self.check_number,
@@ -761,7 +762,6 @@ class AccountVoucher(models.Model):
             number = self.bank_id.padding
             self.check_number = self.check_number.zfill(number)
 
-    @api.constrains('check_number')
     def _check_check_number(self):
         """
         Validamos número sea correcto y no exista otro igual (Cualquier estado)
