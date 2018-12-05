@@ -97,10 +97,10 @@
                                 <field name="department_id" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
                                 <field name="job_id" string="Cargo"
                                        attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
-                                <field name="date_start" string="Fecha de ingreso"/>
-                                <field name="type_id" string="Tipo de contrato"/>
-                                <field name="resource_calendar_id" string="Jornada de trabajo"/>
-                                <field name="departure_date" attrs="{'invisible':[('departure_date', '=', False)]}"/>
+                                <field name="date_start" string="Fecha de ingreso" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
+                                <field name="type_id" string="Tipo de contrato" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
+                                <field name="resource_calendar_id" string="Jornada de trabajo" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
+                                <field name="departure_date" attrs="{'invisible':[('departure_date', '=', False)], 'readonly':[('state_customize', '!=', 'draft')]}"/>
                                 <field name="adjunt"
                                        filename="adjunt_name"
                                        widget="binary"/>
@@ -110,8 +110,8 @@
                                 <page name="contract_information" string="Información">
                                     <group>
                                         <group string="Remuneraciones">
-                                            <field name="wage" string="Sueldo"/>
-                                            <field name="struct_id"/>
+                                            <field name="wage" string="Sueldo" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
+                                            <field name="struct_id" attrs="{'readonly':[('state_customize', '!=', 'draft')]}"/>
                                         </group>
                                         <group string="Duración">
                                             <field name="test_days" invisible="1"/><!--Día de prueba-->
@@ -120,8 +120,9 @@
                                             <div>
                                                 <div>
                                                     <field name="is_trial"
+                                                           attrs="{'readonly':[('state_customize', '!=', 'draft')]}"
                                                            class="oe_inline"/>
-                                                    <field name="end_trial" class="oe_inline"/>
+                                                    <field name="end_trial" attrs="{'readonly':[('state_customize', '!=', 'draft')]}" class="oe_inline"/>
                                                 </div>
                                                 <div>
                                                     <span attrs="{'invisible':[('end_trial', '=', False)]}"
@@ -131,16 +132,16 @@
                                             </div>
                                             <label for="trial_date_start"
                                                    string="Inicio/Fin"
-                                                   attrs="{'invisible':[('is_trial', '=', False)]}"
+                                                   attrs="{'invisible':[('is_trial', '=', False)], 'readonly':[('state_customize', '!=', 'draft')]}"
                                             />
                                             <div>
                                                 <div attrs="{'invisible':[('is_trial', '=', False)]}">
-                                                    <field name="trial_date_start" class="oe_inline"/>
+                                                    <field name="trial_date_start" attrs="{'readonly':[('state_customize', '!=', 'draft')]}" class="oe_inline"/>
                                                     <label string="-" class="oe_inline"/>
-                                                    <field name="trial_date_end" class="oe_inline"/>
+                                                    <field name="trial_date_end" attrs="{'readonly':[('state_customize', '!=', 'draft')]}" class="oe_inline"/>
                                                 </div>
                                                 <div attrs="{'invisible':['|', ('is_trial', '=', False), ('end_trial', '=', True)]}">
-                                                    <field name="days_for_trial" class="oe_inline"/>
+                                                    <field name="days_for_trial" attrs="{'readonly':[('state_customize', '!=', 'draft')]}" class="oe_inline"/>
                                                     días de prueba
                                                 </div>
                                             </div>
