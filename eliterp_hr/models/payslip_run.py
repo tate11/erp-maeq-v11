@@ -8,7 +8,6 @@ import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-
 class LinesPayslipRun(models.Model):
     _name = 'eliterp.lines.payslip.run'
 
@@ -148,7 +147,7 @@ class PayslipRun(models.Model):
         :return: object
         """
         rule = self.env['hr.salary.rule'].search([('code', '=', code_rule)])[0]
-        amount = round(amount, 3)
+        amount = round(amount, 2)
         self.env['account.move.line'].with_context(check_move_validity=False).create({
             'name': rule.name,
             'journal_id': self.journal_id.id,
@@ -171,7 +170,7 @@ class PayslipRun(models.Model):
         :return: object
         """
         rule = self.env['hr.salary.rule'].search([('code', '=', code_rule)])[0]
-        amount = round(amount, 3)
+        amount = round(amount, 2)
         self.env['account.move.line'].with_context(check_move_validity=check).create({
             'name': rule.name,
             'journal_id': self.journal_id.id,
@@ -223,56 +222,56 @@ class PayslipRun(models.Model):
         advances = []
         flag_benefits = False  # Bandera para acumular beneficios
         for role in self.lines_payslip_run:  # Comenzamos a sumar los roles individuales para creación del consolidado
-            wage += round(role.wage, 3)
-            mobilization += round(role.mobilization, 3)
-            additional_hours += round(role.additional_hours, 3)  # MAEQ
-            other_income += round(role.other_income, 3)
-            iess_personal += round(role.iess_personal, 3)
-            iess_patronal += round(role.iess_patronal, 3)
-            loan_payment_advance += round(role.loan_payment_advance, 3)
-            loan_unsecured += round(role.loan_unsecured, 3)
-            loan_mortgage += round(role.loan_mortgage, 3)
-            spouses_extension += round(role.spouses_extension, 3)
+            wage += round(role.wage, 2)
+            mobilization += round(role.mobilization, 2)
+            additional_hours += round(role.additional_hours, 2)  # MAEQ
+            other_income += round(role.other_income, 2)
+            iess_personal += round(role.iess_personal, 2)
+            iess_patronal += round(role.iess_patronal, 2)
+            loan_payment_advance += round(role.loan_payment_advance, 2)
+            loan_unsecured += round(role.loan_unsecured, 2)
+            loan_mortgage += round(role.loan_mortgage, 2)
+            spouses_extension += round(role.spouses_extension, 2)
             # Añadimos ADQ
             advances.append(
                 {
-                    'amount': round(role.payment_advance, 3),
+                    'amount': round(role.payment_advance, 2),
                 })
-            penalty += round(role.penalty, 3)
-            absence += round(role.absence, 3)
-            cellular_plan += round(role.cellular_plan, 3)
-            other_expenses += round(role.other_expenses, 3)
-            net_receive += round(role.net_receive, 3)
+            penalty += round(role.penalty, 2)
+            absence += round(role.absence, 2)
+            cellular_plan += round(role.cellular_plan, 2)
+            other_expenses += round(role.other_expenses, 2)
+            net_receive += round(role.net_receive, 2)
+
             if role.role_id.struct_id.provisions:  # Para no colocar nada a las ES sin provisiones
                 # DT y DT
                 if role.tenth_3 == 0.00:
                     provision_tenth_3.append(role)
                 else:
-                    tenth_3 += round(role.tenth_3, 3)
+                    tenth_3 += round(role.tenth_3, 2)
                 if role.tenth_4 == 0.00:
                     provision_tenth_4.append(role)
                 else:
-                    tenth_4 += round(role.tenth_4, 3)
+                    tenth_4 += round(role.tenth_4, 2)
                 # Fondos de reserva retenidos
                 if role.role_id.employee_id.benefits == 'yes' and role.role_id.employee_id.working_time:
                     flag_benefits = True
-                    provision_reserve_funds += round((float(role.role_id.employee_id.wage) * float(8.33)) / float(100),
-                                                     3)
+                    provision_reserve_funds += round((role.wage * float(8.33)) / float(100), 2)
                 # Fondos de reserva cobrados
                 if role.role_id.employee_id.working_time:
-                    reserve_funds += round((float(role.role_id.employee_id.wage) * float(8.33)) / float(100), 3)
+                    reserve_funds += round((role.wage * float(8.33)) / float(100), 2)
         # Décimos
         amount_provision_tenth_3 = 0.00
         for tenth_3_object in provision_tenth_3:
-            amount_provision_tenth_3 += round((tenth_3_object.wage + tenth_3_object.additional_hours) / 12.00, 3)
+            amount_provision_tenth_3 += round((tenth_3_object.wage + tenth_3_object.additional_hours) / 12.00, 2)
         amount_provision_tenth_4 = 0.00
         for tenth_4_object in provision_tenth_4:
-            amount_provision_tenth_4 += round((float(386) / 360) * tenth_4_object.worked_days, 3)
+            amount_provision_tenth_4 += round((float(386) / 360) * tenth_4_object.worked_days, 2)
         # Creamos líneas de movimiento de egresos
         print('***EGRESOS***')
         amount_advances = 0.00
         for advance in advances:  # Anticipos de quincena
-            amount_advances += round(advance['amount'], 3)
+            amount_advances += round(advance['amount'], 2)
         self._create_line_expenses('ADQ', move_id, amount_advances)  # ADQ
         self._create_line_expenses('IESS_9.45%', move_id, iess_personal)  # IESS 9.45%
         self._create_line_expenses('PRES_QUIRO', move_id, loan_unsecured)  # Préstamo quirografario
@@ -289,7 +288,7 @@ class PayslipRun(models.Model):
         print('***PROVISIONES***')
         if flag_benefits:  # Si acumula beneficios (Fondos de reserva) se crea está línea de movimiento
             self._create_line_expenses('PFR', move_id, provision_reserve_funds)
-        patronal = round((float(wage * 12.15)) / 100, 3)
+        patronal = round((float(wage * 12.15)) / 100, 2)
         self._create_line_expenses('PDT', move_id, amount_provision_tenth_3)  # Provisión de DT
         self._create_line_expenses('PDC', move_id, amount_provision_tenth_4)  # Provisión de DC
         self._create_line_expenses('IESS_12.15%', move_id, patronal)  # IEES 12.15%
@@ -300,14 +299,14 @@ class PayslipRun(models.Model):
         total_credit = total_credit + cellular_plan + loan_payment_advance + spouses_extension + iess_patronal
         total_credit = total_credit + other_expenses + provision_reserve_funds + amount_provision_tenth_3
         total_credit = total_credit + amount_provision_tenth_4 + patronal + net_receive
-        print('-TOTAL HABER = %f\n' % round(total_credit, 3))
+        print('-TOTAL HABER = %f\n' % round(total_credit, 2))
 
         # Creamos líneas de movimiento de ingresos
         print('***INGRESOS***')
         self._create_line_income('PGA', move_id, patronal, False)  # Patronal (Gastos)
-        amount_tenth_3 = round(tenth_3, 3) + round(amount_provision_tenth_3, 3)
+        amount_tenth_3 = round(tenth_3, 2) + round(amount_provision_tenth_3, 2)
         self._create_line_income('DT_MENSUAL', move_id, amount_tenth_3, False)  # Décimo tercero mensual
-        amount_tenth_4 = round(tenth_4, 3) + round(amount_provision_tenth_4, 3)
+        amount_tenth_4 = round(tenth_4, 2) + round(amount_provision_tenth_4, 2)
         self._create_line_income('DC_MENSUAL', move_id, amount_tenth_4, False)  # Décimo cuarto mensual
         self._create_line_income('FR_MENSUAL', move_id, reserve_funds, False)  # Fondos de reserva mensual
         # self._create_line_income('HEEX', move_id, extra_hours, False)  # Horas extras
@@ -319,9 +318,9 @@ class PayslipRun(models.Model):
         total_debit = 0.00
         total_debit = patronal + amount_tenth_3 + amount_tenth_4 + reserve_funds
         total_debit = total_debit + additional_hours + other_income + mobilization + wage
-        print('-TOTAL DEBE = %f\n' % round(total_debit, 3))
+        print('-TOTAL DEBE = %f\n' % round(total_debit, 2))
 
-        print('-DIFERENCIA = %f' % round((total_credit - total_debit), 3))
+        print('-DIFERENCIA = %f' % round((total_credit - total_debit), 2))
 
         self._create_line_income('SUE', move_id, wage, True)  # Sueldo, se verifica asiento cuadrado
 

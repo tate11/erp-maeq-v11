@@ -949,7 +949,7 @@ class LinesPayslipRun(models.Model):
         Verificamos monto a pagar no sea mayor al  total menos el residuo
         :return:
         """
-        if self.amount_payable > self.residual:
+        if self.amount_payable > round(self.residual, 2):
             raise ValidationError("Monto a pagar (%.2f) mayor al saldo a recibir (%.2f) para %s." % (
                 self.amount_payable, self.residual, self.role_id.employee_id.name
             ))

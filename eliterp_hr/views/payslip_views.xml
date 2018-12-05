@@ -101,6 +101,13 @@
                                            domain="[('active', '=', True)]"/>
                                 </h1>
                             </div>
+                            <div attrs="{'invisible': [('state', '!=', 'draft')]}">
+                                <span class="oe_grey">
+                                    <b>Poner atención:</b>
+                                    Los campos en el formulario son importantes para el cálculo
+                                    correcto de la nómina.
+                                </span>
+                            </div>
                             <group col="4">
                                 <label for="date_from" string="Período"/>
                                 <div class="o_row">
@@ -109,8 +116,12 @@
                                 </div>
                                 <field name="struct_id" required="1"/>
                                 <field name="worked_days"/>
-                                <!--<field name="extra_hours"/>-->
                                 <field name="number_absences"/>
+                                <label for="extra_hours" string="Horas extras ($)"/>
+                                <div class="o_row">
+                                    <field name="check_extra_hours"/>
+                                    <field name="extra_hours"/>
+                                </div>
                                 <field name="number" invisible="1"/>
                                 <!--TODO: Revisar los contratos-->
                                 <field name="contract_id"
