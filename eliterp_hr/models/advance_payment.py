@@ -5,6 +5,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from datetime import datetime
+from odoo.exceptions import ValidationError
 
 
 class LinesAdvancePayment(models.Model):
@@ -22,7 +23,7 @@ class LinesAdvancePayment(models.Model):
         """
         for line in self:
             if line.parent_state == 'posted':
-                raise UserError("No podemos borar líneas de anticipo contabilizadas.")
+                raise UserError("No podemos borrar líneas de anticipo contabilizadas.")
         return super(LinesAdvancePayment, self).unlink()
 
     @api.depends('advanced_id.state')
@@ -48,7 +49,7 @@ class LinesAdvancePayment(models.Model):
     mobilization = fields.Float(string='Movilización')
     antiquity = fields.Integer('Días')
     amount_total = fields.Float('Total', compute='_get_total', store=True)
-    advanced_id = fields.Many2one('eliterp.advance.payment', 'Anticipo')
+    advanced_id = fields.Many2one('eliterp.advance.payment', 'Anticipo', ondelete="cascade")
     parent_state = fields.Char(compute="_compute_parent_state", string="Estado de anticipo")
 
 
@@ -231,6 +232,17 @@ class AdvancePayment(models.Model):
         """
         for record in self:
             record.count_lines = len(record.lines_advance)
+
+    @api.multi
+    def unlink(self):
+        """
+        No eliminamos roles diferentes de borrador
+        :return:
+        """
+        for line in self:
+            if line.state != 'draft':
+                raise ValidationError("No podemos borrar anticipos diferentes de borrador.")
+        return super(AdvancePayment, self).unlink()
 
     name = fields.Char('No. Documento', index=True, default='Nuevo')
     period = fields.Char('Período', compute='_get_period', store=True)
