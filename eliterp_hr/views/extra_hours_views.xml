@@ -6,7 +6,7 @@
             <field name="name">eliterp_view_tree_record_overtime</field>
             <field name="model">eliterp.record.overtime</field>
             <field name="arch" type="xml">
-                <tree create="false">
+                <tree create="false" delete="false">
                     <field name="name"/>
                     <field name="job_id"/>
                     <field name="date"/>

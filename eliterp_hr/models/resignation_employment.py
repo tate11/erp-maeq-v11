@@ -18,6 +18,13 @@ class ResignationEmployment(models.Model):
     _description = 'Renuncia'
 
     @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar una renuncia diferente a estado borrador.")
+        return super(ResignationEmployment, self).unlink()
+
+    @api.multi
     def validate(self):
         new_name = self.env['ir.sequence'].next_by_code('hr.resignation')
         self.write({

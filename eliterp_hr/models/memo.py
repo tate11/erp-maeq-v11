@@ -45,6 +45,11 @@ class TypeMemo(models.Model):
     _description = 'Tipo de memorandum'
 
     @api.multi
+    def unlink(self):
+        raise UserError("No se puede eliminar un tipo memorandums.")
+        return super(TypeMemo, self).unlink()
+
+    @api.multi
     def name_get(self):
         res = []
         for data in self:
@@ -79,6 +84,13 @@ class Memo(models.Model):
     _name = 'eliterp.memo'
 
     _description = 'Memorandums'
+
+    @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar memorandums diferente a estado borrador.")
+        return super(Memo, self).unlink()
 
     @api.multi
     def validate(self):
