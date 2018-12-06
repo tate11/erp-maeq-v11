@@ -4,6 +4,7 @@
 
 from odoo import api, fields, models, _
 from _datetime import date
+from odoo.exceptions import ValidationError, UserError
 
 
 class ReasonCancelPayment(models.TransientModel):
@@ -72,6 +73,13 @@ class LineDepositsChecksExternal(models.Model):
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
+
+    @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar la transacción diferente a estado borrador.")
+        return super(AccountPayment, self).unlink()
 
     @api.onchange('amount', 'currency_id')
     def _onchange_amount(self):

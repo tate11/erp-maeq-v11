@@ -18,6 +18,13 @@ class ContractTerm(models.Model):
     _description = 'Termino de contrato'
 
     @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar un termino de contrato diferente a estado borrador.")
+        return super(ContractTerm, self).unlink()
+
+    @api.multi
     def validate(self):
         new_name = self.env['ir.sequence'].next_by_code('hr.contractter')
         self.write({
@@ -54,7 +61,6 @@ class ContractTerm(models.Model):
     def _onchange_employee(self):
         if self.employee:
             self.renumbering = self.employee.wage
-
 
     date = fields.Date('Fecha documento', default=fields.Date.context_today, required=True, readonly=True,
                        states={'draft': [('readonly', False)]})

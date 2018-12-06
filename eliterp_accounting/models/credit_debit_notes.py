@@ -3,7 +3,8 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
+
 
 
 class NotesCancelReason(models.TransientModel):
@@ -35,6 +36,13 @@ class CreditDebitNotes(models.Model):
     _name = 'eliterp.credit.debit.notes'
 
     _description = 'Notas de crédito/débito'
+
+    @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar la nota bancaria diferente a estado borrador.")
+        return super(CreditDebitNotes, self).unlink()
 
     @api.model
     def create(self, vals):

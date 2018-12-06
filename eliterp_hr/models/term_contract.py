@@ -18,6 +18,13 @@ class TermContract(models.Model):
     _description = 'Terminación de contrato'
 
     @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar una terminación de contrato diferente a estado borrador.")
+        return super(TermContract, self).unlink()
+
+    @api.multi
     def validate(self):
         new_name = self.env['ir.sequence'].next_by_code('hr.tercontract')
         self.write({
@@ -49,5 +56,5 @@ class TermContract(models.Model):
                                states={'draft': [('readonly', False)]})
     identification_id = fields.Char(related='employee.identification_id', string='No. identificación')
     end_date = fields.Date('Fecha salida', default=fields.Date.context_today, required=True, readonly=True,
-                       states={'draft': [('readonly', False)]})
+                           states={'draft': [('readonly', False)]})
     state = fields.Selection(STATES, string='Estado', default='draft')

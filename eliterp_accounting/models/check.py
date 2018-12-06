@@ -3,6 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError, UserError
 
 
 class Voucher(models.Model):
@@ -19,6 +20,13 @@ class Checks(models.Model):
     _inherit = ['mail.thread']
 
     _description = 'Cheques'
+
+    @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar un cheques emitidos diferente a estado borrador.")
+        return super(Checks, self).unlink()
 
     @api.one
     @api.depends('amount')

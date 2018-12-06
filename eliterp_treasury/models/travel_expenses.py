@@ -75,6 +75,13 @@ class TravelAllowanceRequest(models.Model):
     _inherit = ['mail.thread']
 
     @api.multi
+    def unlink(self):
+        for payment in self:
+            if payment.state != 'draft':
+                raise UserError("No se puede eliminar una Solicitud de viático diferente a estado borrador.")
+        return super(TravelAllowanceRequest, self).unlink()
+
+    @api.multi
     def print_request(self):
         """
         Imprimimos solicitud
