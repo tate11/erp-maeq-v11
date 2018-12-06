@@ -259,3 +259,4 @@ class Payslip(models.Model):
     check_extra_hours = fields.Boolean('Otras horas extras?', default=False,
                                        readonly=True, states={'draft': [('readonly', False)]},
                                        help="Si no quiere utillizar horas extras calculadas en período hacer check y colocar monto en $.")
+    comment = fields.Text('Notas y comentarios', track_visibility='onchange')
