@@ -261,11 +261,11 @@ class PayslipRun(models.Model):
                 # Fondos de reserva retenidos
                 if role.role_id.employee_id.benefits == 'yes' and role.role_id.employee_id.working_time:
                     flag_benefits = True
-                    provision_reserve_funds += round((float(role.role_id.employee_id.wage) * float(8.33)) / float(100),
+                    provision_reserve_funds += round((float(role.wage) * float(8.33)) / float(100),
                                                      3)
                 # Fondos de reserva cobrados
                 if role.role_id.employee_id.working_time:
-                    reserve_funds += round((float(role.role_id.employee_id.wage) * float(8.33)) / float(100), 3)
+                    reserve_funds += round((float(role.wage) * float(8.33)) / float(100), 3)
         # Décimos
         amount_provision_tenth_3 = 0.00
         for tenth_3_object in provision_tenth_3:

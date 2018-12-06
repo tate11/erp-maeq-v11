@@ -87,7 +87,7 @@ class Payslip(models.Model):
         """
         for line in self:
             if line.state != 'draft':
-                raise ValidationError("No podemos borrar roles realizados o cancelados.")
+                raise ValidationError("No podemos borar roles realizados o cancelados.")
         return super(Payslip, self).unlink()
 
     @api.multi
@@ -141,10 +141,6 @@ class Payslip(models.Model):
             'contract': employee_id.contract_id,  # Último contrato de empleado
             'employee': employee_id,
             'payslip': role if role else self,
-            'additional_hours': employee_id._get_additional_hours_period(
-                role.date_from if role else self.date_from,
-                role.date_to if role else self.date_to
-            ),
             'result': 0.00
         }
 
@@ -193,7 +189,7 @@ class Payslip(models.Model):
         absences = self.env['hr.holidays'].search(arg)
         return len(absences)
 
-    @api.onchange('employee_id', 'date_from', 'date_to', 'worked_days')
+    @api.onchange('employee_id', 'date_from', 'date_to', 'worked_days', 'extra_hours', 'check_extra_hours')
     def onchange_employee(self):
         """
         MM: Cálculo de ingresos, egresos y provisiones
@@ -216,6 +212,8 @@ class Payslip(models.Model):
             return
         self.struct_id = employee.struct_id
         self.number_absences = self._get_number_absences(employee, date_from, date_to) # Días de faltas
+        if not self.check_extra_hours:
+            self.extra_hours = employee._get_additional_hours_period(date_from, date_to)
 
         input_line_ids = self.get_inputs(employee)
         # Vacíamos las líneas para nuevo cálculo
@@ -241,10 +239,10 @@ class Payslip(models.Model):
         if self.worked_days > 30:
             raise ValidationError(_('No puede haber más de 30 días trabajados en período.'))
 
-    worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30, required=True)
-    number_absences = fields.Integer(string="Nº de ausencias", default=0)
+    worked_days = fields.Integer(string="Días trabajados", track_visibility='onchange', default=30, required=True, readonly=True, states={'draft': [('readonly', False)]})
+    number_absences = fields.Integer(string="Nº de ausencias", default=0, readonly=True, states={'draft': [('readonly', False)]})
     extra_hours = fields.Float('Horas extras ($)',
-                               track_visibility='onchange')  # TODO: MAEQ, hasta igualar en día a día
+                               track_visibility='onchange', readonly=True, states={'draft': [('readonly', False)]})  # TODO: MAEQ, hasta igualar en día a día
     # Egresos
     input_line_ids_2 = fields.One2many('eliterp.payslip.input.2', 'payslip_id', string='Egresos rol',
                                        readonly=True, states={'draft': [('readonly', False)]})
@@ -258,3 +256,6 @@ class Payslip(models.Model):
     net_receive = fields.Float('Neto a recibir', compute='_get_net_receive', store=True, track_visibility='onchange')
     approval_user = fields.Many2one('res.users', 'Aprobado por')
     reviewed_user = fields.Many2one('res.users', string='Revisado por')
+    check_extra_hours = fields.Boolean('Otras horas extras?', default=False,
+                                       readonly=True, states={'draft': [('readonly', False)]},
+                                       help="Si no quiere utillizar horas extras calculadas en período hacer check y colocar monto en $.")
