@@ -31,7 +31,7 @@
                            modifiers="{'readonly': true}"/>
                     <button name="pay"
                             string="Generar pago"
-                            attrs="{'invisible':['|', ('state','!=','draft'), ('type_egress', '=', 'bank'), ('general_check', '=', False)]}"
+                            attrs="{'invisible':['|', ('state','!=','draft'), ('general_check', '=', False)]}"
                             type="object"
                             groups="eliterp_treasury.eliterp_group_pay"
                             confirm="Desea confirmar el pago para está orden?"
@@ -77,11 +77,11 @@
                                    groups="eliterp_treasury.eliterp_group_pay"/>
                             <field name="comment"
                                    placeholder="p.e Alguna referencia del pago"/>
-                            <!--ADQ y RC-->
                             <field name="beneficiary" attrs="{'invisible': [('beneficiary', '=', False)]}"/>
-                            <field name="type_egress" attrs="{'invisible':[('type', 'not in', ('adq', 'rc'))]}"/>
+                            <field name="type_egress"/>
                             <field name="bank_id"
-                                   attrs="{'invisible':['|', ('type', 'not in', ('adq', 'rc')), ('type_egress', '==', 'payment_various')]}"/>
+                                   attrs="{'invisible':[('type_egress', '==', 'payment_various')],
+                                   'required':[('type_egress', '!=', 'payment_various')]}"/>
                             <field name="general_check"
                                    attrs="{'invisible':['|', ('type', 'not in', ('adq', 'rc')), ('type_egress', '!=', 'bank')]}"/>
                             <field name="currency_id" invisible="1"/>
@@ -91,7 +91,8 @@
                         <field name="invoice_ids" nolabel="1" readonly="1"/>
                     </group>
                     <group string="Lista de empleados" attrs="{'invisible':[('type', 'not in', ('adq', 'rc'))]}">
-                        <field name="lines_employee" nolabel="1">
+                        <field name="lines_employee"
+                               nolabel="1">
                             <tree editable="bottom" create="false" delete="false">
                                 <field name="generated" invisible="1"/>
                                 <field name="employee_id"/>
@@ -133,6 +134,14 @@
                     <field name="type" invisible="1"/>
                     <field name="default_amount" invisible="1"/>
                     <field name="default_date" invisible="1"/>
+                </group>
+                <group string="Datos de pago" col="4">
+                    <field name="type_egress"/>
+                    <field name="bank_id"
+                           options="{'no_open': True, 'no_create': True}"
+                           attrs="{'invisible':[('type_egress', '==', 'payment_various')],
+                                   'required':[('type_egress', '!=', 'payment_various')]}"
+                           domain="[('type_use', '=', 'payments')]"/>
                 </group>
                 <group string="Notas y comentarios">
                     <field name="comment" nolabel="1" placeholder="p.e Colocar forma de pago u otra cosa"/>
@@ -263,21 +272,24 @@
                         attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}"
                         class="oe_highlight"/>
             </xpath>
-            <xpath expr='//sheet/group[1]' position="after"><!--Notas y comentarios-->
-                <group string="Datos de pago" col="4"
-                       class="oe_edit_only"
-                       attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}">
-                    <field name="type_egress"/>
-                    <field name="bank_id" options="{'no_open': True, 'no_create': True}"/>
-                    <field name="total_pay_order"/>
+            <xpath expr='//sheet/group[2]' position="after"><!--Notas y comentarios-->
+                <group attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}">
+                    <div class="o_row">
+                        <field name="select_all"
+                               nolabel="1"/>
+                        <span>
+                            <b>Si desea seleccionar todos de check aquí.</b>
+                        </span>
+                    </div>
+                    <field name="total_pay_order" invisible="1"/>
                 </group>
             </xpath>
+
             <!--Líneas de empleados-->
-            <xpath expr="//button[@name='load_employees']" position="after">
-                <field name="select_all"
-                       nolabel="1"
-                       attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}"/>
+            <xpath expr="//field[@name='lines_advance']" position="attributes">
+                <attribute name="attrs">{'readonly': [('state_pay_order', '!=', 'generated')]}</attribute>
             </xpath>
+
             <xpath expr="//field[@name='lines_advance']//tree//field[@name='parent_state']"
                    position="before">
                 <field name="selected"
@@ -335,16 +347,15 @@
                         class="oe_highlight"/>
             </xpath>
             <xpath expr='//sheet/group[2]' position="after">
-                <group string="Datos de pago" col="4"
-                       attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}">
-                    <field name="type_egress"/>
-                    <field name="bank_id" options="{'no_open': True, 'no_create': True}"/>
-                    <field name="total_pay_order"/>
-                </group>
-                <group>
-                    <field name="select_all"
-                       nolabel="1"
-                       attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}"/>
+                <group attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}">
+                    <div class="o_row">
+                        <field name="select_all"
+                               nolabel="1"/>
+                        <span>
+                            <b>Si desea seleccionar todos de check aquí.</b>
+                        </span>
+                    </div>
+                    <field name="total_pay_order" invisible="1"/>
                 </group>
             </xpath>
             <!--Líneas de roles-->
