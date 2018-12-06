@@ -606,9 +606,13 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-12" t-if="doc.comment">
+                                <div class="col-xs-7" t-if="doc.comment">
                                     <strong>Nota:</strong>
                                     <p t-field="doc.comment"/>
+                                </div>
+                                <div class="col-xs-5" t-if="doc.bank_id">
+                                    <strong>Banco:</strong>
+                                    <p t-field="doc.bank_id"/>
                                 </div>
                             </div>
                             <table class="table table-condensed">
