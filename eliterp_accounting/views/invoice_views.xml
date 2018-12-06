@@ -150,7 +150,7 @@
                     <field name="base_taxed" widget="monetary"/>
                 </xpath>
                 <xpath expr="//field[@name='outstanding_credits_debits_widget']" position="attributes">
-                    <attribute name="groups">group_erp_manager</attribute>
+                    <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
             </field>
         </record>
