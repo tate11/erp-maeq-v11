@@ -83,9 +83,6 @@
                 <xpath expr="//field[@name='amount_untaxed']" position="attributes">
                     <attribute name="string">Subtotal</attribute>
                 </xpath>
-                <xpath expr="//field[@name='outstanding_credits_debits_widget']" position="replace">
-                    <field name="outstanding_credits_debits_widget" invisible="1"/>
-                </xpath>
             </field>
         </record>
         <!--Vistas del menú Facturas de proveedor-->
@@ -152,8 +149,8 @@
                     <field name="base_zero_iva" widget="monetary"/>
                     <field name="base_taxed" widget="monetary"/>
                 </xpath>
-                <xpath expr="//field[@name='outstanding_credits_debits_widget']" position="replace">
-                    <field name="outstanding_credits_debits_widget" invisible="1"/>
+                <xpath expr="//field[@name='outstanding_credits_debits_widget']" position="attributes">
+                    <attribute name="groups">group_erp_manager</attribute>
                 </xpath>
             </field>
         </record>
