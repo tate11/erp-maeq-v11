@@ -130,6 +130,9 @@
                                 <field name="name" invisible="1"/><!--Nombre-->
                                 <field name="credit_note" invisible="1"/><!--Nota de crédito-->
                             </group>
+                            <group string="Notas y comentarios">
+                                <field name="comment" nolabel="1" placeholder="p.e Colocar notas del rol"/>
+                            </group>
                             <notebook>
                                 <page string="Detalle">
                                     <group col="2">
