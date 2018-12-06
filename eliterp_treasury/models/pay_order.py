@@ -46,6 +46,8 @@ class PayWizard(models.TransientModel):
             'amount': self.amount,
             'type': self.type,
             'date': self.date,
+            'type_egress': self.type_egress,
+            'bank_id': self.bank_id.id,
             'comment': self.comment,
             'project_id': self.project_id.id if self.project_id else False
         }
@@ -73,16 +75,15 @@ class PayWizard(models.TransientModel):
                     employees.append([0, 0, {'employee_id': line.employee_id.id,
                                              'amount': line.amount_payable,
                                              'pay_order_line_id': line.id,
-                                             'is_check': True if adq.type_egress == 'bank' else False}])
+                                             'is_check': True if self.type_egress == 'bank' else False}])
                     line.update({'selected': False})  # Le quitamos la selección
             vals.update({
                 'origin': adq.name,
-                'type_egress': adq.type_egress,
-                'bank_id': adq.bank_id.id,
+                'general_check': False,
                 'advance_payment_id': adq.id,
                 'lines_employee': employees
             })
-            adq.update({'type_egress': False, 'bank_id': False})  # Cambiamos datos
+            adq.update({'select_all': False})
         if self._context['active_model'] == 'hr.payslip.run':
             rc = self.env['hr.payslip.run'].browse(self._context['active_id'])
             # Colocamos los seleccionados en bandera True
@@ -92,16 +93,15 @@ class PayWizard(models.TransientModel):
                     employees.append([0, 0, {'employee_id': line.role_id.employee_id.id,
                                              'amount': line.amount_payable,
                                              'pay_order_line_id_rc': line.id,
-                                             'is_check': True if rc.type_egress == 'bank' else False}])
+                                             'is_check': True if self.type_egress == 'bank' else False}])
                     line.update({'selected': False})
             vals.update({
                 'origin': rc.move_id.name,
-                'type_egress': rc.type_egress,
-                'bank_id': rc.bank_id.id,
+                'general_check': False,
                 'payslip_run_id': rc.id,
                 'lines_employee': employees
             })
-            rc.update({'type_egress': False, 'bank_id': False})  # Cambiamos datos
+            rc.update({'select_all': False})
         if self._context['active_model'] == 'eliterp.replacement.small.box':
             cajc = self.env['eliterp.replacement.small.box'].browse(self._context['active_id'])
             vals.update({
@@ -137,6 +137,12 @@ class PayWizard(models.TransientModel):
     amount = fields.Float('Monto', required=True)
     default_amount = fields.Float('Monto ficticio')
     default_date = fields.Date('Fecha ficticia')
+    type_egress = fields.Selection([
+        ('bank', 'Cheque'),
+        ('payment_various', 'Pagos varios'),
+        ('transfer', 'Transferencia')
+    ], string='Forma de pago', required=True, default='bank')
+    bank_id = fields.Many2one('res.bank', string="Banco")
     comment = fields.Text('Notas y comentarios')
 
 class AccountVoucher(models.Model):
@@ -211,6 +217,8 @@ class AccountVoucher(models.Model):
             values['date'] = record.date
             values['voucher_type'] = 'purchase'
             values['pay_order_id'] = record.id
+            values['type_egress'] = record.type_egress if record.type_egress != 'payment_various' else 'cash'
+            values['bank_id'] = record.bank_id.id if record.bank_id else False
             amount = record.amount - sum(l.amount if l.voucher_id else 0.00 for l in record.lines_employee)
             values['amount_cancel'] = amount
             lines_account = []
@@ -260,8 +268,6 @@ class AccountVoucher(models.Model):
                                              'project_id': record.project_id.id if record.project_id else False
                                              }])
                 values['lines_account'] = lines_account
-                values['type_egress'] = record.type_egress if record.type_egress != 'payment_various' else 'cash'
-                values['bank_id'] = record.bank_id.id if record.bank_id else False
                 values['concept'] = 'ADQ del mes de %s' % adq.period
             # RC
             if record.type == 'rc':
@@ -274,8 +280,6 @@ class AccountVoucher(models.Model):
                                              'project_id': record.project_id.id if record.project_id else False
                                              }])
                 values['lines_account'] = lines_account
-                values['type_egress'] = record.type_egress if record.type_egress != 'payment_various' else 'cash'
-                values['bank_id'] = record.bank_id.id if record.bank_id else False
                 values['concept'] = 'Nómina de empleados %s' % rc.name
             # Caja chica
             if record.type == 'cajc':
@@ -470,7 +474,7 @@ class PayOrder(models.Model):
         ('bank', 'Cheque'),
         ('payment_various', 'Pagos varios'),
         ('transfer', 'Transferencia')
-    ], string='Forma de pago', readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
+    ], string='Forma de pago', required=True, readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
     bank_id = fields.Many2one('res.bank', string="Banco", domain=[('type_use', '=', 'payments')], readonly=True,
                               states={'draft': [('readonly', False)]})
     advance_payment_id = fields.Many2one('eliterp.advance.payment', 'ADQ')
@@ -488,7 +492,7 @@ class PayOrder(models.Model):
                                      states={'draft': [('readonly', False)]})
     beneficiary = fields.Char('Beneficiario', readonly=True, states={'draft': [('readonly', False)]})
     general_check = fields.Boolean('Cheque general', readonly=True, states={'draft': [('readonly', False)]},
-                                   default=False)
+                                   default=True)
     comment = fields.Text('Notas y comentarios', readonly=True, states={'draft': [('readonly', False)]})
     voucher_id = fields.Many2one('account.voucher', string='Comprobante', readonly=True)
 
@@ -800,10 +804,8 @@ class AdvancePayment(models.Model):
         Abrimos ventana para añadir pago
         :return: dict
         """
-        if not self.type_egress:
-            raise ValidationError('Necesita seleccionar una forma de pago.')
-        if self.type_egress != 'payment_various' and not self.type_egress:
-            raise ValidationError('Necesita seleccionar una forma y un banco.')
+        if float_is_zero(self.total_pay_order, 0.01):
+            raise ValidationError("No hay líneas seleccionadas para orden de pago.")
         self.flag_change = True
         view = self.env.ref('eliterp_treasury.eliterp_view_form_pay_wizard')
         context = {
@@ -875,13 +877,6 @@ class AdvancePayment(models.Model):
     residual_pay_order = fields.Float('Saldo OP', compute='_get_customize_amount', store=True)
     lines_pay_order = fields.One2many('eliterp.pay.order', 'advance_payment_id', string='Órdenes de pago')
     flag_change = fields.Boolean('Bandera de cambio?')
-    # Diferentes órdenes de pago (Tipos de pagos para MAEQ)
-    type_egress = fields.Selection([
-        ('bank', 'Cheque'),
-        ('payment_various', 'Pagos varios'),
-        ('transfer', 'Transferencia')
-    ], string='Forma de pago', default='bank')
-    bank_id = fields.Many2one('res.bank', string="Banco", domain=[('type_use', '=', 'payments')])
     total_pay_order = fields.Float('Total a pagar', compute='_get_total_pay_order', track_visibility='onchange')
     select_all = fields.Boolean('Seleccionar todos?', default=False)
 
@@ -949,7 +944,7 @@ class LinesPayslipRun(models.Model):
         Verificamos monto a pagar no sea mayor al  total menos el residuo
         :return:
         """
-        if self.amount_payable > round(self.residual, 2):
+        if self.amount_payable > self.residual:
             raise ValidationError("Monto a pagar (%.2f) mayor al saldo a recibir (%.2f) para %s." % (
                 self.amount_payable, self.residual, self.role_id.employee_id.name
             ))
@@ -983,10 +978,8 @@ class PayslipRun(models.Model):
         Abrimos ventana para añadir pago
         :return: dict
         """
-        if not self.type_egress:
-            raise ValidationError('Necesita seleccionar una forma de pago.')
-        if self.type_egress != 'payment_various' and not self.bank_id:
-            raise ValidationError('Necesita seleccionar un banco.')
+        if float_is_zero(self.total_pay_order, 0.01):
+            raise ValidationError("No hay líneas seleccionadas para orden de pago.")
         self.flag_change = True
         view = self.env.ref('eliterp_treasury.eliterp_view_form_pay_wizard')
         context = {
@@ -1054,13 +1047,6 @@ class PayslipRun(models.Model):
     residual_pay_order = fields.Float('Saldo OP', compute='_get_customize_amount', store=True)
     lines_pay_order = fields.One2many('eliterp.pay.order', 'payslip_run_id', string='Órdenes de pago')
     flag_change = fields.Boolean('Bandera de cambio?')
-    # Diferentes órdenes de pago (Tipos de pagos para MAEQ)
-    type_egress = fields.Selection([
-        ('bank', 'Cheque'),
-        ('payment_various', 'Pagos varios'),
-        ('transfer', 'Transferencia')
-    ], string='Forma de pago', default='bank')
-    bank_id = fields.Many2one('res.bank', string="Banco", domain=[('type_use', '=', 'payments')])
     total_pay_order = fields.Float('Total de pago', compute='_get_total_pay_order')
     select_all = fields.Boolean('Seleccionar todos?', default=False)
 
