@@ -372,7 +372,7 @@ class AccountVoucher(models.Model):
             count = len(self.lines_account)
             count_ = len(self.lines_invoice_purchases)
             if count_ > 1:
-                account_partner = self.partner_id.property_account_payable_id.id
+                account_partner = self.lines_invoice_purchases[0].invoice_id.account_id.id
                 for line in self.lines_account.filtered(lambda x: not x.account_id.id == account_partner):
                     self.env['account.move.line'].with_context(check_move_validity=False).create({
                         'name': '/',
@@ -444,7 +444,7 @@ class AccountVoucher(models.Model):
                         })
             # Factura
             if self.type_pay == 'fap':
-                account = self.partner_id.property_account_payable_id
+                account = self.lines_invoice_purchases[0].invoice_id.account_id
                 # Notas de crédito
                 for line_note_credit in self.lines_note_credit:
                     line_move_invoice = line_note_credit.invoices_affect.invoice_id.move_id.line_ids.filtered(
