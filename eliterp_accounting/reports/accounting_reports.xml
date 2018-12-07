@@ -1069,7 +1069,8 @@
 
                             <table class="table table-condensed" style="border: none; font-size: 12px;">
                                 <tbody>
-                                    <t t-foreach="get_lines(doc, '4')" t-as="line">
+                                    <t t-set="accounts4" t-value="get_lines(doc, '4')"/>
+                                    <t t-foreach="accounts4" t-as="line">
                                         <t t-if="line['amount'] != 0">
                                             <t t-if="line['type'] == 'principal'">
                                                 <tr style="border: none; font-size: 16px; font-weight: bold;">
@@ -1121,7 +1122,8 @@
 
                             <table class="table table-condensed" style="border: none; font-size: 12px;">
                                 <tbody>
-                                    <t t-foreach="get_lines(doc, '5')" t-as="line">
+                                    <t t-set="accounts5" t-value="get_lines(doc, '5')"/>
+                                    <t t-foreach="accounts5" t-as="line">
                                         <t t-if="line['amount'] != 0">
                                             <t t-if="line['type'] == 'principal'">
                                                 <tr style="border: none; font-size: 16px; font-weight: bold;">
@@ -1170,15 +1172,15 @@
                                     </t>
                                 </tbody>
                             </table>
-
-                            <h4 t-if="get_result()==True" class="clearfix text-center">GANANCIA DEL EJERCICIO:&amp;nbsp;
+                            <t t-set="amount_total" t-value="accounts4[0]['amount'] - accounts5[0]['amount']"/>
+                            <h4 t-if="amount_total &#62; 0" class="clearfix text-center">GANANCIA DEL EJERCICIO:&amp;nbsp;
                                 <strong>
-                                    <span t-esc='"%.2f" % get_total_exercise()'/>
+                                    <span t-esc='"%.2f" % amount_total'/>
                                 </strong>
                             </h4>
-                            <h4 t-if="get_result()==False" class="clearfix text-center">PÉRDIDA DEL EJERCICIO:&amp;nbsp;
+                            <h4 t-if="amount_total &#60; 0" class="clearfix text-center">PERDIDA DEL EJERCICIO:&amp;nbsp;
                                 <strong>
-                                    <span t-esc='"%.2f" % get_total_exercise()'/>
+                                    <span t-esc='"%.2f" % amount_total'/>
                                 </strong>
                             </h4>
 
@@ -1196,6 +1198,16 @@
                 name="eliterp_accounting.eliterp_report_status_results"
                 file="eliterp_accounting.eliterp_report_status_results"
                 paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+        <report
+                id="eliterp_action_report_status_results_xlsx"
+                model="eliterp.status.results.report"
+                string="Estado de resultados"
+                report_type="xlsx"
+                name="eliterp_accounting.eliterp_report_result_xlsx"
+                file="eliterp_accounting.eliterp_report_result_xlsx"
+                print_report_name="Estado de resultados"
+                attachment_use="False"
         />
         <!--Reporte de libro mayor-->
         <template id="eliterp_report_general_ledger">
@@ -1458,3 +1470,4 @@
         />
     </data>
 </odoo>
+
