@@ -60,5 +60,5 @@ class Checks(models.Model):
     ], string='Estado', track_visibility='onchange')
 
     voucher_id = fields.Many2one('account.voucher', string='Pago/Cobro')
-    reconcile = fields.Boolean(related='voucher_id.reconcile', string='Conciliado?')
-    name = fields.Char('No. Cheque', related='voucher_id.check_number')
+    reconcile = fields.Boolean(related='voucher_id.reconcile', string='Conciliado?', store=True)
+    name = fields.Char('No. Cheque', related='voucher_id.check_number', store=True)
