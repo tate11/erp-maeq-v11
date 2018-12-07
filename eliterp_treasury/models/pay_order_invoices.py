@@ -33,6 +33,11 @@ class AccountRegisterPayOrder(models.TransientModel):
             raise UserError("No se puede generar está acción para una sola factura.")
         if any(invoice.state != 'open' for invoice in invoices):
             raise UserError("Soló se puede generar orden de pago de facturas por pagar.")
+        # Revisar empresas y cuentas de facturas
+        if any(inv.partner_id != invoices[0].partner_id for inv in invoices):
+            raise UserError("Soló se puede generar orden de pago de facturas del mismo proveedor.")
+        if any(inv.account_id != invoices[0].account_id  for inv in invoices):
+            raise UserError("Soló se puede generar orden de pago de facturas con la misma cuenta por pagar.")
         total_amount = self._compute_amount(invoices)
         rec.update({
             'amount': abs(total_amount),
