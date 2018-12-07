@@ -75,6 +75,7 @@
                                    domain="[('type_use', '=', 'payments')]"/>
                             <field name="concept" attrs="{'readonly':[('state', '==', 'posted')]}"/>
                             <field name="amount" readonly="1"/>
+                            <field name="move_id" readonly="1" attrs="{'invisible':[('state', '=', 'draft')]}"/>
                             <field name="journal_id" invisible="1"/>
                             <field name="payment_method_id" invisible="1"/>
                             <field name="payment_type" invisible="1"/>
@@ -203,6 +204,7 @@
                             <field name="account_credit_id" attrs="{'readonly':[('state','==','posted')]}"
                                    options="{'no_create': True}"/>
                             <field name="amount_transfer" attrs="{'readonly':[('state', '==', 'posted')]}"/>
+                            <field name="move_id" attrs="{'invisible':[('state', '=', 'draft')]}"/>
                             <field name="journal_id" invisible="1"/>
                             <field name="payment_method_id" invisible="1"/>
                             <field name="payment_type" invisible="1"/>
