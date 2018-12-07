@@ -226,7 +226,7 @@ class AccountVoucher(models.Model):
             if record.type == 'fap':
                 invoice = record.invoice_id or record.invoice_ids[0]
                 # Líneas de cuentas
-                lines_account.append([0, 0, {'account_id': invoice.partner_id.property_account_payable_id.id,
+                lines_account.append([0, 0, {'account_id': invoice.account_id.id,
                                              'amount': amount,
                                              'project_id': record.project_id.id if record.project_id else False,
                                              'account_analytic_id': invoice.account_analytic_id.id if invoice.account_analytic_id else False,
