@@ -135,13 +135,35 @@
             <field name="domain">[('type', '=', 'receipts')]</field>
             <field name="context">{'default_state': 'received', 'group_by': 'check_type'}</field>
         </record>
+
+        <record id="view_search_checks_issued" model="ir.ui.view">
+            <field name="name">view_search_checks_issued</field>
+            <field name="model">eliterp.checks</field>
+            <field name="arch" type="xml">
+                <search string="Buscar en...">
+                    <field name="name" string="No. Cheque"/>
+                    <field name="recipient" string="Beneficiario"/>
+                    <separator/>
+                    <filter name="delivered" string="Entregado" domain="[('state', '=', 'delivered')]"/>
+                    <filter name="charged" string="Debitado" domain="[('state', '=', 'charged')]"/>
+                    <filter name="protested" string="Anulado" domain="[('state', '=', 'cancel')]"/>
+                    <separator/>
+                    <filter name="reconcile" string="Conciliado" domain="[('reconcile', '=', True)]"/>
+                    <group expand="1" string="Agrupar por">
+                        <filter string="Banco" name="groupby_bank_id" domain="[]"
+                                context="{'group_by': 'bank_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="eliterp_action_checks_issued" model="ir.actions.act_window">
             <field name="name">Cheques emitidos</field>
             <field name="res_model">eliterp.checks</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('type', '=', 'issued')]</field>
-            <field name="context">{'default_state': 'issued', 'group_by': 'check_type'}</field>
+            <field name="search_view_id" ref="view_search_checks_issued"/>
         </record>
         <record id="eliterp_action_bank_conciliation_wizard" model="ir.actions.act_window">
             <field name="name">Registrar conciliación</field>
