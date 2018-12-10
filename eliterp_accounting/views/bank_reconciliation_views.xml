@@ -88,13 +88,22 @@
                             <field name="journal_id" invisible="1"/>
                         </group>
                         <group col="1" string="Líneas de movimiento bancarios">
+                            <group attrs="{'invisible':[('state','!=', 'draft')]}">
+                                <div class="o_row">
+                                    <field name="select_all"
+                                           nolabel="1"/>
+                                    <span>
+                                        <b>Si desea seleccionar todos de check aquí.</b>
+                                    </span>
+                                </div>
+                            </group>
                             <field name="lines_banks_move"
                                    nolabel="1" attrs="{'readonly':[('state','=', 'posted')]}">
                                 <tree editable="bottom"
                                       decoration-success="check"
                                       decoration-bf="check"
                                       create="false">
-                                    <field name="check"/>
+                                    <field name="check" string="&#x02611;"/>
                                     <field name="date" readonly="1"/>
                                     <field name="journal" readonly="1"/>
                                     <field name="concept" readonly="1"/>
