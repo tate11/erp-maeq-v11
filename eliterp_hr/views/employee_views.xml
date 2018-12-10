@@ -64,10 +64,12 @@
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[@class='oe_button_box']" position="inside">
-                    <button name="open_documents" string="Documentos" type="object" class="oe_stat_button"
+                    <button name="open_documents" groups="hr.group_hr_manager" string="Documentos" type="object"
+                            class="oe_stat_button"
                             icon="fa-archive">
                     </button>
                     <button name="re_entry" string="Reingreso"
+                            groups="hr.group_hr_manager"
                             attrs="{'invisible':[('departure_date', '=', False)]}"
                             type="object" class="oe_stat_button"
                             icon="fa-check">
