@@ -154,7 +154,7 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Datos de RRHH/Contabilidad">
+                        <page string="Datos de RRHH/Contabilidad" groups="hr_payroll.group_hr_payroll_manager">
                             <!---->
                             <group string="Usuario de acceso al sistema" colspan="1" groups="base.group_erp_manager">
                                 <field name="user_id"/>
