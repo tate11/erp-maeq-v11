@@ -89,8 +89,10 @@
                         <field name="approval_user" readonly="1" attrs="{'invisible':[('state', '!=', 'posted')]}"/>
                         <field name="journal_id" invisible="1"/>
                     </group>
-                    <group string="Notas y comentarios">
-                        <field name="comment" nolabel="1"/>
+                    <group>
+                        <group string="Notas y comentarios">
+                            <field name="comment" nolabel="1"/>
+                        </group>
                     </group>
                     <group string="Lista de empleados" col="1" name="advance employees">
                         <group col="1">
@@ -101,14 +103,16 @@
                                     class="oe_highlight"/>
                         </group>
                         <field name="lines_advance" nolabel="1">
-                            <tree create="false" default_order='employee_id asc'  editable="bottom">
+                            <tree create="false" default_order='employee_id asc' editable="bottom">
                                 <field name="parent_state" invisible="1"/>
                                 <field name="employee_id" readonly="1"/>
                                 <field name="job_id" invisible="1"/>
                                 <field name="admission_date" readonly="1"/>
                                 <field name="antiquity" readonly="1"/>
-                                <field name="amount_advance" attrs="{'readonly':[('parent_state', '=', 'posted')]}" sum="Total calculado"/>
-                                <field name="mobilization" attrs="{'readonly':[('parent_state', '=', 'posted')]}" sum="Total movilización"/>
+                                <field name="amount_advance" attrs="{'readonly':[('parent_state', '=', 'posted')]}"
+                                       sum="Total calculado"/>
+                                <field name="mobilization" attrs="{'readonly':[('parent_state', '=', 'posted')]}"
+                                       sum="Total movilización"/>
                                 <field name="amount_total" attrs="{'readonly':[('parent_state', '=', 'posted')]}"/>
                             </tree>
                         </field>

@@ -19,7 +19,7 @@
                     <button name="add_credit_note"
                             string="Añadir nota de crédito"
                             type="object"
-                            attrs="{'invisible': ['|', '|', '|', ('type', '=', 'in_refund'), ('state', '!=', 'open'), ('is_sale_note', '=', True), ('viaticum', '=', True)]}"
+                            attrs="{'invisible': ['|', '|', '|', '|', ('type', '=', 'in_refund'), ('state', '!=', 'open'), ('is_sale_note', '=', True), ('viaticum', '=', True), ('small_box', '=', True)]}"
                             class="oe_highlight"/>
                 </button>
                 <xpath expr="//sheet/div[1]" position="before">
@@ -51,8 +51,9 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="eliterp_accounting.eliterp_view_tree_account_invoice_supplier"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='state']" position="before"><!--Estado-->
+                <xpath expr="//field[@name='total_credit_note']" position="before">
                     <field name="withhold_number"/>
+                    <field name="amount_retention"/>
                 </xpath>
             </field>
         </record>

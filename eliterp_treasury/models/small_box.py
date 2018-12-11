@@ -28,6 +28,17 @@ class AccountInvoice(models.Model):
                 })
         return super(AccountInvoice, self).create(vals)
 
+    @api.multi
+    def action_invoice_open(self):
+        """
+        MM: Validamos el voucher de factura para caja chica
+        :return: object
+        """
+        res = super(AccountInvoice, self).action_invoice_open()
+        if self.small_box:
+            self.voucher_small_box_id.confirm_voucher()
+        return res
+
     voucher_small_box_id = fields.Many2one('eliterp.voucher.small.box', 'Comprobante caja chica')
     small_box = fields.Boolean('Caja chica?', default=False)
 
@@ -77,6 +88,13 @@ class VoucherSmallBox(models.Model):
     _description = 'Comprobante de caja chica'
 
     @api.multi
+    def unlink(self):
+        for record in self:
+            if record.state != 'draft':
+                raise UserError("No se puede eliminar comprobantes de caja chica diferentes de borrador.")
+        return super(VoucherSmallBox, self).unlink()
+
+    @api.multi
     def print_voucher(self):
         """
         Imprimir comprobante de caja chica
@@ -90,11 +108,7 @@ class VoucherSmallBox(models.Model):
         Confirmamos qué voucher este correctamente llenado y lo confirmamos,
         si es factura se debe ver qué este validada
         """
-        if self.type_voucher == 'invoice':
-            invoice = self.env['account.invoice'].search([('voucher_small_box_id', '=', self.id)])[0]
-            if invoice.state == 'draft':
-                raise UserError("Se debe validar la factura No. %s" % invoice.invoice_number)
-        else:
+        if self.type_voucher != 'invoice':
             if not self.lines_account:
                 raise UserError("Debe ingresar al menos una línea de cuenta.")
         return self.write({
@@ -102,7 +116,6 @@ class VoucherSmallBox(models.Model):
             'name': self.env['ir.sequence'].next_by_code('voucher.small.box'),
             'replacement_small_box_id': self.custodian_id.replacement_small_box_id.id
         })
-
 
     @api.multi
     def view_invoice(self):
@@ -200,6 +213,17 @@ class ReplacementSmallBox(models.Model):
 
     _description = 'Reposición de caja chica'
 
+    @api.multi
+    def unlink(self):
+        """
+        No eliminamos
+        :return:
+        """
+        for line in self:
+            if line.state != 'draft':
+                raise ValidationError("No podemos borrar reposiciones diferentes de borrador.")
+        return super(ReplacementSmallBox, self).unlink()
+
     # Funciones para impresión de documento
     @api.model
     def _get_period(self, lines):
@@ -230,7 +254,6 @@ class ReplacementSmallBox(models.Model):
         invoice = self.env['account.invoice'].search([('voucher_small_box_id', '=', id)])
         return invoice
 
-
     @api.multi
     def print_replacement(self):
         """
@@ -252,7 +275,7 @@ class ReplacementSmallBox(models.Model):
         Solicitamos aprobación
         """
         if not self.lines_voucher:
-            raise  UserError("No tiene líneas de comprobantes para aprobar.")
+            raise UserError("No tiene líneas de comprobantes para aprobar.")
         self.write({'state': 'to_approve'})
 
     @api.multi
@@ -289,6 +312,8 @@ class ReplacementSmallBox(models.Model):
         """
         Liquidamos caja chica para generar asiento contable
         """
+        if self.total_vouchers > self.residual:
+            raise ValidationError("El monto a reponer es mayor que el monto asignado a %s" % self.custodian_id.name)
         move_id = self.env['account.move'].create({'journal_id': self.journal_id.id,
                                                    'date': self.date,
                                                    'ref': self.name})
@@ -353,8 +378,9 @@ class ReplacementSmallBox(models.Model):
         res.residual = res.custodian_id.amount
         return res
 
-    @api.multi
-    def load_amount(self):
+    @api.one
+    @api.depends('amount_allocated', 'lines_voucher.check_reposition')
+    def _compute_total_voucher(self):
         """
         Cargamos el monto de los comprobantes
         """
@@ -362,9 +388,8 @@ class ReplacementSmallBox(models.Model):
         for line in self.lines_voucher:
             if line.check_reposition:
                 total += line.amount_total
-        if total > (self.residual):
-            raise ValidationError("El monto a reponer es mayor que el monto asignado a %s" % self.custodian_id.name)
-        self.write({'total_vouchers': total, 'residual': self.amount_allocated - total})
+        self.total_vouchers = total
+        self.residual = self.amount_allocated - total
 
     @api.onchange('custodian_id')
     def _onchange_custodian_id(self):
@@ -372,16 +397,17 @@ class ReplacementSmallBox(models.Model):
         Al cambiar custodio actualizamos monto y saldo del mismo
         """
         self.amount_allocated = self.custodian_id.amount
-        self.residual = self.custodian_id.amount
 
     name = fields.Char('No. Documento')
     amount_allocated = fields.Float('Monto asignado')
-    total_vouchers = fields.Float('Total comprobantes')
-    residual = fields.Float('Saldo')
+    total_vouchers = fields.Float('Total comprobantes', compute='_compute_total_voucher', store=True)
+    residual = fields.Float('Saldo', compute='_compute_total_voucher', store=True)
     move_id = fields.Many2one('account.move', 'Asiento contable', copy=False)
     journal_id = fields.Many2one('account.journal', 'Diario', default=_default_journal)
-    date = fields.Date('Fecha documento', default=fields.Date.context_today)
-    custodian_id = fields.Many2one('eliterp.custodian.small.box', 'Custodio', required=True)
+    date = fields.Date('Fecha documento', default=fields.Date.context_today, required=True, readonly=True,
+                       states={'draft': [('readonly', False)]})
+    custodian_id = fields.Many2one('eliterp.custodian.small.box', 'Custodio', required=True, readonly=True,
+                                   states={'draft': [('readonly', False)]})
     state = fields.Selection([('draft', 'Borrador'), ('open', 'Abierto'),
                               ('to_approve', 'Por aprobar'), ('approve', 'Aprobado'),
                               ('liquidated', 'Liquidado')], string="Estado", default='draft')
