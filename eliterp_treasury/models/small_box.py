@@ -48,6 +48,30 @@ class CustodianSmallBox(models.Model):
 
     _description = 'Custodio de caja chica'
 
+    @api.multi
+    def open_replacement(self):
+        imd = self.env['ir.model.data']
+        action = imd.xmlid_to_object('eliterp_treasury.eliterp_action_replacement_small_box')
+        list_view_id = imd.xmlid_to_res_id('eliterp_treasury.eliterp_view_tree_replacement_small_box')
+        form_view_id = imd.xmlid_to_res_id('eliterp_treasury.eliterp_view_form_replacement_small_box')
+        result = {
+            'name': action.name,
+            'help': action.help,
+            'type': action.type,
+            'views': [[list_view_id, 'tree'], [form_view_id, 'form']],
+            'target': action.target,
+            'context': action.context,
+            'res_model': action.res_model,
+        }
+        if len(self.replacement_ids) > 1:
+            result['domain'] = "[('id','in',%s)]" % self.replacement_ids.ids
+        elif len(self.replacement_ids) == 1:
+            result['views'] = [(form_view_id, 'form')]
+            result['res_id'] = self.replacement_ids.ids[0]
+        else:
+            result = {'type': 'ir.actions.act_window_close'}
+        return result
+
     @api.constrains('amount')
     def _check_amount(self):
         """
@@ -56,11 +80,18 @@ class CustodianSmallBox(models.Model):
         if self.amount <= 0:
             raise ValidationError("Monto no puede ser menor o igual a 0.")
 
+    @api.multi
+    def _compute_replacement_count(self):
+        for record in self:
+            record.replacement_count = len(record.replacement_ids)
+
     name = fields.Char('Nombre', required=True)
     account_id = fields.Many2one('account.account', string='Cuenta contable',
                                  domain=[('account_type', '=', 'movement')], required=True)
-    amount = fields.Float('Monto')
-    replacement_small_box_id = fields.Many2one('eliterp.replacement.small.box', 'Reposición caja chica')
+    amount = fields.Float('Monto', required=True)
+    replacement_small_box_id = fields.Many2one('eliterp.replacement.small.box', 'Reposición caja chica (Actual)')
+    replacement_ids = fields.One2many('eliterp.replacement.small.box', 'custodian_id', string='Reposiciones')
+    replacement_count = fields.Integer('# Reposiciones', compute='_compute_replacement_count')
 
 
 class AccountSmallBoxLine(models.Model):
@@ -188,6 +219,15 @@ class VoucherSmallBox(models.Model):
         res = super(VoucherSmallBox, self).create(vals)
         return res
 
+    @api.onchange('custodian_id')
+    def _onchange_custodian_id(self):
+        """
+        Para la factura llenamos estos campos con sus datos
+        :return:
+        """
+        if self.custodian_id:
+            self.beneficiary = self.custodian_id.name
+
     name = fields.Char(string="No. Documento", copy=False)
     type_voucher = fields.Selection([('vale', 'Vale'), ('invoice', 'Factura')], string="Tipo", default='vale',
                                     readonly=True, states={'draft': [('readonly', False)]})
@@ -210,7 +250,8 @@ class VoucherSmallBox(models.Model):
 
 class ReplacementSmallBox(models.Model):
     _name = 'eliterp.replacement.small.box'
-
+    _inherit = ['mail.thread']
+    _order = 'date desc'
     _description = 'Reposición de caja chica'
 
     @api.multi
@@ -293,6 +334,8 @@ class ReplacementSmallBox(models.Model):
         """
         Aperturamos caja chica para poder enlazar registros de comprobantes
         """
+        if self.search([('state', '=', 'open'), ('custodian_id', '=', self.custodian_id.id)]):
+            raise UserError("Ya tiene una reposión en estado abierta para custodio: %s" % self.custodian_id.name)
         voucher_ids = self.env['eliterp.voucher.small.box'].search([
             ('check_reposition', '=', False),
             ('state_reposition', '=', 'pending'),
@@ -335,6 +378,7 @@ class ReplacementSmallBox(models.Model):
                     'name': invoice.account_id.name,
                     'journal_id': self.journal_id.id,
                     'account_id': invoice.account_id.id,
+                    'invoice_id': invoice.id,
                     'move_id': move_id.id,
                     'debit': line.amount_total,
                     'credit': 0.00,
@@ -364,6 +408,14 @@ class ReplacementSmallBox(models.Model):
                              'credit': 0.00,
                              'date': self.date})
                     line.write({'replacement_small_box_id': self.id})
+        # Conciliamos las facturas
+        for line in self.lines_voucher.filtered(lambda x: x.check_reposition and x.type_voucher == 'invoice'):
+            invoice = self.env['account.invoice'].search([('voucher_small_box_id', '=', line.id)])
+            movelines = invoice.move_id.line_ids
+            line_ = move_id.line_ids.filtered(lambda x: x.invoice_id == invoice)
+            line_x = movelines.filtered(
+                lambda x: x.invoice_id == invoice and x.account_id.user_type_id.type == 'payable')
+            (line_x + line_).reconcile()
         move_id.with_context(eliterp_moves=True, move_name=self.name).post()
         move_id.write({'ref': self.name})
         return self.write(
@@ -400,20 +452,22 @@ class ReplacementSmallBox(models.Model):
 
     name = fields.Char('No. Documento')
     amount_allocated = fields.Float('Monto asignado')
-    total_vouchers = fields.Float('Total comprobantes', compute='_compute_total_voucher', store=True)
+    total_vouchers = fields.Float('Total comprobantes', compute='_compute_total_voucher', store=True,
+                                  track_visibility='onchange')
     residual = fields.Float('Saldo', compute='_compute_total_voucher', store=True)
     move_id = fields.Many2one('account.move', 'Asiento contable', copy=False)
     journal_id = fields.Many2one('account.journal', 'Diario', default=_default_journal)
     date = fields.Date('Fecha documento', default=fields.Date.context_today, required=True, readonly=True,
                        states={'draft': [('readonly', False)]})
     custodian_id = fields.Many2one('eliterp.custodian.small.box', 'Custodio', required=True, readonly=True,
-                                   states={'draft': [('readonly', False)]})
+                                   states={'draft': [('readonly', False)]}, track_visibility='onchange')
     state = fields.Selection([('draft', 'Borrador'), ('open', 'Abierto'),
                               ('to_approve', 'Por aprobar'), ('approve', 'Aprobado'),
-                              ('liquidated', 'Liquidado')], string="Estado", default='draft')
+                              ('liquidated', 'Liquidado')], string="Estado", default='draft',
+                             track_visibility='onchange')
     lines_voucher = fields.One2many('eliterp.voucher.small.box', 'replacement_small_box_id',
                                     string="Linea de comprobante")
-    opening_date = fields.Date('Fecha apertura')
+    opening_date = fields.Date('Fecha apertura', track_visibility='onchange')
     replacement_date = fields.Date(
         'Fecha reposición')  # La fecha de reposición es cuando se realiza el comprobante de egreso
     approval_user = fields.Many2one('res.users', 'Aprobado por')
