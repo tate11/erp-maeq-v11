@@ -20,6 +20,28 @@
                 </search>
             </field>
         </record>
+        <!--Caja chica-->
+        <record id="eliterp_view_search_voucher_small_box" model="ir.ui.view">
+            <field name="name">eliterp_view_search_voucher_small_box</field>
+            <field name="model">eliterp.voucher.small.box</field>
+            <field name="arch" type="xml">
+                <search string="Buscar en...">
+                    <field name="beneficiary" string="Beneficiario"/>
+                    <field string="Custodio" name="custodian_id"/>
+                    <separator/>
+                    <filter name="state_reposition" string="Pagados"
+                            domain="[('state_reposition', '=', 'paid')]"/>
+                    <group expand="1" string="Agrupar por">
+                        <filter string="Creado" name="groupby_create_uid" domain="[]"
+                                context="{'group_by': 'create_uid'}"/>
+                        <filter string="Estado de reposición" name="groupby_state_reposition" domain="[]"
+                                context="{'group_by': 'state_reposition'}"/>
+                        <filter string="Reposición" name="groupby_replacement_small_box_id" domain="[]"
+                                context="{'group_by': 'replacement_small_box_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record id="eliterp_view_search_pay_order" model="ir.ui.view">
             <field name="name">eliterp_view_search_pay_order</field>
             <field name="model">eliterp.pay.order</field>
@@ -123,6 +145,8 @@
             <field name="res_model">eliterp.voucher.small.box</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{"search_default_groupby_create_uid": 1}</field>
+            <field name="search_view_id" ref="eliterp_view_search_voucher_small_box"/>
         </record>
         <record id="eliterp_action_replacement_small_box" model="ir.actions.act_window">
             <field name="name">Reposición caja chica</field>
