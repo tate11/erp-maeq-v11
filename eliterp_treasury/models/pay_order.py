@@ -79,8 +79,8 @@ class PayWizard(models.TransientModel):
                     line.update({'selected': False})  # Le quitamos la selección
             vals.update({
                 'origin': adq.name,
-                'general_check': False,
                 'advance_payment_id': adq.id,
+                'general_check': False if self.type_egress == 'bank' else True,
                 'lines_employee': employees
             })
             adq.update({'select_all': False})
@@ -97,8 +97,8 @@ class PayWizard(models.TransientModel):
                     line.update({'selected': False})
             vals.update({
                 'origin': rc.move_id.name,
-                'general_check': False,
                 'payslip_run_id': rc.id,
+                'general_check': False if self.type_egress == 'bank' else True,
                 'lines_employee': employees
             })
             rc.update({'select_all': False})
@@ -144,6 +144,7 @@ class PayWizard(models.TransientModel):
     ], string='Forma de pago', required=True, default='bank')
     bank_id = fields.Many2one('res.bank', string="Banco")
     comment = fields.Text('Notas y comentarios')
+
 
 class AccountVoucher(models.Model):
     _inherit = 'account.voucher'
@@ -383,8 +384,8 @@ class ListEmployeesOrder(models.Model):
                                         index=True,
                                         readonly=True)
     pay_order_line_id_rc = fields.Many2one('eliterp.lines.payslip.run', 'Línea de rol', ondelete="cascade",
-                                        index=True,
-                                        readonly=True)
+                                           index=True,
+                                           readonly=True)
 
 
 class PayOrder(models.Model):
@@ -474,7 +475,8 @@ class PayOrder(models.Model):
         ('bank', 'Cheque'),
         ('payment_various', 'Pagos varios'),
         ('transfer', 'Transferencia')
-    ], string='Forma de pago', required=True, readonly=True, states={'draft': [('readonly', False)]}, track_visibility='onchange')
+    ], string='Forma de pago', required=True, readonly=True, states={'draft': [('readonly', False)]},
+        track_visibility='onchange')
     bank_id = fields.Many2one('res.bank', string="Banco", domain=[('type_use', '=', 'payments')], readonly=True,
                               states={'draft': [('readonly', False)]})
     advance_payment_id = fields.Many2one('eliterp.advance.payment', 'ADQ')
@@ -827,18 +829,19 @@ class AdvancePayment(models.Model):
         }
 
     @api.one
-    @api.depends('flag_change', 'lines_advance.selected', 'lines_pay_order')
+    @api.depends('flag_change', 'lines_advance.selected', 'lines_pay_order.state')
     def _get_customize_amount(self):
         """
         Obtenemos estado de OP
         """
-        pays = self.lines_pay_order.filtered(lambda x: not x.state == 'cancel')
+        pays = self.lines_pay_order.filtered(lambda x: x.state == 'paid')
         if not pays:
             self.state_pay_order = 'generated'
         else:
             total = 0.00
             for pay in pays:
                 total += round(pay.amount, 2)
+            self.improved_pay_order = total
             self.residual_pay_order = round(self.total - total, 2)
             if float_is_zero(self.residual_pay_order, precision_rounding=0.01):
                 self.state_pay_order = 'paid'
@@ -954,7 +957,8 @@ class LinesPayslipRun(models.Model):
     paid_amount = fields.Float('Pagado', compute='_compute_amount', store=True)
     residual = fields.Float('Saldo', compute='_compute_amount', store=True)
     amount_payable = fields.Float('A pagar')
-    pay_lines = fields.One2many('eliterp.list.employees.order', 'pay_order_line_id_rc', string="Líneas de ordenes de pago",
+    pay_lines = fields.One2many('eliterp.list.employees.order', 'pay_order_line_id_rc',
+                                string="Líneas de ordenes de pago",
                                 readonly=True,
                                 copy=False)
 

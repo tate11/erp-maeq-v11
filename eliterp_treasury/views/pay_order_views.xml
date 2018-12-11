@@ -160,9 +160,15 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="before"><!--Proveedor-->
+                <field name="small_box" invisible="1"/>
+                <field name="takes_hold"
+                       attrs="{'invisible':[('small_box', '!=', True)]}"
+                />
+            </xpath>
             <xpath expr="//div[@class='oe_button_box']" position="inside">
                 <button name="open_pay_orders"
-                        attrs="{'invisible':['|', ('type', '=', 'in_refund'), ('viaticum', '=', True)]}"
+                        attrs="{'invisible':['|', '|', ('type', '=', 'in_refund'), ('viaticum', '=', True), ('small_box', '=', True)]}"
                         class="oe_stat_button" icon="fa-list" type="object">
                     <field name="pay_orders_count" widget="statinfo" string="Órdenes de pago"/>
                 </button>
@@ -172,22 +178,24 @@
                 <field name="viaticum" invisible="1"/>
                 <button name="generate_request" string="Generar orden de pago"
                         type="object"
-                        attrs="{'invisible':['|', '|', '|', ('state','!=', 'open'), ('state_pay_order', '=', 'paid'), ('type', '=', 'in_refund'), ('viaticum', '=', True)]}"
+                        attrs="{'invisible':['|', '|', '|', '|', ('state','!=', 'open'), ('state_pay_order', '=', 'paid'), ('type', '=', 'in_refund'), ('viaticum', '=', True), ('small_box', '=', True)]}"
                         class="oe_highlight"/>
 
             </button>
         </field>
     </record>
-    <record id="eliterp_view_tree_account_invoice_supplier" model="ir.ui.view">
-        <field name="name">eliterp_view_tree_account_invoice_supplier</field>
+    <record id="eliterp_view_tree_account_invoice_supplier_order" model="ir.ui.view">
+        <field name="name">eliterp_view_tree_account_invoice_supplier_order</field>
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="eliterp_accounting.eliterp_view_tree_account_invoice_supplier"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='state']" position="before"><!--Estado-->
+            <xpath expr="//field[@name='state']" position="after"><!--Estado-->
+                <field name="small_box" invisible="1"/>
+                <field name="viaticum" invisible="1"/>
                 <button name="generate_request"
                         type='object'
                         string="Generar orden de pago"
-                        attrs="{'invisible': ['|', '|', ('state','!=', 'open'), ('state_pay_order', '=', 'paid'), ('type', '=', 'in_refund')]}"
+                        attrs="{'invisible':['|', '|', '|', '|', ('state','!=', 'open'), ('state_pay_order', '=', 'paid'), ('type', '=', 'in_refund'), ('viaticum', '=', True), ('small_box', '=', True)]}"
                         icon='fa-dollar'/>
                 <field name="state_pay_order"/>
             </xpath>
@@ -283,8 +291,22 @@
                             <b>Si desea seleccionar todos de check aquí.</b>
                         </span>
                     </div>
-                    <field name="total_pay_order" invisible="1"/>
                 </group>
+            </xpath>
+
+            <field name="total" position="replace"/>
+
+            <xpath expr='//sheet/group[2]' position="inside">
+                <group class="oe_subtotal_footer oe_right">
+                    <field name="total"/>
+                    <field name="improved_pay_order" string="(-) Pagado"/>
+                    <field name="residual_pay_order" string="Saldo" class="oe_subtotal_footer_separator"/>
+                </group>
+            </xpath>
+
+            <xpath expr="//field[@name='approval_user']" position="after">
+                <field name="total_pay_order"
+                       attrs="{'invisible':['|', ('state','!=', 'posted'), ('state_pay_order', '=', 'paid')]}"/>
             </xpath>
 
             <!--Líneas de empleados-->
@@ -306,8 +328,8 @@
             </xpath>
             <xpath expr="//field[@name='lines_advance']//tree//field[@name='amount_total']"
                    position="after">
-                <field name="paid_amount" sum="Total pagado"/>
-                <field name="residual" sum="Total saldo" string="Saldo"/>
+                <field name="paid_amount"/>
+                <field name="residual" string="Saldo"/>
                 <field name="amount_payable"
                        attrs="{'invisible': ['|', ('flag', '=', True), ('parent_state', '!=', 'posted')], 'readonly': [('flag', '=', True)]}"/>
 

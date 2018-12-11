@@ -283,7 +283,7 @@ class BankConciliation(models.Model):
     amount_account = fields.Float('Saldo banco', compute='_get_total', store=True)
     lines_banks_move = fields.One2many('eliterp.lines.banks.move', 'conciliation_id',
                                        string=u"Líneas de Movimientos")
-    state = fields.Selection([('draft', 'Borrador'), ('posted', 'Validada'), ('cancel', 'Cancelada')], string="Estado",
+    state = fields.Selection([('draft', 'Borrador'), ('posted', 'Validada'), ('cancel', 'Anulada')], string="Estado",
                              default='draft')
     notes = fields.Text('Notas', readonly=True, states={'draft': [('readonly', False)]})
     code = fields.Char('Código', size=6, required=True)  # Para no crear dos conciliaciones del mismo mes
