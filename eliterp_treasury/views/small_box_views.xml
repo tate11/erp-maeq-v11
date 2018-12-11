@@ -61,11 +61,10 @@
                                 class="oe_highlight"
                                 string="Imprimir comprobante"/>
                         <button name="confirm_voucher"
-                                string="Confirmar"
-                                states="draft"
+                                string="Confirmar vale"
                                 class="oe_highlight"
                                 type="object"
-                                modifiers="{'invisible': [['state', 'not in', ['draft']]]}"/>
+                                attrs="{'invisible': ['|', ('type_voucher','=','invoice'), ('state','!=', 'draft')]}"/>
                         <button name="create_invoice"
                                 string="Crear factura"
                                 type="object"
@@ -87,12 +86,14 @@
                             <field name="has_invoice" invisible="1"/>
                             <group>
                                 <field name="date" required="1"/>
-                                <field name="beneficiary"/>
+                                <field name="beneficiary"
+                                       attrs="{'invisible':[('type_voucher','=','invoice')], 'required':[('type_voucher','=','vale')]}"/>
                                 <field name="amount_total"/>
                             </group>
                             <group>
                                 <field name="type_voucher" options="{'horizontal': true}" widget="radio"/>
-                                <field name="concept"/>
+                                <field name="concept"
+                                       attrs="{'invisible':[('type_voucher','=','invoice')], 'required':[('type_voucher','=','vale')]}"/>
                                 <field name="custodian_id" options="{'no_create': True}"/>
                             </group>
                         </group>
@@ -116,10 +117,10 @@
             <field name="model">eliterp.replacement.small.box</field>
             <field name="arch" type="xml">
                 <tree
-                      decoration-info="state=='draft'"
-                      decoration-success="state=='liquidated'"
-                      decoration-bf="state=='liquidated'"
-                      default_order='date desc'>
+                        decoration-info="state=='draft'"
+                        decoration-success="state=='liquidated'"
+                        decoration-bf="state=='liquidated'"
+                        default_order='date desc'>
                     <field name="name"/>
                     <field name="custodian_id"/>
                     <field name="total_vouchers"/>
@@ -181,20 +182,16 @@
                             <field name="journal_id" invisible="1"/>
                         </group>
                         <group string="Líneas de comprobantes" col="1">
-                            <group attrs="{'invisible':[('state', '=', 'liquidated')]}">
-                                <button name="load_amount"
-                                        string="Cargar monto"
-                                        class="oe_highlight"
-                                        type="object"/>
-                            </group>
                             <field name="lines_voucher" nolabel="1" attrs="{'readonly':[('state', '=', 'liquidated')]}">
-                                <tree editable="bottom" create="false">
+                                <tree editable="bottom"
+                                      decoration-bf="check_reposition == True or state_reposition == 'paid'"
+                                      decoration-success="state_reposition == 'paid'"
+                                      create="false">
                                     <field name="date" readonly="1"/>
                                     <field name="type_voucher" readonly="1"/>
                                     <field name="concept" readonly="1"/>
                                     <field name="amount_total" readonly="1"/>
-                                    <field name="check_reposition"
-                                           attrs="{'readonly':[('state_reposition','==','paid')]}"/>
+                                    <field name="check_reposition"/>
                                     <field name="state_reposition" readonly="1"/>
                                 </tree>
                             </field>
