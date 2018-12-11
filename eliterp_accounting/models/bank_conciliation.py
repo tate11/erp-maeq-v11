@@ -258,6 +258,15 @@ class BankConciliation(models.Model):
                 raise UserError("No se puede borrar una conciliación validada.")
         return super(BankConciliation, self).unlink()
 
+    @api.onchange('select_all')
+    def _onchange_select_all(self):
+        """
+        Seleccionamos o no todos los registros
+        :return:
+        """
+        for line in self.lines_banks_move:
+            line.update({'check': self.select_all})
+
     name = fields.Char('No. Documento', default='Nueva conciliación')
     bank_id = fields.Many2one('res.bank', string="Banco", domain=[('type_use', '=', 'payments')], required=True)
     account_id = fields.Many2one('account.account', related='bank_id.account_id', store=True)
@@ -278,3 +287,4 @@ class BankConciliation(models.Model):
                              default='draft')
     notes = fields.Text('Notas', readonly=True, states={'draft': [('readonly', False)]})
     code = fields.Char('Código', size=6, required=True)  # Para no crear dos conciliaciones del mismo mes
+    select_all = fields.Boolean('Seleccionar todos?', default=False)

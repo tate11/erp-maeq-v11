@@ -55,13 +55,7 @@ class AccountInvoice(models.Model):
             description,
             self.env['account.journal'].search([('name', '=', 'Nota de crédito')], limit=1)[0].id
         )
-        credit_note.with_context(credit_note=True).compute_taxes()
-        # TODO: Eliminamos las líneas de impuestos de la retención
-        for line in self.withhold_id.lines_withhold:
-            self.env['account.invoice.tax'].search([
-                ('invoice_id', '=', credit_note.id),
-                ('account_id', '=', line.tax_id.account_id.id)
-            ]).unlink()
+        credit_note.tax_line_ids.filtered(lambda x: x.tax_id.tax_type == 'retention').unlink() # Borramos impuestos de retención
         credit_note.write({
             'invoice_reference': self.id,
             'origin': self.invoice_number
