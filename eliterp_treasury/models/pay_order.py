@@ -76,7 +76,7 @@ class PayWizard(models.TransientModel):
                                              'amount': line.amount_payable,
                                              'pay_order_line_id': line.id,
                                              'is_check': True if self.type_egress == 'bank' else False}])
-                    line.update({'selected': False})  # Le quitamos la selección
+                    line.update({'selected': False, 'amount_payable': 0})  # Le quitamos la selección
             vals.update({
                 'origin': adq.name,
                 'advance_payment_id': adq.id,
@@ -94,7 +94,7 @@ class PayWizard(models.TransientModel):
                                              'amount': line.amount_payable,
                                              'pay_order_line_id_rc': line.id,
                                              'is_check': True if self.type_egress == 'bank' else False}])
-                    line.update({'selected': False})
+                    line.update({'selected': False, 'amount_payable': 0})
             vals.update({
                 'origin': rc.move_id.name,
                 'payslip_run_id': rc.id,
@@ -1005,18 +1005,19 @@ class PayslipRun(models.Model):
         }
 
     @api.one
-    @api.depends('flag_change', 'lines_payslip_run.selected', 'lines_pay_order')
+    @api.depends('flag_change', 'lines_payslip_run.selected', 'lines_pay_order.state')
     def _get_customize_amount(self):
         """
         Obtenemos estado de OP
         """
-        pays = self.lines_pay_order.filtered(lambda x: not x.state == 'cancel')
+        pays = self.lines_pay_order.filtered(lambda x: x.state == 'paid')
         if not pays:
             self.state_pay_order = 'generated'
         else:
             total = 0.00
             for pay in pays:
                 total += round(pay.amount, 2)
+            self.improved_pay_order = total
             self.residual_pay_order = round(self.total - total, 2)
             if float_is_zero(self.residual_pay_order, precision_rounding=0.01):
                 self.state_pay_order = 'paid'
