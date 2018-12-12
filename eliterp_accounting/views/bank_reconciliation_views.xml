@@ -93,7 +93,7 @@
                                     <field name="select_all"
                                            nolabel="1"/>
                                     <span>
-                                        <b>Si desea seleccionar todos de check aquí.</b>
+                                        <b>Seleccionar todos de check aquí.</b>
                                     </span>
                                 </div>
                             </group>
