@@ -288,7 +288,7 @@
                         <field name="select_all"
                                nolabel="1"/>
                         <span>
-                            <b>Si desea seleccionar todos de check aquí.</b>
+                            <b>Seleccionar todos de check aquí.</b>
                         </span>
                     </div>
                 </group>
@@ -370,16 +370,26 @@
                         attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}"
                         class="oe_highlight"/>
             </xpath>
+            <xpath expr="//field[@name='approval_user']" position="after">
+                <field name="total_pay_order"
+                       attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}"/>
+            </xpath>
             <xpath expr='//sheet/group[2]' position="after">
-                <group attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}">
-                    <div class="o_row">
-                        <field name="select_all"
-                               nolabel="1"/>
-                        <span>
-                            <b>Si desea seleccionar todos de check aquí.</b>
-                        </span>
-                    </div>
-                    <field name="total_pay_order" invisible="1"/>
+                <group>
+                    <group attrs="{'invisible':['|', ('state','!=', 'closed'), ('state_pay_order', '=', 'paid')]}">
+                        <div class="o_row">
+                            <field name="select_all"
+                                   nolabel="1"/>
+                            <span>
+                                <b>Seleccionar todos de check aquí.</b>
+                            </span>
+                        </div>
+                    </group>
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="total"/>
+                        <field name="improved_pay_order" string="(-) Pagado"/>
+                        <field name="residual_pay_order" string="Saldo" class="oe_subtotal_footer_separator"/>
+                    </group>
                 </group>
             </xpath>
             <!--Líneas de roles-->
