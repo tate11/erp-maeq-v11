@@ -319,9 +319,6 @@ class AccountVoucher(models.Model):
         elif type == 'credit_card':
             sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.credit.card')
             move_name = 'Egreso/T. Crédito No. ' + sequence
-        elif type == 'debit_note':
-            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.debit.note')
-            move_name = 'Egreso/N. Débito No. ' + sequence
         else:
             sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.transfer')
             move_name = 'Egreso/Transferencia No. ' + sequence
@@ -341,7 +338,7 @@ class AccountVoucher(models.Model):
             if self.type_egress == 'bank':  # Soló con cheques y generamos el consecutivo
                 if self.bank_id.check_sequence_id:
                     self.bank_id.check_sequence_id.next_by_id()
-                self._check_check_number() # Verificamos cheque
+                self._check_check_number()  # Verificamos cheque
                 self.env['eliterp.checks'].create({
                     'partner_id': self.partner_id.id if self.partner_id else False,
                     'name': self.check_number,
@@ -778,7 +775,7 @@ class AccountVoucher(models.Model):
             if check:
                 raise ValidationError("Ya existe un cheque "
                                       "registrado para el banco %s con ese número (%s)." % (
-                                      self.bank_id.name, self.check_number))
+                                          self.bank_id.name, self.check_number))
 
     def load_small_box(self):
         """
@@ -876,11 +873,10 @@ class AccountVoucher(models.Model):
                                  default=_default_journal)
 
     type_egress = fields.Selection([
-        ('cash', 'Efectivo'),
+        ('cash', 'Pagos varios'),
         ('bank', 'Cheque'),
         ('transfer', 'Transferencia'),
-        ('credit_card', 'Tarjeta de crédito'),
-        ('debit_note', 'Nota de débito')
+        ('credit_card', 'Tarjeta de crédito')
     ], string='Forma de pago', default='cash', required=True, track_visibility='onchange', readonly=True,
         states={'draft': [('readonly', False)]})
     beneficiary = fields.Char('Beneficiario', readonly=True, states={'draft': [('readonly', False)]},

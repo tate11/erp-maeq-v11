@@ -66,11 +66,6 @@
             <field name="code">account.voucher.purchase.credit.card</field>
             <field name="padding">7</field>
         </record>
-        <record model="ir.sequence" id="eliterp_sequence_voucher_purchase_debit_note">
-            <field name="name">Nota de débito/Comprobante</field>
-            <field name="code">account.voucher.purchase.debit.note</field>
-            <field name="padding">7</field>
-        </record>
         <record model="ir.sequence" id="eliterp_sequence_travel_allowance_request">
             <field name="name">Solicitud de viático</field>
             <field name="code">travel.allowance.request</field>
