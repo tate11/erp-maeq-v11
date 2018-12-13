@@ -57,7 +57,7 @@ class BankConciliationWizard(models.TransientModel):
             )
         else:
             last_conciliation = conciliation_ids[-1]
-            beginning_balance = last_conciliation.total
+            beginning_balance = last_conciliation.amount_account  # Saldo banco anterior
             for line in last_conciliation.lines_banks_move:
                 if not line.check:
                     move_lines.append([0, 0, {'move_line_id': line.move_line_id.id}])
