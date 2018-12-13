@@ -204,7 +204,7 @@
                             <field name="account_credit_id" attrs="{'readonly':[('state','==','posted')]}"
                                    options="{'no_create': True}"/>
                             <field name="amount_transfer" attrs="{'readonly':[('state', '==', 'posted')]}"/>
-                            <field name="move_id" attrs="{'invisible':[('state', '=', 'draft')]}"/>
+                            <field name="move_id" attrs="{'invisible':[('state', '=', 'draft')]}" readonly="1"/>
                             <field name="journal_id" invisible="1"/>
                             <field name="payment_method_id" invisible="1"/>
                             <field name="payment_type" invisible="1"/>
