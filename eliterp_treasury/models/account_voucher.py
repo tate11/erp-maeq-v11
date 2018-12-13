@@ -697,6 +697,14 @@ class AccountVoucher(models.Model):
                 })
             return self.update({'lines_invoice_sales': list_invoices})
 
+    @api.multi
+    def unlink(self):
+        for voucher in self:
+            if voucher.state != 'draft':
+                raise ValidationError('No se puede eliminar comprobantes distintos de borrador.')
+        return super(AccountVoucher, self).unlink()
+
+
     @api.onchange('partner_id', 'pay_now')
     def _onchange_partner_id(self):
         """
