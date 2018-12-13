@@ -2598,13 +2598,24 @@
         <report
                 id="eliterp_action_report_payslip_run_xlsx"
                 model="hr.payslip.run"
-                string="Rol Consolidado EXCEL"
+                string="Rol consolidado"
                 report_type="xlsx"
                 name="eliterp_hr.eliterp_report_payslip_run_xlsx"
                 file="eliterp_hr.eliterp_report_payslip_run_xlsx"
-                print_report_name="Rol Consolidado"
+                print_report_name="Rol consolidado"
                 attachment_use="False"
         />
+        <report
+                id="eliterp_action_report_payslip_run_pays_xlsx"
+                model="hr.payslip.run"
+                string="Rol consolidado - Pagos"
+                report_type="xlsx"
+                name="eliterp_hr.eliterp_report_payslip_run_pays_xlsx"
+                file="eliterp_hr.eliterp_report_payslip_run_pays_xlsx"
+                print_report_name="Rol consolidado - Pagos"
+                attachment_use="False"
+        />
+
         <!--Reporte Rol Anticipo (Excel)-->
         <report
                 id="eliterp_action_report_payslip_xlsx"
