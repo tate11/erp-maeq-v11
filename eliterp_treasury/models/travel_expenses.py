@@ -313,7 +313,7 @@ class TravelAllowanceRequestPayOrder(models.Model):
     state_pay_order = fields.Selection([
         ('generated', 'Sin abonos'),
         ('partial_payment', 'Abono parcial'),
-        ('paid', 'Cerrado'),
+        ('paid', 'Pagado'),
     ], default='generated', string="Estado de pago", compute='_get_customize_amount', readonly=True, copy=False,
         store=True)
     improved_pay_order = fields.Float('Abonado OP', compute='_get_customize_amount', store=True)
