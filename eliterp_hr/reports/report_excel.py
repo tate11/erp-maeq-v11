@@ -16,6 +16,13 @@ CENTENAS = (
     'Ciento ', 'Doscientos ', 'Trescientos ', 'Cuatrocientos ', 'Quinientos ', 'Seiscientos ', 'Setecientos ',
     'Ochocientos ', 'Novecientos ')
 
+TYPE_EGRESS = {
+    'cash': 'Efectivo',
+    'bank': 'Cheque',
+    'transfer': 'Transferencia',
+    'credit_card': 'Tarjeta de crédito'
+}
+
 
 class ConsolidatedRole(models.AbstractModel):
     _name = 'report.eliterp_hr.eliterp_report_payslip_run_xlsx'
@@ -23,7 +30,7 @@ class ConsolidatedRole(models.AbstractModel):
 
     def generate_xlsx_report(self, workbook, data, records):
         for record in records:
-            sheet = workbook.add_worksheet('Rol Consolidado')
+            sheet = workbook.add_worksheet('Rol consolidado')
             # Formatos
             _right_format = workbook.add_format({'align': 'right', 'num_format': '$#,##0.00'})
             title = workbook.add_format({
@@ -155,13 +162,77 @@ class ConsolidatedRole(models.AbstractModel):
             sheet.write(row, 23, total, _right_format)
 
 
+class ConsolidatedRolePays(models.AbstractModel):
+    _name = 'report.eliterp_hr.eliterp_report_payslip_run_pays_xlsx'
+    _inherit = 'report.report_xlsx.abstract'
+
+    def generate_xlsx_report(self, workbook, data, records):
+        for record in records:
+            sheet = workbook.add_worksheet('Rol consolidado')
+            # Formatos
+            _right_format = workbook.add_format({'align': 'right', 'num_format': '$#,##0.00'})
+            title = workbook.add_format({
+                'bold': True,
+                'border': 1,
+                'align': 'center'
+            })
+            sheet.merge_range('A1:E1', 'Rol consolidado (Pagos)', title)
+            _bold = workbook.add_format({
+                'align': 'center',
+                'bold': True,
+                'bg_color': '#D3D3D3',
+                'border': 1
+            })
+            bold = workbook.add_format({'bold': 1})
+            # Columnas
+            sheet.set_column("A:A", 45)
+            sheet.set_column("B:B", 15)
+            sheet.set_column("C:C", 45)
+            sheet.set_column("D:D", 15)
+            sheet.set_column("E:E", 15)
+            # Datos Principal
+            sheet.write(2, 0, "EMPLEADO", _bold)
+            sheet.write(2, 1, "C.I.", _bold)
+            sheet.write(2, 2, "T. INGRESOS", _bold)
+            sheet.write(2, 3, "T. EGRESOS", _bold)
+            sheet.write(2, 4, "NETO A RECIBIR", _bold)
+            row = 3
+            sheet.autofilter('A3:E3')
+            for line in record.lines_payslip_run:
+                sheet.write(row, 0, line.name)
+                sheet.write(row, 1, line.identification_id)
+                sheet.write(row, 2, line.total_income, _right_format)
+                sheet.write(row, 3, line.total_expenses, _right_format)
+                sheet.write(row, 4, line.net_receive, _right_format)
+                row += 1
+                sheet.write(row, 1, "F. PAGO", bold)
+                sheet.write(row, 2, "BANCO", bold)
+                sheet.write(row, 3, "NO. CHEQUE", bold)
+                sheet.write(row, 4, "MONTO", bold)
+                row += 1
+                for pay in record.lines_pay_order.filtered(lambda x: x.state == 'paid'):
+                    employee_pays = pay.lines_employee.filtered(lambda x: x.employee_id == line.role_id.employee_id)
+                    for line_ in employee_pays:
+                        if pay.voucher_id:
+                            voucher = pay.voucher_id
+                        else:
+                            voucher = line_.voucher_id
+                        sheet.write(row, 1, TYPE_EGRESS[voucher.type_egress].upper())
+                        sheet.write(row, 2,
+                                    voucher.bank_id.name if voucher.type_egress in ('bank', 'transfer') else '-')
+                        sheet.write(row, 3, voucher.check_number if voucher.type_egress == 'bank' else '-')
+                        sheet.write(row, 4, line_.amount, _right_format)
+                        row += 1
+                row += 1
+
+
 class AdvancePayment(models.AbstractModel):
     _name = 'report.eliterp_hr.eliterp_report_payslip_xlsx'
     _inherit = 'report.report_xlsx.abstract'
 
     def generate_xlsx_report(self, workbook, data, records):
         for record in records:
-            sheet = workbook.add_worksheet('Rol Consolidado')
+            sheet = workbook.add_worksheet('Anticipo de quincena')
             # Formatos
             _right_format = workbook.add_format({'align': 'right', 'num_format': '$#,##0.00'})
             title = workbook.add_format({
@@ -180,12 +251,12 @@ class AdvancePayment(models.AbstractModel):
             sheet.set_column("H:H", 7.4)
             # Datos Principal
             sheet.write(2, 0, "Empleado")
-            sheet.write(2, 1, "No. Ident.")
+            sheet.write(2, 1, "C.I.")
             sheet.write(2, 2, "Cargo")
             sheet.write(2, 3, "Fecha ingreso")
             sheet.write(2, 4, "Días")
             sheet.write(2, 5, "Monto")
-            sheet.write(2, 6, "Moviliz.")
+            sheet.write(2, 6, "Movilización")
             sheet.write(2, 7, "Total")
             row = 3
             sheet.autofilter('A3:H3')
