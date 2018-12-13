@@ -145,6 +145,8 @@
             <field name="model">eliterp.withhold</field>
             <field name="arch" type="xml">
                 <tree
+                        decoration-success="state == 'confirm'"
+                        decoration-bf="state == 'confirm'"
                         decoration-info="state=='draft'"
                         decoration-muted="state=='cancel'"
                         default_order='date_withhold desc'>
@@ -226,8 +228,10 @@
             <field name="model">eliterp.withhold</field>
             <field name="arch" type="xml">
                 <tree decoration-info="state=='draft'"
+                      decoration-success="state == 'confirm'"
+                      decoration-bf="state == 'confirm'"
                       decoration-danger="state=='cancel'"
-                      default_order='create_date desc'>
+                      default_order='date_withhold desc'>
                     <field name="name" string="Documento"/>
                     <field name="withhold_number"/>
                     <field name="date_withhold"/>

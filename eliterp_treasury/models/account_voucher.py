@@ -881,7 +881,7 @@ class AccountVoucher(models.Model):
                                  default=_default_journal)
 
     type_egress = fields.Selection([
-        ('cash', 'Pagos varios'),
+        ('cash', 'Efectivo'),
         ('bank', 'Cheque'),
         ('transfer', 'Transferencia'),
         ('credit_card', 'Tarjeta de crédito')
