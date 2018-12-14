@@ -290,12 +290,12 @@ class TravelAllowanceRequestPayOrder(models.Model):
         }
 
     @api.one
-    @api.depends('flag_change', 'lines_pay_order')
+    @api.depends('flag_change', 'lines_pay_order.state')
     def _get_customize_amount(self):
         """
         Calculamos el estado de las ordenes
         """
-        pays = self.lines_pay_order.filtered(lambda x: not x.state == 'cancel')
+        pays = self.lines_pay_order.filtered(lambda x: x.state == 'paid')
         if not pays:
             self.state_pay_order = 'generated'
             self.residual_pay_order = self.amount_total
