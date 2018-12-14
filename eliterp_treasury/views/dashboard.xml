@@ -65,6 +65,61 @@
                 </search>
             </field>
         </record>
+
+        <!--Viáticos-->
+        <record id="eliterp_view_search_travel_allowance_request" model="ir.ui.view">
+            <field name="name">eliterp_view_search_travel_allowance_request</field>
+            <field name="model">eliterp.travel.allowance.request</field>
+            <field name="arch" type="xml">
+                <search string="Buscar en...">
+                    <field name="name" string="No. Documento"/>
+                    <field name="beneficiary" filter_domain="['|', ('beneficiary','ilike',self), ('create_uid','ilike',self)]"/>
+                    <separator/>
+                    <filter name="approve" string="Aprobadas" domain="[('state','=','approve')]"/>
+                    <filter name="liquidated" string="Liquidadas" domain="[('state', '=', 'liquidated')]"/>
+                    <separator/>
+                    <filter name="month" string="Este mes"
+                            domain="[
+                                '&amp;',
+                                ('application_date', '>=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('application_date', '&lt;=', (context_today() + relativedelta(months=1, day=1, days=-1)).strftime('%Y-%m-%d')),
+                            ]"/>
+                    <group expand="1" string="Agrupar por">
+                        <filter string="Beneficiario" name="groupby_beneficiary" domain="[]"
+                                context="{'group_by': 'beneficiary'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="eliterp_view_search_liquidation_settlement" model="ir.ui.view">
+            <field name="name">eliterp_view_search_liquidation_settlement</field>
+            <field name="model">eliterp.liquidation.settlement</field>
+            <field name="arch" type="xml">
+                <search string="Buscar en...">
+                    <field name="name" string="No. Documento"
+                           filter_domain="['|', ('name','ilike',self), ('travel_allowance_request_id','ilike',self)]"/>
+                    <field name="beneficiary"/>
+                    <separator/>
+                    <filter name="approve" string="Aprobadas" domain="[('state','=','approve')]"/>
+                    <filter name="liquidated" string="Liquidadas" domain="[('state', '=', 'liquidated')]"/>
+                    <separator/>
+                    <filter name="month" string="Este mes"
+                            domain="[
+                                '&amp;',
+                                ('date', '>=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('date', '&lt;=', (context_today() + relativedelta(months=1, day=1, days=-1)).strftime('%Y-%m-%d')),
+                            ]"/>
+                    <group expand="1" string="Agrupar por">
+                        <filter string="Estado de pago" name="groupby_state_pay_order" domain="[]"
+                                context="{'group_by': 'state_pay_order'}"/>
+                        <filter string="Beneficiario" name="groupby_beneficiary" domain="[]"
+                                context="{'group_by': 'beneficiary'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <!--Acciones-->
         <record id="eliterp_action_voucher_sale" model="ir.actions.act_window">
             <field name="name">Cobros</field>
@@ -160,12 +215,14 @@
             <field name="res_model">eliterp.travel.allowance.request</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="eliterp_view_search_travel_allowance_request"/>
         </record>
         <record id="eliterp_action_liquidation_settlement" model="ir.actions.act_window">
             <field name="name">Liquidaciones de viático</field>
             <field name="res_model">eliterp.liquidation.settlement</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="eliterp_view_search_liquidation_settlement"/>
         </record>
 
 

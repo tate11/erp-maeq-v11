@@ -257,7 +257,7 @@
                                 <page string="Líneas de cuenta">
                                     <field name="lines_account" nolabel="1">
                                         <tree editable="bottom">
-                                            <field name="account_id"/>
+                                            <field name="account_id" required="1"/>
                                             <field name="amount"/>
                                         </tree>
                                     </field>
