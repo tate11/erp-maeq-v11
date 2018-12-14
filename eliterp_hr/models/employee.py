@@ -246,6 +246,10 @@ class Employee(models.Model):
         today = fields.Date.today()
         return self.env['eliterp.global.functions'].get_date_format_invoice(today)
 
+    @api.model
+    def _get_date_format(self):
+        return self.env['eliterp.global.functions'].get_date_format_invoice(self.equipment_history.date)
+
     @api.multi
     def imprimir_acta_delivery_equiment(self):
         """

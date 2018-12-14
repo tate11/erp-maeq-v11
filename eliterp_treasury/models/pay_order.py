@@ -1315,7 +1315,7 @@ class LiquidationSettlement(models.Model):
         """
         amount = sum(line.amount_total for line in
                      self.document_lines_without.filtered(lambda x: x.type_validation_without == "reimburse"))
-        pays = self.lines_pay_order.filtered(lambda x: not x.state == 'cancel')
+        pays = self.lines_pay_order.filtered(lambda x: x.state == 'paid')
         if not pays:
             self.state_pay_order = 'generated'
             self.residual_pay_order = amount
@@ -1330,6 +1330,19 @@ class LiquidationSettlement(models.Model):
             else:
                 self.state_pay_order = 'partial_payment'
 
+    @api.one
+    @api.depends('travel_allowance_request_id', 'difference')
+    def _compute_is_zero(self):
+        """
+        Conciliado
+        :return:
+        """
+        if self.travel_allowance_request_id:
+            if float_is_zero(self.difference, precision_rounding=0.01) and self.travel_allowance_request_id.state_pay_order == 'paid':
+                self.reconciled = True
+            else:
+                self.reconciled = False
+
     state_pay_order = fields.Selection([
         ('generated', 'Sin abonos'),
         ('partial_payment', 'Abono parcial'),
@@ -1340,6 +1353,7 @@ class LiquidationSettlement(models.Model):
     residual_pay_order = fields.Float('Saldo OP', compute='_get_customize_amount', store=True)
     lines_pay_order = fields.One2many('eliterp.pay.order', 'liquidation_settlement_id', string='Órdenes de pago')
     flag_change = fields.Boolean('Bandera de cambio?')
+    reconciled = fields.Boolean(compute='_compute_is_zero', store=True)
 
     @api.multi
     def _compute_pay_orders_count(self):

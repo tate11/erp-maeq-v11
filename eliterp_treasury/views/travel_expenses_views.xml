@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <tree
                         decoration-info="state == 'draft'"
-                        decoration-success="state == 'approve'"
-                        decoration-bf="state == 'approve'"
+                        decoration-success="state == 'liquidated'"
+                        decoration-bf="state == 'liquidated'"
                         decoration-muted="state == 'deny'"
                         default_order='application_date desc'>
                     <field name="name"/>
@@ -188,7 +188,7 @@
                             <field name="document_lines_without"
                                    attrs="{'readonly':[('state', '==', 'liquidated')]}"
                                    nolabel="1">
-                                <tree editable="bottom">
+                                <tree editable="bottom" decoration-muted="type_validation_without == 'charge'">
                                     <field name="type_voucher"/>
                                     <field name="invoice_id"
                                            attrs="{'required':[('type_voucher', '=', 'invoice')], 'readonly':[('type_voucher', '=', 'vale')]}"

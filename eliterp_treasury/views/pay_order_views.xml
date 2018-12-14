@@ -555,11 +555,12 @@
                 </div>
             </xpath>
             <xpath expr="//button[@name='liquidate']" position="before"><!--Imprimir SV-->
+                <field name="reconciled" invisible="1"/>
                 <field name="state_pay_order" invisible="1"/>
                 <button name="generate_request" string="Generar orden de pago"
                         type="object"
                         attrs="{'invisible':['|', '|', ('state','!=', 'liquidated'),
-                        ('with_request','=', True),
+                        ('reconciled','=', True),
                         ('state_pay_order', '=', 'paid')]}"
                         class="oe_highlight"/>
             </xpath>
@@ -571,10 +572,13 @@
         <field name="inherit_id" ref="eliterp_treasury.eliterp_view_tree_liquidation_settlement"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="after"><!--Estado-->
+                <field name="reconciled" invisible="1"/>
                 <button name="generate_request"
                         type='object'
                         string="Generar orden de pago"
-                        attrs="{'invisible':['|', ('state','!=', 'liquidated'), ('state_pay_order', '=', 'paid')]}"
+                        attrs="{'invisible':['|', '|', ('state','!=', 'liquidated'),
+                        ('reconciled','=', True),
+                        ('state_pay_order', '=', 'paid')]}"
                         icon='fa-dollar'/>
                 <field name="state_pay_order"/>
             </xpath>

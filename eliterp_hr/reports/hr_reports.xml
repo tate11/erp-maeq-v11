@@ -1597,7 +1597,7 @@
                                 <span t-field="doc.commentary"/>
                                 <br/>
                                 Fecha:
-                                <span t-esc="doc._get_date_formattoday()"/>
+                                <span t-esc="doc._get_date_format()"/>
                                 <br/>
                             </p>
                             <p class="parrafomemo1">
@@ -1746,7 +1746,7 @@
                                 <span t-field="doc.commentary"/>
                                 <br/>
                                 Fecha:
-                                <span t-esc="doc._get_date_formattoday()"/>
+                                <span t-esc="doc._get_date_format()"/>
                                 <br/>
                                 <br/>
                                 <br/>
