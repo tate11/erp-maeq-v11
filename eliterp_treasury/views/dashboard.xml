@@ -73,7 +73,8 @@
             <field name="arch" type="xml">
                 <search string="Buscar en...">
                     <field name="name" string="No. Documento"/>
-                    <field name="beneficiary" filter_domain="['|', ('beneficiary','ilike',self), ('create_uid','ilike',self)]"/>
+                    <field name="beneficiary"
+                           filter_domain="['|', ('beneficiary','ilike',self), ('create_uid','ilike',self)]"/>
                     <separator/>
                     <filter name="approve" string="Aprobadas" domain="[('state','=','approve')]"/>
                     <filter name="liquidated" string="Liquidadas" domain="[('state', '=', 'liquidated')]"/>
@@ -120,6 +121,24 @@
             </field>
         </record>
 
+        <record id="view_search_voucher_sale" model="ir.ui.view">
+            <field name="name">view_search_voucher_sale</field>
+            <field name="model">account.voucher</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <filter string="Borrador" domain="[('state','=','draft')]"/>
+                    <filter string="Contabilizado" domain="[('state','=','posted')]"/>
+                    <field name="partner_id" string="Cliente" filter_domain="[('partner_id','child_of',self)]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Cliente" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="Fecha de emisión" domain="[]" context="{'group_by':'date'}"/>
+                        <filter string="Estado" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <!--Acciones-->
         <record id="eliterp_action_voucher_sale" model="ir.actions.act_window">
             <field name="name">Cobros</field>
@@ -128,7 +147,7 @@
             <field name="view_mode">tree,form</field>
             <field name="domain">[('voucher_type', '=', 'sale')]</field>
             <field name="context">{'default_voucher_type': 'sale', 'voucher_type': 'sale'}</field>
-            <field name="search_view_id" ref="account_voucher.view_voucher_filter_sale"/>
+            <field name="search_view_id" ref="view_search_voucher_sale"/>
         </record>
 
         <record id="eliterp_action_pay_order" model="ir.actions.act_window">

@@ -198,6 +198,13 @@ class Bank(models.Model):
     padding = fields.Integer('Dígitos', default=6, help="Cantidad de dígitos en el talonario de la chequera")
     state_id = fields.Many2one("res.country.state", string='Provincia')
     code = fields.Char('Código', size=2, help='Campo qué sirve para generación de archivo SAT.', copy=False)
+    transfer_sequence_id = fields.Many2one('ir.sequence', 'Secuencia de transferencia', copy=False)
+    exit_code = fields.Char('Código de egreso', help='Código para identificación en egresos (Cheques, Transferencias).',
+                            size=3)
+
+    _sql_constraints = [
+        ('code_exit_code', 'unique (exit_code)', "El código de egreso es único!")
+    ]
 
 
 class AssetAsset(models.Model):

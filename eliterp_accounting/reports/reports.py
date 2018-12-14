@@ -485,123 +485,6 @@ class FinancialSituationReport(models.TransientModel):
     end_date = fields.Date('Fecha fin', required=True)
 
 
-class StatusResultsReportXlsx(models.AbstractModel):
-    _name = 'report.eliterp_accounting.eliterp_report_result_xlsx'
-
-    _inherit = 'report.report_xlsx.abstract'
-
-    def generate_xlsx_report(self, workbook, data, context):
-        object = self.env['report.eliterp_accounting.eliterp_report_status_results']
-        lines_4 = sorted(object._get_lines(context, '4'), key=lambda k: int(k['code'].replace('.', '')))
-        lines_5 = sorted(object._get_lines(context, '5'), key=lambda k: int(k['code'].replace('.', '')))
-        sheet = workbook.add_worksheet('Estado de resultados')
-        # Columnas
-        sheet.set_column("A:A", 15)
-        sheet.set_column("B:B", 50)
-        sheet.set_column("C:C", 10)
-        sheet.set_column("D:D", 15)
-        sheet.autofilter('A3:D3')
-        # Formatos
-        title = workbook.add_format({
-            'bold': True,
-            'border': 1
-        })
-        heading = workbook.add_format({
-            'bold': True,
-            'bg_color': '#D3D3D3',
-            'align': 'center',
-            'border': 1
-        })
-        heading_1 = workbook.add_format({
-            'bold': True,
-            'font_size': 11
-        })
-        heading_1_number = workbook.add_format({
-            'bold': True,
-            'font_size': 11,
-            'num_format': '#,##0.00'
-        })
-        heading_2 = workbook.add_format({
-            'font_size': 9,
-            'bold': True,
-        })
-        heading_2_number = workbook.add_format({
-            'font_size': 9,
-            'bold': True,
-            'num_format': '#,##0.00'
-        })
-        heading_3 = workbook.add_format({
-            'font_size': 8,
-        })
-        heading_3_number = workbook.add_format({
-            'font_size': 8,
-            'num_format': '#,##0.00'
-        })
-        # Formatos de celda
-        sheet.write('A1', 'ESTADO DE RESULTADOS', title)
-        columns = [
-            'CÓDIGO', 'NOMBRE DE CUENTA', 'TIPO', 'BALANCE'
-        ]
-        row = 2
-        col = 0
-        for column in columns:
-            sheet.write(row, col, column, heading)
-            col += 1
-        # 4
-        row += 1
-        for line in lines_4:
-            if line['type'] == 'principal':
-                sheet.write(row, 0, line['code'], heading_1)
-                sheet.write(row, 1, line['name'], heading_1)
-                sheet.write(row, 3, line['amount'], heading_1_number)
-                row += 1
-            else:
-                sheet.write(row, 0, line['code'], heading_2)
-                sheet.write(row, 1, line['name'], heading_2)
-                sheet.write(row, 2, 'VISTA', heading_2)
-                sheet.write(row, 3, line['amount'], heading_2_number)
-                if line['subaccounts']:
-                    for lsb in line['subaccounts']:
-                        row += 1
-                        sheet.write(row, 0, lsb['code'], heading_3)
-                        sheet.write(row, 1, lsb['name'], heading_3)
-                        sheet.write(row, 2, 'MOVIMIENTO', heading_3)
-                        sheet.write(row, 3, lsb['amount'], heading_3_number)
-                row += 1
-        # 5
-        for line in lines_5:
-            if line['type'] == 'principal':
-                sheet.write(row, 0, line['code'], heading_1)
-                sheet.write(row, 1, line['name'], heading_1)
-                sheet.write(row, 3, line['amount'], heading_1_number)
-                row += 1
-            else:
-                sheet.write(row, 0, line['code'], heading_2)
-                sheet.write(row, 1, line['name'], heading_2)
-                sheet.write(row, 2, 'VISTA', heading_2)
-                sheet.write(row, 3, line['amount'], heading_2_number)
-                if line['subaccounts']:
-                    for lsb in line['subaccounts']:
-                        row += 1
-                        sheet.write(row, 0, lsb['code'], heading_3)
-                        sheet.write(row, 1, lsb['name'], heading_3)
-                        sheet.write(row, 2, 'MOVIMIENTO', heading_3)
-                        sheet.write(row, 3, lsb['amount'], heading_3_number)
-                row += 1
-        row += 1
-        amount_total = lines_4[0]['amount'] - lines_5[0]['amount']
-        heading_result_number = workbook.add_format({
-            'bold': True,
-            'font_size': 11,
-            'num_format': '#,##0.00',
-            'bg_color': 'red'
-        })
-        if amount_total > 0:
-            sheet.write(row, 3, amount_total, heading_1)
-        else:
-            sheet.write(row, 3, amount_total, heading_result_number)
-
-
 class StatusResultsReportPdf(models.AbstractModel):
     _name = 'report.eliterp_accounting.eliterp_report_status_results'
 
@@ -704,15 +587,42 @@ class StatusResultsReportPdf(models.AbstractModel):
                     })
                     accounts[index]['amount'] = accounts[index]['amount'] + self._get_balance(account, type, doc)
         accounts = self._update_amount(accounts)
+        if type == '4':
+            TOTALS.append({'total_income': accounts[0]['amount']})
+        else:
+            TOTALS.append({'total_spends': accounts[0]['amount']})
         return accounts
+
+    @staticmethod
+    def _get_total_exercise():
+        """
+        Total del ejercicio buscado
+        :return: float
+        """
+        return TOTALS[0]['total_income'] - TOTALS[1]['total_spends']
+
+    @staticmethod
+    def _get_result():
+        """
+        Si existen ganancias o pérdidas en período buscado
+        :return: boolean
+        """
+        if TOTALS[0]['total_income'] - TOTALS[1]['total_spends'] >= 0:
+            return True
+        else:
+            return False
 
     @api.model
     def get_report_values(self, docids, data=None):
+        global TOTALS  # Variable para valores totales
+        TOTALS = []
         return {
             'doc_ids': docids,
             'doc_model': 'eliterp.status.results.report',
             'docs': self.env['eliterp.status.results.report'].browse(docids),
             'get_lines': self._get_lines,
+            'get_total_exercise': self._get_total_exercise,
+            'get_result': self._get_result,
             'data': data,
         }
 
@@ -721,14 +631,6 @@ class StatusResultsReport(models.TransientModel):
     _name = 'eliterp.status.results.report'
 
     _description = "Ventana para reporte de estado de resultados"
-
-    @api.multi
-    def print_report_xlsx(self):
-        """
-        Imprimimos reporte en xlsx
-        """
-        self.ensure_one()
-        return self.env.ref('eliterp_accounting.eliterp_action_report_status_results_xlsx').report_action(self)
 
     @api.multi
     def print_report_pdf(self):
