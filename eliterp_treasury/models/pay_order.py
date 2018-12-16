@@ -215,11 +215,11 @@ class AccountVoucher(models.Model):
         if record._name == 'eliterp.pay.order':
             if float_is_zero(record.amount, precision_rounding=record.currency_id.rounding):
                 return
-            values['date'] = record.date
             values['voucher_type'] = 'purchase'
             values['pay_order_id'] = record.id
             values['type_egress'] = record.type_egress if record.type_egress != 'payment_various' else 'cash'
             values['bank_id'] = record.bank_id.id if record.bank_id else False
+            values['check_date'] = record.date if record.type_egress != 'payment_various' else False
             amount = record.amount - sum(l.amount if l.voucher_id else 0.00 for l in record.lines_employee)
             values['amount_cancel'] = amount
             lines_account = []
@@ -1338,7 +1338,8 @@ class LiquidationSettlement(models.Model):
         :return:
         """
         if self.travel_allowance_request_id:
-            if float_is_zero(self.difference, precision_rounding=0.01) and self.travel_allowance_request_id.state_pay_order == 'paid':
+            if float_is_zero(self.difference,
+                             precision_rounding=0.01) and self.travel_allowance_request_id.state_pay_order == 'paid':
                 self.reconciled = True
             else:
                 self.reconciled = False

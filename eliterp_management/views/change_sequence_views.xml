@@ -22,6 +22,15 @@
                                    domain="[('model_id', '=', model_id), ('ttype', 'in', ['date', 'datetime'])]"
                                    options="{'no_create': True, 'no_open': True}"/>
                             <field name="type_ordering" widget="radio"/>
+                            <!--Campos tipo-->
+                            <field name="model" invisible="1"/>
+                            <field name="payment_type_customize"
+                                   attrs="{'invisible': [('model', '!=', 'account.payment')]}"/>
+                            <field name="retention_type" attrs="{'invisible': [('model', '!=', 'eliterp.withhold')]}"/>
+                            <field name="invoice_type" attrs="{'invisible': [('model', '!=', 'account.invoice')]}"/>
+                            <field name="voucher_type" attrs="{'invisible': [('model', '!=', 'account.voucher')]}"/>
+                            <field name="type_egress" attrs="{'invisible': [('model', '!=', 'account.voucher')]}"/>
+
                         </group>
                     </sheet>
                 </form>

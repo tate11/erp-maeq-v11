@@ -195,7 +195,7 @@ class Contract(models.Model):
         Activamos contrato
         """
         number = self.env['ir.sequence'].next_by_code('hr.contract')
-        new_name = "CT-%s-%s-%s" % (self.date_start[:4], self.date_start[5:7], str(number))  # Nuevo nombre de contrato
+        new_name = "RHCI-%s-%s-%s" % (self.date_start[:4], self.date_start[5:7], str(number))  # Nuevo nombre de contrato
         return self.write({
             'name': new_name,
             'state_customize': 'active'

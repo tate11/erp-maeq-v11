@@ -146,7 +146,7 @@
                     <separator/>
                     <filter name="delivered" string="Entregado" domain="[('state', '=', 'delivered')]"/>
                     <filter name="charged" string="Debitado" domain="[('state', '=', 'charged')]"/>
-                    <filter name="protested" string="Anulado" domain="[('state', '=', 'cancel')]"/>
+                    <filter name="protested" string="Anulado" domain="[('state', '=', 'protested')]"/>
                     <separator/>
                     <filter name="reconcile" string="Conciliado" domain="[('reconcile', '=', True)]"/>
                     <group expand="1" string="Agrupar por">
