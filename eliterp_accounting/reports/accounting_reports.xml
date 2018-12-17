@@ -1190,12 +1190,22 @@
         </template>
         <report
                 id="eliterp_action_report_status_results"
-                model="eliterp.general.ledger.report"
+                model="eliterp.status.results.report"
                 string="Estado de resultados"
                 report_type="qweb-pdf"
                 name="eliterp_accounting.eliterp_report_status_results"
                 file="eliterp_accounting.eliterp_report_status_results"
                 paperformat="eliterp_management.eliterp_paperformat_a4_portrait"
+        />
+        <report
+                id="eliterp_action_report_status_results_xlsx"
+                model="eliterp.status.results.report"
+                string="Estado de resultados"
+                report_type="xlsx"
+                name="eliterp_accounting.eliterp_report_result_xlsx"
+                file="eliterp_accounting.eliterp_report_result_xlsx"
+                print_report_name="Estado de resultados"
+                attachment_use="False"
         />
         <!--Reporte de libro mayor-->
         <template id="eliterp_report_general_ledger">
