@@ -50,7 +50,7 @@
                     <field name="date"/>
                     <field name="type_voucher"/>
                     <field name="beneficiary"/>
-                    <field name="amount_total"/>
+                    <field name="amount_total" sum="Total"/>
                     <field name="replacement_small_box_id" string="Referencia"/>
                     <field name="state"/>
                 </tree>

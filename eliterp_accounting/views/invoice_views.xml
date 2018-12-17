@@ -52,7 +52,7 @@
                         <field name="currency_id" invisible="1"/>
                         <field name="company_currency_id" invisible="1"/>
                         <field name="type" invisible="context.get('type',True)"/>
-                        <field name="state" invisible="1"/>
+                        <field name="state"/>
                     </tree>
                 </tree>
             </field>
