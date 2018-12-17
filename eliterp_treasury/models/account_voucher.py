@@ -305,6 +305,30 @@ class AccountVoucher(models.Model):
 
         return move_id
 
+    def _get_move_name(self):
+        """
+        COMPRAS: Obtenemos el nombre del asiento según nuevas especificaciones
+        :param type:
+        :param data:
+        """
+        string = "CEG-MQ"
+        if self.type_egress in ['cash', 'credit_card']:
+            year = self.date[:4]
+        else:
+            year = self.check_date[:4]
+            code = self.bank_id.exit_code
+        if self.type_egress == 'cash':
+            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.cash')
+            move_name = string + "EFC-" + year + "-" + sequence
+        elif self.type_egress == 'credit_card':
+            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.credit.card')
+            move_name = string + "TAR-" + year + "-" + sequence
+        elif self.type_egress == 'bank':
+            move_name = string + "-" + code + "-" + year + "-" + self.check_number
+        else:
+            move_name = string + "-" + code + "-" + year + "-" + self.bank_id.transfer_sequence_id.next_by_id()
+        return move_name
+
     def _get_names(self, type, check):
         """
         COMPRAS: Obtenemos el nombre del asiento y del registro
@@ -470,7 +494,7 @@ class AccountVoucher(models.Model):
                         line.update({'state_reposition': 'paid'})
                 self.custodian_id.replacement_small_box_id.update({'replacement_date': self.date})
             move_id.write({'ref': move_name})
-            new_name = self.journal_id.sequence_id.next_by_id()
+            new_name = self._get_move_name()
             move_id.with_context(eliterp_moves=True, move_name=new_name).post()
             # OC
             if self.type_pay == 'oc':
@@ -703,7 +727,6 @@ class AccountVoucher(models.Model):
             if voucher.state != 'draft':
                 raise ValidationError('No se puede eliminar comprobantes distintos de borrador.')
         return super(AccountVoucher, self).unlink()
-
 
     @api.onchange('partner_id', 'pay_now')
     def _onchange_partner_id(self):
