@@ -311,7 +311,7 @@ class AccountVoucher(models.Model):
         :param type:
         :param data:
         """
-        string = "CEG-MQ"
+        string = "CEG-MQ-"
         if self.type_egress in ['cash', 'credit_card']:
             year = self.date[:4]
         else:
@@ -324,9 +324,9 @@ class AccountVoucher(models.Model):
             sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.credit.card')
             move_name = string + "TAR-" + year + "-" + sequence
         elif self.type_egress == 'bank':
-            move_name = string + "-" + code + "-" + year + "-" + self.check_number
+            move_name = string + code + "-" + year + "-" + self.check_number
         else:
-            move_name = string + "-" + code + "-" + year + "-" + self.bank_id.transfer_sequence_id.next_by_id()
+            move_name = string + code + "-" + year + "-" + self.bank_id.transfer_sequence_id.next_by_id()
         return move_name
 
     def _get_names(self, type, check):
