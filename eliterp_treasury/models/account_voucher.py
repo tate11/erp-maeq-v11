@@ -329,23 +329,20 @@ class AccountVoucher(models.Model):
             move_name = string + code + "-" + year + "-" + self.bank_id.transfer_sequence_id.next_by_id()
         return move_name
 
-    def _get_names(self, type, check):
+    def _get_names(self, type, move):
         """
         COMPRAS: Obtenemos el nombre del asiento y del registro
         :param type:
         :param data:
         """
         if type == 'bank':
-            move_name = 'Egreso/Cheque No. ' + check
+            move_name = 'Egreso/Cheque No. ' + move
         elif type == 'cash':
-            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.cash')
-            move_name = 'Egreso/Efectivo No. ' + sequence
+            move_name = 'Egreso/Efectivo No. ' + move
         elif type == 'credit_card':
-            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.credit.card')
-            move_name = 'Egreso/T. Crédito No. ' + sequence
+            move_name = 'Egreso/T. Crédito No. ' + move
         else:
-            sequence = self.env['ir.sequence'].next_by_code('account.voucher.purchase.transfer')
-            move_name = 'Egreso/Transferencia No. ' + sequence
+            move_name = 'Egreso/Transferencia No. ' + move
         return move_name
 
     @api.multi
@@ -357,8 +354,6 @@ class AccountVoucher(models.Model):
                     raise ValidationError("Debe eliminar las líneas con monto menor a 0")
             if not self.line_employee_id:
                 self._check_pay_order_id()
-            # Creamos movimiento
-            move_name = self._get_names(self.type_egress, self.check_number)
             if self.type_egress == 'bank':  # Soló con cheques y generamos el consecutivo
                 if self.bank_id.check_sequence_id:
                     self.bank_id.check_sequence_id.next_by_id()
@@ -493,9 +488,10 @@ class AccountVoucher(models.Model):
                     if line.check_reposition:
                         line.update({'state_reposition': 'paid'})
                 self.custodian_id.replacement_small_box_id.update({'replacement_date': self.date})
-            move_id.write({'ref': move_name})
             new_name = self._get_move_name()
             move_id.with_context(eliterp_moves=True, move_name=new_name).post()
+            move_name = self._get_names(self.type_egress, new_name[16:])
+            move_id.write({'ref': move_name})
             # OC
             if self.type_pay == 'oc':
                 self.movement_voucher()  # Generamos Asiento diario por anticipo
